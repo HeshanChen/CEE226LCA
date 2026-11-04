@@ -31,7 +31,7 @@ Method: geometric estimate for a steel-framed transportation hub (7,250 m2) with
 RANGE_kgCO2e_per_m2: 45 - 110
 
 ===== KEY: project-257__run0 =====
-Method: area takeoff for a one-story warehouse (58,000 m2). The envelope of about 129,000 m2 likely includes roof plus slab (about 58,000 m2 each), leaving about 13,000 m2 of walls. Concrete lateral walls suggest insulated tilt-up panels (R-23.8), at about 80 kgCO2e/m2 for concrete, insulation and reinforcement, or about 1.0 MtCO2e... corrected: about 1,000 tCO2e. The roof is membrane over polyiso (R-30) at about 20 kgCO2e/m2, or about 1,160 tCO2e. Dock doors and minimal glazing add about 2 kgCO2e/m2. The total is about 2,200 tCO2e, or about 38-40 kgCO2e/m2. The range depends on whether tilt-up concrete is counted as enclosure or as structure.
+Method: area takeoff for a one-story warehouse (58,000 m2). The envelope of about 129,000 m2 likely includes roof plus slab (about 58,000 m2 each), leaving about 13,000 m2 of walls. Concrete lateral walls suggest insulated tilt-up panels (R-23.8) at about 80 kgCO2e/m2 for concrete, insulation and reinforcement, or about 1,000 tCO2e. The roof is membrane over polyiso (R-30) at about 20 kgCO2e/m2, or about 1,160 tCO2e. Dock doors and minimal glazing add about 2 kgCO2e/m2. The total is about 2,200 tCO2e, or about 38-40 kgCO2e/m2. The range depends on whether tilt-up concrete is counted as enclosure or as structure.
 RANGE_kgCO2e_per_m2: 20 - 50
 
 ===== KEY: project-115__run0 =====
