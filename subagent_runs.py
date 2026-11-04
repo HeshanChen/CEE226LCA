@@ -149,6 +149,46 @@ def cmd_prepare(args):
 
 
 # --------------------------------------------------------------------------------------
+# resume: new task files with only the buildings that have no answer yet (e.g. after an
+# interrupted subagent). Same prompt; answers go to answers/<task>_resume_part-P.md.
+# --------------------------------------------------------------------------------------
+def cmd_resume(args):
+    sd = sub_dir(args.run_name)
+    manifest = json.loads((sd / "manifest.json").read_text())
+    if manifest["settings"]["task_text"] != cfg.TASK_TEXT:
+        raise SystemExit("experiment_config.py no longer matches this run's prompt; set PROMPT_VERSION back.")
+    meta = cfg.load_metadata().set_index("project_index")
+    prefix = "\n\n".join(cfg.build_prefix())
+    answers = read_answers(sd)
+    made = []
+    for t in manifest["tasks"]:
+        keys = [k for k in t["keys"] if k not in answers]
+        if not keys:
+            continue
+        name = f"{t['task']}_resume"
+        blocks = [f"===== KEY: {k} =====\n"
+                  f"{cfg.build_building_prompt(cfg.format_building(meta.loc[int(k.split('__')[0].split('-')[1])]))}"
+                  for k in keys]
+        text = (f"# Task {name}  ({len(keys)} buildings, condition: {cfg.CONDITION})\n\n"
+                f"## System\n\n{cfg.SYSTEM_PROMPT}\n\n"
+                f"## Shared context (applies to every building below)\n\n{prefix}\n\n"
+                f"## Buildings\n\n" + "\n\n".join(blocks) + "\n")
+        path = sd / "tasks" / f"{name}.md"
+        path.write_text(text, encoding="utf-8")
+        instructions = cfg.SUBAGENT_INSTRUCTIONS.format(
+            task_file=path, n_lines=text.count("\n"), n_buildings=len(keys), example_key=keys[0],
+            answers_prefix=sd / "answers" / name, answer_length=cfg.ANSWER_LENGTH,
+            final_lines=cfg.FINAL_LINES, example_final=cfg.EXAMPLE_FINAL)
+        (sd / "tasks" / f"{name}.instructions.txt").write_text(instructions, encoding="utf-8")
+        made.append({"task": name, "keys": keys, "created": datetime.now().isoformat(timespec="seconds")})
+        print(f"{name}: {len(keys)} buildings, {text.count(chr(10)):,} lines")
+    manifest.setdefault("resumes", []).extend(made)
+    (sd / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
+    if not made:
+        print("Nothing to resume: every key has an answer.")
+
+
+# --------------------------------------------------------------------------------------
 # collect
 # --------------------------------------------------------------------------------------
 def read_answers(sd: Path) -> dict[str, str]:
@@ -221,8 +261,10 @@ def main():
     p.add_argument("--force", action="store_true")
     c = sp.add_parser("collect")
     c.add_argument("--run-name", required=True)
+    r = sp.add_parser("resume")
+    r.add_argument("--run-name", required=True)
     args = ap.parse_args()
-    {"prepare": cmd_prepare, "collect": cmd_collect}[args.cmd](args)
+    {"prepare": cmd_prepare, "collect": cmd_collect, "resume": cmd_resume}[args.cmd](args)
 
 
 if __name__ == "__main__":
