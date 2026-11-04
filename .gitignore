@@ -1,0 +1,21 @@
+# secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Large source data: download full_lca_results.xlsx from figshare (see GWP-calculation/sum_gwp_guide.md)
+GWP-calculation/full_lca_results.xlsx
+GWP-calculation/*.pkl
+
+# Background papers are publisher-copyrighted, so they are not re-hosted here.
+# Get them with: bash scripts/fetch_reference_pdfs.sh
+references/*.pdf
+
+# Regenerable per-run outputs (rebuilt by "subagent_runs.py collect" / Gemini batch files)
+results/*/raw/
+results/*/batch/
+
+# Subagent task files are regenerated exactly by "subagent_runs.py prepare" (fixed seeds)
+results/*/subagent/tasks/
