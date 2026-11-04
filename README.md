@@ -55,6 +55,10 @@ python LLM-data-cleaning.py 20261104_baseline-innate
 python make_fig1_bands.py 20261104_baseline-innate
 ```
 
+```bash
+python summarize_run.py 20261104_baseline-innate
+```
+
 ## Files
 
 | File | Purpose |
@@ -64,6 +68,7 @@ python make_fig1_bands.py 20261104_baseline-innate
 | `GWP-calculation/sum_gwp.py` | Filters `full_lca_results.xlsx` by element and stage, sums GWP, writes the ground truth |
 | `LLM-data-cleaning.py` | Per-project mean estimate, error, RMSE (course script) |
 | `make_fig1_bands.py` | ±20% band figure and inside/above/below counts (course script; ticks extended below 10) |
+| `summarize_run.py` | Proposal metrics (RMSE, MAPE, median APE, ±20% coverage, CV across runs), overall and by climate zone / primary use, plus `fig2_estimate_vs_truth.png` and `fig3_ratio_by_group.png` |
 | `results/ground_truth.csv` | Enclosure A1–A3 ground truth (with total GWP and floor area columns) |
 | `results/ground_truth_TA_wholebuilding_A-C.csv` | The course's whole-building A–C ground truth, kept for comparison |
 | `references/` | Building metadata (49 features), glossary, CLF practice guide, A–C benchmarks |
