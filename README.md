@@ -68,6 +68,7 @@ python summarize_run.py 20261104_baseline-innate
 | `GWP-calculation/sum_gwp.py` | Filters `full_lca_results.xlsx` by element and stage, sums GWP, writes the ground truth |
 | `LLM-data-cleaning.py` | Per-project mean estimate, error, RMSE (course script) |
 | `make_fig1_bands.py` | ±20% band figure and inside/above/below counts (course script; ticks extended below 10) |
+| `analysis/make_split.py`, `analysis/compare_runs.py` | Held-out dev/test split; metrics and paired tests (McNemar, Wilcoxon) per split |
 | `summarize_run.py` | Proposal metrics (RMSE, MAPE, median APE, ±20% coverage, CV across runs), overall and by climate zone / primary use, plus `fig2_estimate_vs_truth.png` and `fig3_ratio_by_group.png` |
 | `results/ground_truth.csv` | Enclosure A1–A3 ground truth (with total GWP and floor area columns) |
 | `results/ground_truth_TA_wholebuilding_A-C.csv` | The course's whole-building A–C ground truth, kept for comparison |
@@ -95,6 +96,10 @@ python summarize_run.py 20261104_baseline-innate
 | 1 | `20261104_prompt-v2` | Prompt v2 (scope matching the dataset, component take-off, named high-impact materials, no anchoring, renovation rule, BEST line), same model and features | 292 × 3 | 15.1% (11.4–19.6%) | 81.0 | 44.3% | **13.8%** |
 | 2 | `20261104_prompt-v3` | **Prompt v3 (final)**: v2 + external component-intensity table (`references/envelope_intensities_sources.md`), HFC-XPS modelling convention, per-envelope check, non-subtracting renovation rule, RANGE only | 292 × 3 | **25.0%** (20.4–30.3%) | **76.0** | 40.0% | **12.5%** |
 | 3 | | Feature study: full set vs. envelope-relevant subsets | | | | | |
+
+### Held-out test set
+
+`analysis/make_split.py` (seed 226) holds out 88 of the 292 projects as a test set, stratified by project type × climate group. On test: v1 20.5% coverage / RMSE 74.1, v2 18.2% / 75.7, **v3 26.1% / 69.2** (bias 0.86, CV 11.2%). The v1–v3 difference is not significant at n = 88 (McNemar p = 0.41). The split was assigned after the runs, and every finding behind the prompt revisions replicates on the 204 dev projects alone. See report Section 9 and `analysis/compare_*.md`.
 
 ### Baseline findings (iteration 0)
 

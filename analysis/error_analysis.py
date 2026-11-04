@@ -13,6 +13,7 @@ Writes:  analysis/error_analysis_<run1>[_vs_<run2>].md  (also printed)
 
 Usage:   python analysis/error_analysis.py 20261104_baseline-innate
          python analysis/error_analysis.py 20261104_baseline-innate 20261104_prompt-v2
+         python analysis/error_analysis.py --split dev 20261104_baseline-innate   (results/split.csv)
 """
 
 import re
@@ -36,8 +37,14 @@ MENTIONS = {"XPS": r"\bxps\b|extruded polystyrene", "HFC / blowing agent": r"\bh
             "mass_total": r"mass_total|total mass"}
 
 
-def load(run: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+SPLIT = ROOT / "results" / "split.csv"   # from analysis/make_split.py
+
+
+def load(run: str, split: str | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     d = sr.load(sr.RESULTS_ROOT / run)
+    if split:
+        keep = pd.read_csv(SPLIT).query("split == @split")["project_index"]
+        d = d[d["project_index"].isin(keep)]
     b = pd.read_csv(BREAKDOWN).set_index("project_index")
     m = pd.read_excel(METADATA).set_index("project_index")
     d = d.set_index("project_index")
@@ -47,7 +54,10 @@ def load(run: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     for f in (sr.RESULTS_ROOT / run / "raw").glob("project-*_run*.md"):
         texts.append({"project_index": int(re.search(r"project-(\d+)_", f.name).group(1)),
                       "text": f.read_text(encoding="utf-8").lower()})
-    return d, pd.DataFrame(texts)
+    t = pd.DataFrame(texts)
+    if split and len(t):
+        t = t[t["project_index"].isin(d.index)]
+    return d, t
 
 
 def med(s: pd.Series) -> float:
@@ -100,9 +110,10 @@ def diagnostics(d: pd.DataFrame, t: pd.DataFrame) -> dict:
     return out
 
 
-def main(runs: list[str]):
-    res = {r: diagnostics(*load(r)) for r in runs}
-    lines = [f"# Error analysis: {' vs '.join(runs)}", "",
+def main(runs: list[str], split: str | None = None):
+    res = {r: diagnostics(*load(r, split)) for r in runs}
+    tag = f" ({split} split)" if split else ""
+    lines = [f"# Error analysis: {' vs '.join(runs)}{tag}", "",
              "Enclosure A1–A3, kgCO2e/m² floor area; estimate = mean of run midpoints. "
              "est/true below 1 = underestimate.", ""]
     for section in res[runs[0]]:
@@ -114,13 +125,17 @@ def main(runs: list[str]):
                                                    for v in vals) + " |")
         lines.append("")
     text = "\n".join(lines)
-    out = ROOT / "analysis" / f"error_analysis_{'_vs_'.join(runs)}.md"
+    out = ROOT / "analysis" / f"error_analysis_{'_vs_'.join(runs)}{'_' + split if split else ''}.md"
     out.write_text(text, encoding="utf-8")
     print(text)
     print(f"Saved {out}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        raise SystemExit("Usage: python analysis/error_analysis.py <run> [<run2> ...]")
-    main(sys.argv[1:])
+    args = sys.argv[1:]
+    split = None
+    if args[:1] == ["--split"]:
+        split, args = args[1], args[2:]
+    if not args:
+        raise SystemExit("Usage: python analysis/error_analysis.py [--split dev|test] <run> [<run2> ...]")
+    main(args, split)

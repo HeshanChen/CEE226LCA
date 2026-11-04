@@ -3,7 +3,7 @@
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
 
-> Status: complete for prompts v1–v3 (3 runs × 292 buildings each). The final prompt is v3 (Appendix A, section E).
+> Status: complete for prompts v1–v3 (3 runs × 292 buildings each), including a held-out evaluation on 88 test buildings (Section 9). The final prompt is v3 (Appendix A, section E).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -31,7 +31,9 @@ Prompt v3 does exactly that (Section 8):
 - a per-envelope sanity check;
 - a renovation rule that no longer subtracts.
 
-**v3 is the final prompt.** Coverage is **25.0%** (v1 19.5%), RMSE 76.0, bias 0.86 and CV 12.5%. The improvement over v1 is consistent but borderline significant (McNemar p = 0.085, Wilcoxon p = 0.053); over v2 it is clearly significant (p = 0.002). The non-XPS part of the enclosure is now estimated without bias (0.99), and so are buildings whose envelope area is given (0.99). What remains is compression at the high end (buildings above 200 are at 0.38), more overestimation of light enclosures, and renovations.
+**v3 is the final prompt.** On all 292 buildings, coverage is **25.0%** (v1 19.5%), RMSE 76.0, bias 0.86 and CV 12.5%. The improvement over v1 is consistent but borderline significant (McNemar p = 0.085, Wilcoxon p = 0.053); over v2 it is clearly significant (p = 0.002). The non-XPS part of the enclosure is now estimated without bias (0.99), and so are buildings whose envelope area is given (0.99). What remains is compression at the high end (buildings above 200 are at 0.38), more overestimation of light enclosures, and renovations.
+
+**Held-out test set** (88 buildings, stratified split; Section 9). v3 reaches 26.1% coverage against 20.5% for v1, with RMSE 69.2 against 74.1, bias 0.86 against 0.75 and CV 11.2% against 19.2%. Its median log error is the same as v1's, and the v1–v3 difference is not significant at this size (McNemar p = 0.41). Every finding that motivated v2 and v3 replicates on the 204 dev buildings alone.
 
 ## 2. Data and ground truth
 
@@ -301,16 +303,69 @@ During run 2 a container restart interrupted the six subagents after 130 of the 
 
 **Final prompt.** v3 is the best of the three prompts by coverage, RMSE, bias, log error and consistency, and is the final prompt of this study (Appendix A, section E).
 
-## 9. Limitations and next steps
+## 9. Held-out evaluation
+
+**No suitable external dataset.** We looked for an independent dataset with the same structure (element-level enclosure A1–A3 results plus early-stage features for North American buildings) and found none:
+- The CLF WBLCA Benchmark v2 results probably share source models with the Benke et al. dataset.
+- The open CarbEnMats / Global Buildings Database ([Zenodo](https://zenodo.org/records/8363895)) has more than 1,200 mostly European case studies, a different schema, and no equivalent of the 49 features.
+- The Mendeley "virtual building database" ([link](https://data.mendeley.com/datasets/znbp3szd75/1)) is synthetic.
+
+We therefore held out part of this dataset.
+
+**Split.** `analysis/make_split.py` (seed 226) assigns 30% of the projects to a test set (88) and 70% to a dev set (204). It is stratified on input features only: new construction vs renovation × climate group (cold zones 5–8, zone 4, warm zones 1–3, other). The two sets are similar in median truth (78.8 / 74.6 kgCO2e/m²). The test set has fewer projects with XPS (43% against 54%) and 2 of the 10 flagged incomplete ground truths.
+
+**The split was assigned after the v1–v3 runs.** The error analysis behind v2 and v3 had therefore looked at aggregate patterns across all 292 buildings, including the test buildings. To check that this did not drive the prompt design, we re-ran every diagnostic on the dev set alone (`analysis/error_analysis_…_dev.md`). Every finding used to revise the prompt replicates on dev:
+
+| Finding behind a prompt change | All 292 | Dev only (204) |
+|---|---|---|
+| v1 compression: log–log slope | 0.46 | 0.44 |
+| v1 est/true for truth > 200 / < 25 | 0.28 / 1.58 | 0.28 / 1.59 |
+| XPS share of enclosure A1–A3 GWP | 15.5% | 14.7% |
+| v1 est/true, projects with XPS vs without | 0.67 vs 0.80 | 0.66 vs 0.77 |
+| v1 est/(truth − XPS) | 0.84 | 0.80 |
+| v1 cold zones vs warm zones | 0.65 vs 0.77 | 0.64 vs 0.71 |
+| v1 envelope area given vs not | 0.81 vs 0.65 | 0.79 vs 0.65 |
+| v1 answers mentioning XPS | 0.6% | 0.5% |
+| Flagged incomplete ground truths, v1 est/true | 3.09 | 3.09 |
+| v2 answers naming polyiso for the roof; median roof intensity | 89%; 35 | 89%; 35 |
+| v2 per m² envelope estimate vs truth | 66.8 vs 86.7 | 68.1 vs 85.5 |
+| v2 minor renovation est/true (v1 → v2) | 0.85 → 0.56 | 0.79 → 0.40 |
+
+The same prompt revisions would therefore have followed from the dev set alone. Neither prompt contains per-building information or statistics computed from this dataset. The v3 reference values come from external EPDs and baselines.
+
+**Test-set results (88 buildings, never used to choose between prompts):** `analysis/compare_…md`
+
+| Prompt | ±20% coverage (95% CI) | RMSE | median APE | median abs log error | est/true geo-mean | CV across runs |
+|---|---|---|---|---|---|---|
+| v1 | 20.5% (13.3–30.0) | 74.1 | **36.4%** | **0.393** | 0.75 | 19.2% |
+| v2 | 18.2% (11.5–27.5) | 75.7 | 43.4% | 0.511 | 0.66 | 15.2% |
+| **v3** | **26.1% (18.1–36.2)** | **69.2** | 37.0% | 0.400 | **0.86** | **11.2%** |
+
+| Test-set pair | Inside only first / only second | McNemar p | abs log error (Wilcoxon p) | Second closer |
+|---|---|---|---|---|
+| v1 vs v3 | 9 / 14 | 0.41 | 0.393 → 0.400 (p = 0.38) | 55% |
+| v2 vs v3 | 11 / 18 | 0.27 | 0.511 → 0.400 (p = 0.002) | 62% |
+| v1 vs v2 | 9 / 7 | 0.80 | 0.393 → 0.511 (p = 0.0002) | 34% |
+
+**Reading the held-out results.**
+- On the test set, v3 improves coverage by 5.6 points, RMSE by 4.9 kgCO2e/m², the bias (0.75 → 0.86) and consistency (CV 19.2% → 11.2%).
+- Its typical error (median |log error|) is the same as v1's, and none of the v1–v3 differences is significant at n = 88.
+- v3 is clearly better than v2 (Wilcoxon p = 0.002), and v2's regression against v1 also replicates on the test set (p = 0.0002).
+- The test set has fewer XPS projects, which is where v3 gains most. v1 also happens to do better on test than on dev (0.393 against 0.476 median abs log error).
+
+**Conclusion.** v3 is the best prompt on all, dev and test buildings for coverage, RMSE, bias and consistency. Its advantage in typical error over the plain baseline is small and is not statistically established on the held-out set. A larger or external test set is needed to settle it.
+
+## 10. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
 - **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls. In v3 run 2, 162 buildings were answered in continuation tasks after a container restart (Section 8.1).
-- **Statistical power.** With 3 runs × 292 buildings, the v3-vs-v1 gain is borderline significant (McNemar p = 0.085). More runs or a second dataset would settle it.
+- **Held-out split assigned after the runs.** The dev-only replication (Section 9) shows that the prompt design did not depend on the test buildings. Even so, only a dataset the prompts have never been checked against can fully rule out overfitting.
+- **Statistical power.** With 3 runs, the v3-vs-v1 gain is borderline on all 292 buildings (McNemar p = 0.085) and not significant on the 88 test buildings (p = 0.41). More runs per building or more buildings would settle it.
 - **Functional unit.** Results are per m² of floor area, not per m² of wall, and the enclosure includes windows, doors and roofs.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
 - **Next steps:**
-  - evaluate the final prompt on a held-out dataset or a new project set;
+  - evaluate the final prompt on an external dataset or a new project set (e.g. map the CarbEnMats/GBDB enclosure fields to this feature set);
   - run a feature study with envelope-relevant subsets (`FEATURES` in `experiment_config.py`);
   - test domain context with CLF Material Baselines and EPDs;
   - extend to 10 runs per building (the proposal protocol), with seeds 1003–1009.
@@ -353,6 +408,18 @@ python summarize_run.py 20261104_prompt-v3
 
 ```bash
 python analysis/error_analysis.py 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
+```
+
+```bash
+python analysis/make_split.py
+```
+
+```bash
+python analysis/compare_runs.py 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
+```
+
+```bash
+python analysis/error_analysis.py --split dev 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
 ```
 
 ```bash
