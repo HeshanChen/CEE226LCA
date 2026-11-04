@@ -1,0 +1,293 @@
+project_index,estimate,sd_runs,n_runs,truth,site_clim_zone,bldg_prim_use,bldg_proj_type,cv_runs,ratio,ape,inside,climate
+1,36.0,,1,73.81,Can. 4 (<3000 HDD),Residential: Multifamily (5 or more units),New Construction,,0.4877387887820078,0.5122612112179922,False,Can. 4
+2,57.5,,1,137.89,Can. 7B (6000-6999 HDD),Office,New Construction,,0.41699905721952285,0.5830009427804772,False,Can. 7B
+3,77.5,,1,64.59,Zone 1A (Very Hot Humid),Education,New Construction,,1.1998761418176187,0.19987614181761876,True,Zone 1A
+4,92.5,,1,100.4,Zone 1A (Very Hot Humid),Office,New Construction,,0.9213147410358565,0.07868525896414348,True,Zone 1A
+5,80.0,,1,82.03,Zone 1A (Very Hot Humid),Education,New Construction,,0.9752529562355235,0.024747043764476423,True,Zone 1A
+6,77.5,,1,307.35,Zone 1A (Very Hot Humid),Office,New Construction,,0.252155523019359,0.7478444769806409,False,Zone 1A
+7,57.5,,1,85.21,Zone 1A (Very Hot Humid),Education,New Construction,,0.6748034268278371,0.32519657317216283,False,Zone 1A
+8,42.5,,1,223.81,Zone 1A (Very Hot Humid),Residential: Multifamily (5 or more units),New Construction,,0.18989321299316383,0.8101067870068361,False,Zone 1A
+9,87.5,,1,75.48,Zone 1A (Very Hot Humid),Healthcare,New Construction,,1.1592474827768944,0.1592474827768945,True,Zone 1A
+10,13.5,,1,14.04,Zone 1A (Very Hot Humid),Office,Major Renovation,,0.9615384615384616,0.0384615384615384,True,Zone 1A
+11,115.0,,1,35.12,Zone 1A (Very Hot Humid),Office,New Construction,,3.274487471526196,2.274487471526196,False,Zone 1A
+12,51.0,,1,79.24,Zone 1A (Very Hot Humid),Office,New Construction,,0.6436143361938416,0.35638566380615844,False,Zone 1A
+13,30.0,,1,62.15,Zone 1A (Very Hot Humid),Warehouse and Storage,New Construction,,0.48270313757039424,0.5172968624296058,False,Zone 1A
+14,100.0,,1,227.56,Zone 1A (Very Hot Humid),Education,New Construction,,0.43944454209878714,0.5605554579012129,False,Zone 1A
+15,60.0,,1,178.59,Zone 2A (Hot Humid),Industrial,New Construction,,0.3359650596337981,0.6640349403662019,False,Zone 2A
+16,60.0,,1,22.9,Zone 2A (Hot Humid),Healthcare,New Construction,,2.620087336244542,1.6200873362445416,False,Zone 2A
+17,47.5,,1,109.19,Zone 2A (Hot Humid),Education,New Construction,,0.43502152211741,0.5649784778825899,False,Zone 2A
+18,70.0,,1,84.49,Zone 2A (Hot Humid),Healthcare,New Construction,,0.8285004142502072,0.17149958574979282,False,Zone 2A
+19,80.0,,1,175.55,Zone 2A (Hot Humid),Education,New Construction,,0.45571062375391624,0.5442893762460838,False,Zone 2A
+20,110.0,,1,136.8,Zone 2A (Hot Humid),Public Assembly,New Construction,,0.804093567251462,0.19590643274853808,False,Zone 2A
+21,35.0,,1,65.24,Zone 2A (Hot Humid),Warehouse and Storage,New Construction,,0.536480686695279,0.463519313304721,False,Zone 2A
+22,155.0,,1,29.17,Zone 2A (Hot Humid),Education,New Construction,,5.313678436750085,4.313678436750085,False,Zone 2A
+23,37.0,,1,62.62,Zone 2A (Hot Humid),Residential: Multifamily (5 or more units),New Construction,,0.5908655381667199,0.40913446183328006,False,Zone 2A
+24,92.5,,1,106.14,Zone 2A (Hot Humid),Education,New Construction,,0.8714904842660637,0.12850951573393632,True,Zone 2A
+25,17.5,,1,93.44,Zone 2B (Hot Dry),Education,Minor Renovation,,0.1872859589041096,0.8127140410958904,False,Zone 2B
+26,95.0,,1,357.64,Zone 2B (Hot Dry),Office,New Construction,,0.2656302427021586,0.7343697572978414,False,Zone 2B
+27,9.0,,1,24.89,Zone 2B (Hot Dry),Parking,New Construction,,0.3615910004017678,0.6384089995982323,False,Zone 2B
+28,72.5,,1,101.48,Zone 2B (Hot Dry),Education,New Construction,,0.7144264879779266,0.2855735120220733,False,Zone 2B
+29,87.5,,1,122.92,Zone 2B (Hot Dry),Public Order and Safety,New Construction,,0.7118451025056948,0.28815489749430523,False,Zone 2B
+30,13.5,,1,26.9,Zone 2B (Hot Dry),Education,Minor Renovation,,0.5018587360594796,0.49814126394052044,False,Zone 2B
+31,85.0,,1,186.45,Zone 2B (Hot Dry),Public Order and Safety,New Construction,,0.4558862965942612,0.5441137034057387,False,Zone 2B
+32,52.5,,1,45.36,Zone 3A (Warm Humid),Lodging,Major Renovation,,1.1574074074074074,0.1574074074074074,True,Zone 3A
+33,110.0,,1,56.45,Zone 3A (Warm Humid),Public Assembly,New Construction,,1.9486271036315321,0.9486271036315322,False,Zone 3A
+34,65.0,,1,83.49,Zone 3A (Warm Humid),Education,New Construction,,0.7785363516588814,0.22146364834111865,False,Zone 3A
+35,11.5,,1,17.16,Zone 3A (Warm Humid),Parking,New Construction,,0.6701631701631702,0.3298368298368298,False,Zone 3A
+36,63.5,,1,316.48,Zone 3A (Warm Humid),Education,New Construction,,0.20064459049544994,0.7993554095045501,False,Zone 3A
+37,29.0,,1,55.5,Zone 3A (Warm Humid),Warehouse and Storage,New Construction,,0.5225225225225225,0.4774774774774775,False,Zone 3A
+38,77.5,,1,85.6,Zone 3A (Warm Humid),Education,New Construction,,0.905373831775701,0.094626168224299,True,Zone 3A
+39,32.5,,1,24.08,Zone 3A (Warm Humid),Warehouse and Storage,New Construction,,1.3496677740863787,0.34966777408637884,False,Zone 3A
+40,77.5,,1,138.51,Zone 3A (Warm Humid),Healthcare,New Construction,,0.559526387986427,0.440473612013573,False,Zone 3A
+41,42.5,,1,49.75,Zone 3A (Warm Humid),Warehouse and Storage,New Construction,,0.8542713567839196,0.1457286432160804,True,Zone 3A
+42,4.0,,1,10.38,Zone 3B (Warm Dry),Education,Minor Renovation,,0.3853564547206165,0.6146435452793835,False,Zone 3B
+43,27.5,,1,6.82,Zone 3B (Warm Dry),Education,Minor Renovation,,4.032258064516129,3.032258064516129,False,Zone 3B
+44,16.5,,1,50.52,Zone 3B (Warm Dry),Residential: Multifamily (5 or more units),Minor Renovation,,0.32660332541567694,0.6733966745843231,False,Zone 3B
+45,32.5,,1,57.44,Zone 3B (Warm Dry),Education,Major Renovation,,0.5658077994428969,0.43419220055710306,False,Zone 3B
+46,77.5,,1,33.71,Zone 3B (Warm Dry),Office,New Construction,,2.2990210619994067,1.2990210619994067,False,Zone 3B
+47,52.5,,1,79.83,Zone 3B (Warm Dry),Warehouse and Storage,New Construction,,0.6576475009394964,0.3423524990605036,False,Zone 3B
+48,31.5,,1,53.19,Zone 3B (Warm Dry),Warehouse and Storage,New Construction,,0.5922165820642978,0.40778341793570216,False,Zone 3B
+49,31.5,,1,50.19,Zone 3B (Warm Dry),Healthcare,New Construction,,0.6276150627615064,0.3723849372384937,False,Zone 3B
+50,30.0,,1,42.01,Zone 3B (Warm Dry),Office,Major Renovation,,0.7141156867412521,0.28588431325874786,False,Zone 3B
+51,22.0,,1,42.2,Zone 3B (Warm Dry),Residential: Multifamily (5 or more units),New Construction,,0.5213270142180094,0.4786729857819906,False,Zone 3B
+52,29.0,,1,91.75,Zone 3B (Warm Dry),Laboratory,New Construction,,0.31607629427792916,0.6839237057220708,False,Zone 3B
+53,25.0,,1,26.75,Zone 3B (Warm Dry),Healthcare,New Construction,,0.9345794392523364,0.06542056074766354,True,Zone 3B
+54,21.5,,1,6.49,Zone 3B (Warm Dry),Residential: Multifamily (5 or more units),Major Renovation,,3.312788906009245,2.312788906009245,False,Zone 3B
+55,57.5,,1,131.86,Zone 3B (Warm Dry),Office,New Construction,,0.43606855756104956,0.5639314424389504,False,Zone 3B
+56,22.5,,1,10.68,Zone 3B (Warm Dry),Office,New Construction,,2.106741573033708,1.106741573033708,False,Zone 3B
+57,57.5,,1,46.48,Zone 3B (Warm Dry),Warehouse and Storage,New Construction,,1.237091222030981,0.23709122203098115,True,Zone 3B
+58,70.0,,1,107.76,Zone 3B (Warm Dry),Residential: Multifamily (5 or more units),New Construction,,0.6495916852264291,0.35040831477357093,False,Zone 3B
+59,70.0,,1,65.82,Zone 3B (Warm Dry),Office,New Construction,,1.0635065329687026,0.06350653296870264,True,Zone 3B
+60,43.0,,1,36.67,Zone 3B (Warm Dry),Residential: Multifamily (5 or more units),New Construction,,1.1726206708481046,0.17262067084810467,True,Zone 3B
+61,90.0,,1,94.56,Zone 3B (Warm Dry),Public Assembly,New Construction,,0.9517766497461929,0.048223350253807126,True,Zone 3B
+62,40.0,,1,66.9,Zone 3B (Warm Dry),Public Assembly,New Construction,,0.5979073243647234,0.40209267563527656,False,Zone 3B
+63,105.0,,1,71.78,Zone 3B (Warm Dry),Public Order and Safety,New Construction,,1.4628030091947617,0.46280300919476175,False,Zone 3B
+64,77.5,,1,67.27,Zone 3B (Warm Dry),Office,New Construction,,1.1520737327188941,0.15207373271889407,True,Zone 3B
+65,52.5,,1,70.53,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,0.7443641003828159,0.2556358996171842,False,Zone 3C
+66,44.0,,1,6.95,Zone 3C (Warm Marine),Office,New Construction,,6.330935251798561,5.330935251798561,False,Zone 3C
+67,92.5,,1,20.05,Zone 3C (Warm Marine),Office,New Construction,,4.613466334164588,3.6134663341645887,False,Zone 3C
+68,57.5,,1,81.83,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,0.7026762800928755,0.29732371990712453,False,Zone 3C
+69,42.5,,1,112.7,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,0.37710736468500444,0.6228926353149956,False,Zone 3C
+70,130.0,,1,64.86,Zone 3C (Warm Marine),Healthcare,New Construction,,2.00431699044095,1.0043169904409497,False,Zone 3C
+71,30.0,,1,24.57,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,1.2210012210012209,0.221001221001221,True,Zone 3C
+72,57.5,,1,51.52,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,1.1160714285714286,0.1160714285714285,True,Zone 3C
+73,57.5,,1,123.58,Zone 3C (Warm Marine),Education,New Construction,,0.4652856449263635,0.5347143550736365,False,Zone 3C
+74,61.0,,1,0.64,Zone 3C (Warm Marine),Office,New Construction,,95.3125,94.3125,False,Zone 3C
+75,87.5,,1,178.1,Zone 3C (Warm Marine),Office,New Construction,,0.4912970241437395,0.5087029758562606,False,Zone 3C
+76,50.0,,1,81.37,Zone 3C (Warm Marine),Warehouse and Storage,New Construction,,0.6144770800049157,0.3855229199950842,False,Zone 3C
+77,31.5,,1,202.64,Zone 3C (Warm Marine),Warehouse and Storage,New Construction,,0.15544808527437823,0.8445519147256217,False,Zone 3C
+78,50.0,,1,37.89,Zone 3C (Warm Marine),Laboratory,New Construction,,1.3196093956188968,0.3196093956188968,False,Zone 3C
+79,41.0,,1,51.75,Zone 3C (Warm Marine),Office,New Construction,,0.7922705314009661,0.20772946859903382,False,Zone 3C
+80,87.5,,1,9.37,Zone 3C (Warm Marine),Industrial,New Construction,,9.338313767342584,8.338313767342584,False,Zone 3C
+81,40.0,,1,53.5,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,0.7476635514018691,0.2523364485981308,False,Zone 3C
+82,105.0,,1,123.76,Zone 3C (Warm Marine),Office,New Construction,,0.8484162895927602,0.15158371040723986,True,Zone 3C
+83,38.5,,1,56.91,Zone 3C (Warm Marine),Education,New Construction,,0.6765067650676507,0.32349323493234927,False,Zone 3C
+84,62.5,,1,49.34,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,1.2667207134171057,0.2667207134171057,False,Zone 3C
+85,2.5,,1,12.89,Zone 3C (Warm Marine),Office,Tenant Improvement,,0.1939487975174554,0.8060512024825446,False,Zone 3C
+86,55.0,,1,126.25,Zone 3C (Warm Marine),Public Order and Safety,New Construction,,0.43564356435643564,0.5643564356435643,False,Zone 3C
+87,67.5,,1,101.77,Zone 3C (Warm Marine),Public Order and Safety,New Construction,,0.6632602928171367,0.3367397071828633,False,Zone 3C
+88,75.0,,1,231.79,Zone 3C (Warm Marine),Office,New Construction,,0.3235687475732344,0.6764312524267656,False,Zone 3C
+89,82.5,,1,81.85,Zone 3C (Warm Marine),Office,New Construction,,1.0079413561392792,0.00794135613927924,True,Zone 3C
+90,90.0,,1,159.33,Zone 3C (Warm Marine),Industrial,New Construction,,0.5648653737525889,0.43513462624741106,False,Zone 3C
+91,82.5,,1,29.16,Zone 3C (Warm Marine),Warehouse and Storage,New Construction,,2.8292181069958846,1.8292181069958848,False,Zone 3C
+92,52.5,,1,83.88,Zone 3C (Warm Marine),Office,New Construction,,0.6258941344778255,0.3741058655221745,False,Zone 3C
+93,112.5,,1,52.92,Zone 3C (Warm Marine),Laboratory,New Construction,,2.1258503401360542,1.1258503401360545,False,Zone 3C
+94,32.5,,1,36.25,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,0.896551724137931,0.10344827586206896,True,Zone 3C
+95,97.5,,1,120.07,Zone 3C (Warm Marine),Public Order and Safety,New Construction,,0.8120263179811777,0.1879736820188223,False,Zone 3C
+96,105.0,,1,139.0,Zone 3C (Warm Marine),Public Order and Safety,New Construction,,0.7553956834532374,0.2446043165467626,False,Zone 3C
+97,50.0,,1,53.63,Zone 3C (Warm Marine),Residential: Multifamily (5 or more units),New Construction,,0.9323140033563304,0.06768599664366963,True,Zone 3C
+98,95.0,,1,67.17,Zone 4A (Mixed Humid),Public Assembly,New Construction,,1.4143218698823878,0.41432186988238795,False,Zone 4A
+99,17.5,,1,6.53,Zone 4A (Mixed Humid),Mercantile,Minor Renovation,,2.679938744257274,1.679938744257274,False,Zone 4A
+100,70.0,,1,214.46,Zone 4A (Mixed Humid),Education,New Construction,,0.32640119369579407,0.6735988063042059,False,Zone 4A
+101,2.5,,1,11.58,Zone 4A (Mixed Humid),Office,Tenant Improvement,,0.2158894645941278,0.7841105354058722,False,Zone 4A
+102,82.5,,1,123.03,Zone 4A (Mixed Humid),Public Assembly,New Construction,,0.6705681541087539,0.329431845891246,False,Zone 4A
+103,8.0,,1,10.08,Zone 4A (Mixed Humid),Laboratory,Minor Renovation,,0.7936507936507936,0.20634920634920637,False,Zone 4A
+104,2.5,,1,7.62,Zone 4A (Mixed Humid),Office,Tenant Improvement,,0.32808398950131235,0.6719160104986877,False,Zone 4A
+105,80.0,,1,104.55,Zone 4A (Mixed Humid),Education,New Construction,,0.7651841224294597,0.2348158775705404,False,Zone 4A
+106,82.5,,1,63.04,Zone 4A (Mixed Humid),Public Assembly,New Construction,,1.3086928934010154,0.30869289340101524,False,Zone 4A
+107,130.0,,1,87.72,Zone 4A (Mixed Humid),Public Assembly,Major Renovation,,1.4819881440948472,0.48198814409484725,False,Zone 4A
+108,17.5,,1,0.49,Zone 4A (Mixed Humid),Mercantile,Minor Renovation,,35.714285714285715,34.714285714285715,False,Zone 4A
+109,122.5,,1,357.18,Zone 4A (Mixed Humid),Public Assembly,New Construction,,0.3429643317095022,0.6570356682904978,False,Zone 4A
+110,55.0,,1,84.66,Zone 4A (Mixed Humid),Residential: Multifamily (5 or more units),New Construction,,0.6496574533427829,0.3503425466572171,False,Zone 4A
+111,40.0,,1,144.5,Zone 4A (Mixed Humid),Laboratory,New Construction,,0.2768166089965398,0.7231833910034602,False,Zone 4A
+112,51.5,,1,137.69,Zone 4A (Mixed Humid),Laboratory,Major Renovation,,0.37402861500472073,0.6259713849952793,False,Zone 4A
+113,77.5,,1,104.66,Zone 4A (Mixed Humid),Laboratory,New Construction,,0.7404930250334416,0.25950697496655833,False,Zone 4A
+114,65.0,,1,165.93,Zone 4A (Mixed Humid),Office,New Construction,,0.3917314530223588,0.6082685469776412,False,Zone 4A
+115,52.5,,1,209.04,Zone 4A (Mixed Humid),Office,Major Renovation,,0.2511481056257176,0.7488518943742825,False,Zone 4A
+116,50.0,,1,61.43,Zone 4A (Mixed Humid),Warehouse and Storage,New Construction,,0.8139345596614033,0.18606544033859676,False,Zone 4A
+117,61.5,,1,105.17,Zone 4A (Mixed Humid),Education,New Construction,,0.5847675192545403,0.41523248074545976,False,Zone 4A
+118,32.5,,1,30.07,Zone 4A (Mixed Humid),Office,Major Renovation,,1.0808114399733955,0.0808114399733954,True,Zone 4A
+119,29.0,,1,39.33,Zone 4A (Mixed Humid),Warehouse and Storage,New Construction,,0.737350622934147,0.262649377065853,False,Zone 4A
+120,30.0,,1,87.47,Zone 4A (Mixed Humid),Warehouse and Storage,New Construction,,0.342974734194581,0.657025265805419,False,Zone 4A
+121,46.5,,1,86.02,Zone 4C (Mixed Marine),Education,New Construction,,0.5405719600093002,0.4594280399906998,False,Zone 4C
+122,22.5,,1,10.01,Zone 4C (Mixed Marine),Office,Major Renovation,,2.247752247752248,1.2477522477522478,False,Zone 4C
+123,46.5,,1,81.11,Zone 4C (Mixed Marine),Education,New Construction,,0.5732955245962273,0.42670447540377265,False,Zone 4C
+124,29.0,,1,111.76,Zone 4C (Mixed Marine),Public Assembly,New Construction,,0.2594846098783107,0.7405153901216893,False,Zone 4C
+125,55.0,,1,77.21,Zone 4C (Mixed Marine),Education,New Construction,,0.7123429607563788,0.28765703924362124,False,Zone 4C
+126,90.0,,1,131.23,Zone 4C (Mixed Marine),Office,Major Renovation,,0.6858187914348853,0.3141812085651146,False,Zone 4C
+127,130.0,,1,73.38,Zone 4C (Mixed Marine),Public Assembly,New Construction,,1.7715998909784683,0.7715998909784684,False,Zone 4C
+128,165.0,,1,95.83,Zone 4C (Mixed Marine),Public Assembly,New Construction,,1.7217990190963164,0.7217990190963164,False,Zone 4C
+129,135.0,,1,265.88,Zone 4C (Mixed Marine),Transportation Hub,New Construction,,0.5077478561757184,0.4922521438242816,False,Zone 4C
+130,37.5,,1,44.02,Zone 4C (Mixed Marine),Education,New Construction,,0.8518855065879145,0.14811449341208546,True,Zone 4C
+131,65.0,,1,61.91,Zone 4C (Mixed Marine),Education,New Construction,,1.0499111613632692,0.04991116136326932,True,Zone 4C
+132,97.5,,1,76.97,Zone 4C (Mixed Marine),Office,New Construction,,1.266727296349227,0.266727296349227,False,Zone 4C
+133,21.5,,1,34.97,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.6148126965970833,0.3851873034029168,False,Zone 4C
+134,4.0,,1,2.63,Zone 4C (Mixed Marine),Office,Tenant Improvement,,1.5209125475285172,0.5209125475285171,False,Zone 4C
+135,4.0,,1,2.7,Zone 4C (Mixed Marine),Laboratory,Minor Renovation,,1.4814814814814814,0.4814814814814814,False,Zone 4C
+136,2.5,,1,4.34,Zone 4C (Mixed Marine),Public Assembly,Tenant Improvement,,0.5760368663594471,0.423963133640553,False,Zone 4C
+137,21.0,,1,513.89,Zone 4C (Mixed Marine),Office,Minor Renovation,,0.040864776508591334,0.9591352234914087,False,Zone 4C
+138,40.0,,1,28.73,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,1.392272885485555,0.39227288548555517,False,Zone 4C
+139,40.0,,1,17.23,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,2.321532211259431,1.3215322112594312,False,Zone 4C
+140,37.5,,1,39.61,Zone 4C (Mixed Marine),Warehouse and Storage,New Construction,,0.9467306235799041,0.053269376420095924,True,Zone 4C
+141,8.0,,1,41.72,Zone 4C (Mixed Marine),Parking,New Construction,,0.19175455417066156,0.8082454458293384,False,Zone 4C
+142,21.0,,1,48.14,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.43622766929788115,0.5637723307021189,False,Zone 4C
+143,62.5,,1,68.39,Zone 4C (Mixed Marine),Public Assembly,New Construction,,0.9138762977043428,0.08612370229565727,True,Zone 4C
+144,35.0,,1,31.98,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,1.0944340212632895,0.09443402126328954,True,Zone 4C
+145,47.5,,1,92.77,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.5120189716503181,0.487981028349682,False,Zone 4C
+146,11.0,,1,11.27,Zone 4C (Mixed Marine),Office,Tenant Improvement,,0.9760425909494232,0.023957409050576715,True,Zone 4C
+147,44.0,,1,17.06,Zone 4C (Mixed Marine),Lodging,New Construction,,2.579132473622509,1.579132473622509,False,Zone 4C
+148,67.5,,1,167.75,Zone 4C (Mixed Marine),Education,New Construction,,0.40238450074515647,0.5976154992548435,False,Zone 4C
+149,42.5,,1,67.86,Zone 4C (Mixed Marine),Office,Major Renovation,,0.6262894193928676,0.3737105806071323,False,Zone 4C
+150,52.5,,1,43.48,Zone 4C (Mixed Marine),Mercantile,Minor Renovation,,1.2074517019319229,0.2074517019319228,True,Zone 4C
+151,25.0,,1,67.11,Zone 4C (Mixed Marine),Mercantile,Minor Renovation,,0.37252272388615704,0.627477276113843,False,Zone 4C
+152,105.0,,1,130.45,Zone 4C (Mixed Marine),Education,New Construction,,0.8049060942889997,0.19509390571100033,False,Zone 4C
+153,62.5,,1,73.47,Zone 4C (Mixed Marine),Education,New Construction,,0.8506873553831495,0.1493126446168504,True,Zone 4C
+154,110.0,,1,262.55,Zone 4C (Mixed Marine),Public Order and Safety,New Construction,,0.4189678156541611,0.5810321843458389,False,Zone 4C
+155,35.0,,1,83.38,Zone 4C (Mixed Marine),Other,Major Renovation,,0.4197649316382826,0.5802350683617175,False,Zone 4C
+156,65.0,,1,87.16,Zone 4C (Mixed Marine),Office,New Construction,,0.7457549334557136,0.25424506654428636,False,Zone 4C
+157,167.5,,1,202.62,Zone 4C (Mixed Marine),Public Order and Safety,New Construction,,0.8266706149442306,0.17332938505576945,False,Zone 4C
+158,62.5,,1,69.89,Zone 4C (Mixed Marine),Education,New Construction,,0.8942624123622835,0.10573758763771642,True,Zone 4C
+159,41.0,,1,55.13,Zone 4C (Mixed Marine),Transportation Hub,New Construction,,0.7436967168510792,0.25630328314892076,False,Zone 4C
+160,77.5,,1,196.22,Zone 4C (Mixed Marine),Transportation Hub,New Construction,,0.39496483538884924,0.6050351646111507,False,Zone 4C
+161,72.5,,1,126.9,Zone 4C (Mixed Marine),Transportation Hub,New Construction,,0.5713159968479117,0.42868400315208827,False,Zone 4C
+162,22.5,,1,18.19,Zone 4C (Mixed Marine),Office,Minor Renovation,,1.2369433754810335,0.23694337548103345,True,Zone 4C
+163,6.0,,1,3.12,Zone 4C (Mixed Marine),Office,Minor Renovation,,1.923076923076923,0.923076923076923,False,Zone 4C
+164,82.5,,1,123.41,Zone 4C (Mixed Marine),Public Assembly,New Construction,,0.6685033627744915,0.33149663722550843,False,Zone 4C
+165,38.5,,1,92.13,Zone 4C (Mixed Marine),Warehouse and Storage,New Construction,,0.41788776728535765,0.5821122327146423,False,Zone 4C
+166,55.0,,1,403.25,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.13639181649101054,0.8636081835089895,False,Zone 4C
+167,67.5,,1,130.66,Zone 4C (Mixed Marine),Office,New Construction,,0.5166079902035818,0.48339200979641817,False,Zone 4C
+168,30.0,,1,71.4,Zone 4C (Mixed Marine),Public Assembly,New Construction,,0.4201680672268907,0.5798319327731093,False,Zone 4C
+169,36.5,,1,46.39,Zone 4C (Mixed Marine),Office,New Construction,,0.7868075016167277,0.21319249838327226,False,Zone 4C
+170,45.0,,1,23.48,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,1.9165247018739353,0.9165247018739352,False,Zone 4C
+171,70.0,,1,154.45,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.45322110715441893,0.546778892845581,False,Zone 4C
+172,40.0,,1,141.56,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.2825656965244419,0.717434303475558,False,Zone 4C
+173,115.0,,1,150.28,Zone 4C (Mixed Marine),Office,Major Renovation,,0.7652382219856269,0.23476177801437317,False,Zone 4C
+174,85.0,,1,68.89,Zone 4C (Mixed Marine),Public Assembly,New Construction,,1.2338510669182754,0.2338510669182755,True,Zone 4C
+175,50.0,,1,49.15,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,1.017293997965412,0.017293997965412033,True,Zone 4C
+176,47.5,,1,28.97,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,1.6396272005522956,0.6396272005522955,False,Zone 4C
+177,100.0,,1,113.36,Zone 4C (Mixed Marine),Education,New Construction,,0.8821453775582216,0.1178546224417784,True,Zone 4C
+178,102.5,,1,323.66,Zone 4C (Mixed Marine),Mercantile,New Construction,,0.31669035407526414,0.6833096459247359,False,Zone 4C
+179,90.0,,1,114.2,Zone 4C (Mixed Marine),Education,New Construction,,0.7880910683012259,0.2119089316987741,False,Zone 4C
+180,107.5,,1,89.94,Zone 4C (Mixed Marine),Education,New Construction,,1.195241271959084,0.19524127195908386,True,Zone 4C
+181,87.5,,1,64.09,Zone 4C (Mixed Marine),Public Assembly,New Construction,,1.3652675924481197,0.36526759244811974,False,Zone 4C
+182,90.0,,1,66.18,Zone 4C (Mixed Marine),Education,New Construction,,1.3599274705349047,0.35992747053490465,False,Zone 4C
+183,87.5,,1,75.72,Zone 4C (Mixed Marine),Education,New Construction,,1.1555731642894875,0.15557316428948761,True,Zone 4C
+184,44.0,,1,37.73,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,1.1661807580174928,0.1661807580174928,True,Zone 4C
+185,80.0,,1,116.59,Zone 4C (Mixed Marine),Office,New Construction,,0.6861651942705206,0.3138348057294794,False,Zone 4C
+186,70.0,,1,98.65,Zone 4C (Mixed Marine),Education,New Construction,,0.7095793208312214,0.29042067916877856,False,Zone 4C
+187,105.0,,1,89.32,Zone 4C (Mixed Marine),Education,New Construction,,1.1755485893416928,0.17554858934169287,True,Zone 4C
+188,36.5,,1,95.31,Zone 4C (Mixed Marine),Lodging,Major Renovation,,0.3829608645472668,0.6170391354527331,False,Zone 4C
+189,8.5,,1,76.73,Zone 4C (Mixed Marine),Parking,New Construction,,0.11077805291281115,0.8892219470871888,False,Zone 4C
+190,90.0,,1,183.98,Zone 4C (Mixed Marine),Education,New Construction,,0.489183606913795,0.510816393086205,False,Zone 4C
+191,32.5,,1,88.48,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.3673146473779385,0.6326853526220615,False,Zone 4C
+192,22.0,,1,22.43,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.9808292465448061,0.019170753455193923,True,Zone 4C
+193,50.0,,1,77.96,Zone 4C (Mixed Marine),Office,New Construction,,0.6413545407901489,0.35864545920985114,False,Zone 4C
+194,25.0,,1,41.73,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.5990893841361131,0.4009106158638868,False,Zone 4C
+195,67.5,,1,47.07,Zone 4C (Mixed Marine),Office,New Construction,,1.4340344168260037,0.4340344168260038,False,Zone 4C
+196,77.5,,1,115.41,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.6715189325015164,0.32848106749848366,False,Zone 4C
+197,57.5,,1,78.97,Zone 4C (Mixed Marine),Healthcare,New Construction,,0.7281246042801064,0.2718753957198936,False,Zone 4C
+198,26.0,,1,361.83,Zone 4C (Mixed Marine),Lodging,New Construction,,0.07185694939612526,0.9281430506038747,False,Zone 4C
+199,24.0,,1,51.23,Zone 4C (Mixed Marine),Laboratory,Minor Renovation,,0.46847550263517473,0.5315244973648253,False,Zone 4C
+200,62.5,,1,55.26,Zone 4C (Mixed Marine),Office,New Construction,,1.131017010495838,0.1310170104958379,True,Zone 4C
+201,46.5,,1,380.55,Zone 4C (Mixed Marine),Public Assembly,New Construction,,0.12219156484036263,0.8778084351596374,False,Zone 4C
+202,85.0,,1,113.29,Zone 4C (Mixed Marine),Office,Major Renovation,,0.7502868743931502,0.24971312560684972,False,Zone 4C
+203,36.0,,1,55.81,Zone 4C (Mixed Marine),Office,New Construction,,0.6450456907364271,0.35495430926357285,False,Zone 4C
+204,37.0,,1,18.02,Zone 4C (Mixed Marine),Healthcare,New Construction,,2.0532741398446173,1.053274139844617,False,Zone 4C
+205,5.0,,1,13.19,Zone 4C (Mixed Marine),Lodging,Minor Renovation,,0.37907505686125853,0.6209249431387415,False,Zone 4C
+206,112.5,,1,159.02,Zone 4C (Mixed Marine),Laboratory,New Construction,,0.707458181360835,0.29254181863916495,False,Zone 4C
+207,80.0,,1,250.12,Zone 4C (Mixed Marine),Office,New Construction,,0.31984647369262753,0.6801535263073725,False,Zone 4C
+208,13.5,,1,15.97,Zone 4C (Mixed Marine),Education,Minor Renovation,,0.8453350031308704,0.15466499686912966,True,Zone 4C
+209,31.5,,1,62.03,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.507818797356118,0.492181202643882,False,Zone 4C
+210,40.0,,1,89.95,Zone 4C (Mixed Marine),Residential: Multifamily (5 or more units),New Construction,,0.44469149527515284,0.5553085047248472,False,Zone 4C
+211,55.0,,1,236.42,Zone 4C (Mixed Marine),Education,Major Renovation,,0.23263683275526606,0.767363167244734,False,Zone 4C
+212,62.5,,1,85.91,Zone 4C (Mixed Marine),Laboratory,New Construction,,0.7275055290420207,0.27249447095797924,False,Zone 4C
+213,50.0,,1,120.53,Zone 5A (Cool Humid),Public Assembly,New Construction,,0.4148344810420642,0.5851655189579358,False,Zone 5A
+214,32.0,,1,59.92,Zone 5A (Cool Humid),Laboratory,New Construction,,0.5340453938584779,0.46595460614152207,False,Zone 5A
+215,55.0,,1,59.64,Zone 5A (Cool Humid),Education,New Construction,,0.9221998658618377,0.07780013413816232,True,Zone 5A
+216,105.0,,1,199.12,Zone 5A (Cool Humid),Office,New Construction,,0.5273202089192447,0.47267979108075536,False,Zone 5A
+217,82.5,,1,27.0,Zone 5A (Cool Humid),Education,New Construction,,3.0555555555555554,2.0555555555555554,False,Zone 5A
+218,70.0,,1,184.81,Zone 5A (Cool Humid),Public Assembly,New Construction,,0.3787673827173854,0.6212326172826146,False,Zone 5A
+219,75.0,,1,97.44,Zone 5A (Cool Humid),Public Assembly,New Construction,,0.7697044334975369,0.23029556650246302,False,Zone 5A
+220,107.5,,1,265.44,Zone 5A (Cool Humid),Public Order and Safety,New Construction,,0.40498794454490655,0.5950120554550934,False,Zone 5A
+221,57.5,,1,38.34,Zone 5A (Cool Humid),Office,Major Renovation,,1.4997391757955136,0.4997391757955137,False,Zone 5A
+222,35.0,,1,95.53,Zone 5A (Cool Humid),Laboratory,New Construction,,0.3663770543284832,0.6336229456715168,False,Zone 5A
+223,62.5,,1,190.44,Zone 5A (Cool Humid),Laboratory,New Construction,,0.32818735559756357,0.6718126444024365,False,Zone 5A
+224,52.5,,1,105.11,Zone 5A (Cool Humid),Public Assembly,New Construction,,0.4994767386547427,0.5005232613452574,False,Zone 5A
+225,55.0,,1,91.7,Zone 5A (Cool Humid),Healthcare,New Construction,,0.5997818974918211,0.40021810250817885,False,Zone 5A
+226,75.0,,1,34.25,Zone 5A (Cool Humid),Office,New Construction,,2.18978102189781,1.1897810218978102,False,Zone 5A
+227,50.0,,1,28.22,Zone 5A (Cool Humid),Public Assembly,New Construction,,1.7717930545712262,0.7717930545712262,False,Zone 5A
+228,2.5,,1,26.07,Zone 5A (Cool Humid),Office,Tenant Improvement,,0.09589566551591867,0.9041043344840813,False,Zone 5A
+229,60.0,,1,244.82,Zone 5A (Cool Humid),Warehouse and Storage,New Construction,,0.2450780165019198,0.7549219834980803,False,Zone 5A
+230,95.0,,1,94.83,Zone 5A (Cool Humid),Laboratory,New Construction,,1.001792681640831,0.0017926816408309787,True,Zone 5A
+231,55.0,,1,162.24,Zone 5A (Cool Humid),Laboratory,New Construction,,0.3390039447731755,0.6609960552268245,False,Zone 5A
+232,90.0,,1,322.02,Zone 5A (Cool Humid),Education,New Construction,,0.27948574622694244,0.7205142537730576,False,Zone 5A
+233,42.5,,1,92.0,Zone 5A (Cool Humid),Public Assembly,New Construction,,0.46195652173913043,0.5380434782608695,False,Zone 5A
+234,44.0,,1,15.5,Zone 5A (Cool Humid),Healthcare,New Construction,,2.838709677419355,1.8387096774193548,False,Zone 5A
+235,45.0,,1,74.22,Zone 5A (Cool Humid),Laboratory,New Construction,,0.6063055780113177,0.39369442198868226,False,Zone 5A
+236,67.5,,1,86.37,Zone 5A (Cool Humid),Laboratory,New Construction,,0.7815213615838833,0.21847863841611675,False,Zone 5A
+237,49.0,,1,66.2,Zone 5A (Cool Humid),Education,New Construction,,0.7401812688821752,0.25981873111782483,False,Zone 5A
+238,42.5,,1,77.15,Zone 5A (Cool Humid),Laboratory,Major Renovation,,0.5508749189889824,0.44912508101101756,False,Zone 5A
+239,52.5,,1,81.62,Zone 5A (Cool Humid),Laboratory,New Construction,,0.6432246998284734,0.35677530017152664,False,Zone 5A
+240,40.0,,1,131.8,Zone 5A (Cool Humid),Warehouse and Storage,New Construction,,0.30349013657056145,0.6965098634294385,False,Zone 5A
+241,65.0,,1,70.72,Zone 5A (Cool Humid),Warehouse and Storage,New Construction,,0.9191176470588236,0.08088235294117646,True,Zone 5A
+242,55.0,,1,77.67,Zone 5A (Cool Humid),Education,New Construction,,0.7081241148448564,0.29187588515514357,False,Zone 5A
+243,60.0,,1,56.26,Zone 5A (Cool Humid),Education,New Construction,,1.0664770707429791,0.06647707074297907,True,Zone 5A
+244,33.5,,1,158.99,Zone 5A (Cool Humid),Laboratory,New Construction,,0.21070507579093023,0.7892949242090698,False,Zone 5A
+245,107.5,,1,24.99,Zone 5A (Cool Humid),Residential: Multifamily (5 or more units),New Construction,,4.30172068827531,3.3017206882753105,False,Zone 5A
+246,72.5,,1,57.96,Zone 5A (Cool Humid),Education,New Construction,,1.2508626639061422,0.25086266390614215,False,Zone 5A
+247,48.5,,1,59.14,Zone 5A (Cool Humid),Residential: Multifamily (5 or more units),New Construction,,0.8200879269529929,0.1799120730470071,False,Zone 5A
+248,72.5,,1,147.67,Zone 5A (Cool Humid),Education,New Construction,,0.49095957201869034,0.5090404279813097,False,Zone 5A
+249,77.5,,1,119.38,Zone 5A (Cool Humid),Transportation Hub,New Construction,,0.6491874685877032,0.35081253141229685,False,Zone 5A
+250,36.0,,1,83.92,Zone 5A (Cool Humid),Residential: Multifamily (5 or more units),New Construction,,0.42897998093422307,0.5710200190657769,False,Zone 5A
+251,80.0,,1,67.94,Zone 5A (Cool Humid),Residential: Multifamily (5 or more units),New Construction,,1.177509567265234,0.17750956726523406,True,Zone 5A
+252,75.0,,1,85.64,Zone 5A (Cool Humid),Education,New Construction,,0.8757589911256423,0.12424100887435778,True,Zone 5A
+253,55.0,,1,99.86,Zone 5B (Cool Dry),Office,New Construction,,0.5507710795113159,0.4492289204886842,False,Zone 5B
+254,40.0,,1,50.54,Zone 5B (Cool Dry),Education,Major Renovation,,0.7914523149980214,0.20854768500197862,False,Zone 5B
+255,65.0,,1,103.53,Zone 5B (Cool Dry),Education,New Construction,,0.627837341833285,0.37216265816671495,False,Zone 5B
+256,35.0,,1,115.63,Zone 5B (Cool Dry),Office,New Construction,,0.3026896134221223,0.6973103865778777,False,Zone 5B
+257,35.0,,1,64.41,Zone 5B (Cool Dry),Warehouse and Storage,New Construction,,0.5433938829374321,0.4566061170625679,False,Zone 5B
+258,80.0,,1,120.26,Zone 5B (Cool Dry),Laboratory,New Construction,,0.6652253450856478,0.33477465491435227,False,Zone 5B
+259,50.0,,1,112.13,Zone 5B (Cool Dry),Office,New Construction,,0.44591099616516544,0.5540890038348345,False,Zone 5B
+260,57.5,,1,107.72,Zone 5B (Cool Dry),Education,New Construction,,0.5337913108057928,0.4662086891942072,False,Zone 5B
+261,92.5,,1,116.77,Zone 5B (Cool Dry),Public Assembly,New Construction,,0.7921555193971055,0.20784448060289457,False,Zone 5B
+262,17.5,,1,38.97,Zone 5B (Cool Dry),Residential: Multifamily (5 or more units),New Construction,,0.44906338208878627,0.5509366179112137,False,Zone 5B
+263,38.5,,1,44.26,Zone 5B (Cool Dry),Residential: Multifamily (5 or more units),New Construction,,0.8698599186624492,0.13014008133755078,True,Zone 5B
+264,65.0,,1,141.44,Zone 5B (Cool Dry),Public Assembly,New Construction,,0.4595588235294118,0.5404411764705882,False,Zone 5B
+265,27.5,,1,55.07,Zone 5B (Cool Dry),Residential: Multifamily (5 or more units),New Construction,,0.4993644452514981,0.5006355547485019,False,Zone 5B
+266,65.0,,1,95.35,Zone 5B (Cool Dry),Office,New Construction,,0.681699003670687,0.318300996329313,False,Zone 5B
+267,65.0,,1,39.62,Zone 5B (Cool Dry),Education,Major Renovation,,1.6405855628470472,0.640585562847047,False,Zone 5B
+268,31.5,,1,105.19,Zone 5B (Cool Dry),Office,New Construction,,0.29945812339576006,0.7005418766042399,False,Zone 5B
+269,90.0,,1,108.58,Zone 5B (Cool Dry),Office,New Construction,,0.8288819303739179,0.17111806962608214,False,Zone 5B
+270,47.5,,1,78.6,Zone 5B (Cool Dry),Residential: Multifamily (5 or more units),New Construction,,0.6043256997455471,0.3956743002544529,False,Zone 5B
+271,85.0,,1,157.22,Zone 5B (Cool Dry),Transportation Hub,New Construction,,0.540643684009668,0.459356315990332,False,Zone 5B
+272,90.0,,1,238.21,Zone 5B (Cool Dry),Transportation Hub,New Construction,,0.37781789177616387,0.6221821082238361,False,Zone 5B
+273,72.5,,1,110.04,Zone 5B (Cool Dry),Education,New Construction,,0.658851326790258,0.34114867320974196,False,Zone 5B
+274,52.0,,1,70.55,Zone 5B (Cool Dry),Healthcare,New Construction,,0.7370659107016301,0.2629340892983699,False,Zone 5B
+275,72.5,,1,78.07,Zone 5B (Cool Dry),Office,New Construction,,0.928653772255668,0.07134622774433193,True,Zone 5B
+276,36.0,,1,110.47,Zone 5B (Cool Dry),Public Assembly,New Construction,,0.32588032950122203,0.674119670498778,False,Zone 5B
+277,35.0,,1,64.63,Zone 5B (Cool Dry),Warehouse and Storage,New Construction,,0.5415441745319511,0.45845582546804886,False,Zone 5B
+278,35.0,,1,45.08,Zone 5B (Cool Dry),Residential: Multifamily (5 or more units),New Construction,,0.7763975155279503,0.22360248447204967,False,Zone 5B
+279,75.0,,1,93.42,Zone 6A (Cold Humid),Healthcare,New Construction,,0.8028259473346179,0.19717405266538215,False,Zone 6A
+280,112.5,,1,45.24,Zone 6A (Cold Humid),Public Assembly,New Construction,,2.486737400530504,1.4867374005305036,False,Zone 6A
+281,65.0,,1,143.82,Zone 6A (Cold Humid),Office,New Construction,,0.45195383117786125,0.5480461688221387,False,Zone 6A
+282,42.5,,1,60.63,Zone 6A (Cold Humid),Office,Major Renovation,,0.7009731156193303,0.29902688438066966,False,Zone 6A
+283,47.5,,1,34.35,Zone 6B (Cold Dry),Laboratory,New Construction,,1.3828238719068413,0.3828238719068413,False,Zone 6B
+284,47.5,,1,26.69,Zone 6B (Cold Dry),Office,New Construction,,1.7796927688272761,0.779692768827276,False,Zone 6B
+285,57.5,,1,129.24,Zone 6B (Cold Dry),Religious Worship,Major Renovation,,0.4449086969978335,0.5550913030021666,False,Zone 6B
+286,80.0,,1,68.13,Zone 6B (Cold Dry),Office,New Construction,,1.174225744899457,0.174225744899457,True,Zone 6B
+287,90.0,,1,317.39,Zone 7 (Very Cold),Food Service,New Construction,,0.2835628091622294,0.7164371908377706,False,Zone 7
+288,92.5,,1,97.5,Zone 7 (Very Cold),Transportation Hub,New Construction,,0.9487179487179487,0.05128205128205128,True,Zone 7
+289,70.0,,1,205.27,Zone 7 (Very Cold),Transportation Hub,New Construction,,0.34101427388317823,0.6589857261168217,False,Zone 7
+290,60.0,,1,75.47,Zone 7 (Very Cold),Office,Major Renovation,,0.7950178879024778,0.20498211209752218,False,Zone 7
+291,75.0,,1,123.34,Zone 7 (Very Cold),Public Assembly,New Construction,,0.6080752391762607,0.3919247608237393,False,Zone 7
+292,85.0,,1,336.16,Zone 8 (Subarcitc/Arctic),Public Assembly,Major Renovation,,0.252855782960495,0.7471442170395051,False,Zone 8

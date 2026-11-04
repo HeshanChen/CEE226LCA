@@ -45,7 +45,9 @@ CSV_COLUMNS = [
 ]
 KEY_LINE = re.compile(r"^=====\s*KEY:\s*(project-\d+__run\d+)\s*=====\s*$", re.MULTILINE)
 
-# Same parser as gemini_lca_batch.py
+# Same regex as gemini_lca_batch.py. One change in parse_range: a lower bound of 0 is accepted.
+# For enclosure-only A1-A3, renovations and tenant fit-outs that leave the envelope untouched
+# have a true value near 0 (e.g. 0.49 kgCO2e/m2), so "0 - 5" is a valid answer, not a failure.
 _RANGE_RE = re.compile(
     r"RANGE_kgCO2e_per_m2\s*:\s*([0-9][0-9,]*\.?[0-9]*)\s*(?:-|–|—|to)\s*([0-9][0-9,]*\.?[0-9]*)",
     re.IGNORECASE,
@@ -61,7 +63,7 @@ def parse_range(text: str):
         low, high = (float(x.replace(",", "").rstrip(".")) for x in matches[-1])
     except ValueError:
         return None, None, "no_range"
-    if low <= 0 or high < low:
+    if low < 0 or high <= 0 or high < low:
         return low, high, "invalid_range"
     return low, high, ""
 
