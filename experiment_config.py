@@ -91,16 +91,50 @@ BEST_kgCO2e_per_m2: <value>
 RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on these lines)"""
 
-TASK_TEXTS = {"v1": TASK_TEXT_V1, "v2": TASK_TEXT_V2}
+# v3: revised after the v2 results (report/report.md, section 7). Keeps the v2 scope, method and
+# no-anchoring rule. Changes: quantitative component intensities from external sources at the step
+# where numbers are chosen (references/envelope_intensities_sources.md), the XPS modelling
+# convention, a top-down check per m2 of envelope, renovations rewritten to not subtract, and
+# RANGE only (BEST was less accurate than the range midpoint).
+V3_INTENSITIES = "<<FILLED FROM references/envelope_intensities_sources.md>>"
+V3_TOPDOWN = "<<FILLED FROM references/envelope_intensities_sources.md>>"
+TASK_TEXT_V3 = """\
+Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
+- exterior walls as complete assemblies: cladding, backup framing or studs, sheathing, cavity and continuous insulation, air and vapor barriers, and the interior gypsum layer of exterior walls; structural exterior walls (concrete, CMU, tilt-up) when they form the wall;
+- fenestration: windows, curtain wall, storefront and skylights (frames and glass), and exterior doors;
+- the roof assembly above the structural deck: insulation, cover board, membrane or roofing;
+- insulation at slab edges, below grade and under slabs that belongs to the thermal envelope.
+It excludes foundations, the structural frame, floor and roof decks or slabs, interior partitions and interior finishes.
+
+Method. Work through these steps and show the key numbers:
+1. Areas. If bldg_therm_env_area is given, use it as the total envelope area. Otherwise estimate the roof area (footprint = floor area / stories above grade), the above-grade wall area (perimeter x height) and the glazed area (bldg_wwr x wall area), plus any insulated ground-floor or below-grade area. State the resulting envelope-to-floor-area ratio; single-storey and low-rise buildings often exceed 1.
+2. Assemblies. From the climate zone, R-values, building use, structure, region and construction type, choose the most likely wall, glazing and roof assemblies, and name the insulation type and thickness. Whole-building LCA models from this period (Tally, One Click LCA) often model roof and below-grade insulation as XPS made with HFC blowing agents. When the insulation type is not known, include that case in your range, especially in colder climates where the insulation is thick.
+3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component. Use these reference values from EPDs and industry baselines (A1-A3, per m2 of component):
+{intensities}
+Complete assemblies include framing, attachments, sheathing, barriers, sealants, flashing and trim, which early-stage take-offs tend to leave out; do not go below the low end of these ranges unless the assembly is clearly minimal.
+4. Check. Convert your total to kgCO2e per m2 of envelope area and compare it with {topdown}. If your value is below that range, revisit the insulation type, the aluminum and glazing content and any missing components before you finalize.
+5. Total. Divide the enclosure total by the floor area. Give a range that reflects your uncertainty about the assemblies, including the higher-carbon alternatives that are plausible for this building. Do not pull the estimate toward a typical building: metal-clad, curtain-wall or thickly insulated enclosures can exceed 200 kgCO2e per m2 of floor area, and projects with little new enclosure work can fall below 10.
+6. Renovations. For renovations and tenant improvements the LCA covers only the new work, but that work often includes substantial new envelope elements (re-cladding, new curtain wall or windows, re-roofing). Do not assume the existing envelope is kept unless the data indicates it. Use bldg_proj_type, lca_phys_scope and mass_total per floor area as evidence of how much new material was installed.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+End your answer with exactly one final line in this format and nothing after it:
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on that line)"""
+
+TASK_TEXTS = {"v1": TASK_TEXT_V1, "v2": TASK_TEXT_V2,
+              "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES, topdown=V3_TOPDOWN)}
 TASK_TEXT = TASK_TEXTS[PROMPT_VERSION]
 
 # Instructions given to each Claude Code subagent (the "LLM under test"). {placeholders} are
 # filled by subagent_runs.py prepare. ANSWER_LENGTH and FINAL_LINES follow the prompt version.
 ANSWER_LENGTH = {"v1": "briefly state your method and key assumptions (roughly 60-150 words)",
-                 "v2": "work through its method steps with the key numbers (roughly 120-250 words)"}[PROMPT_VERSION]
+                 "v2": "work through its method steps with the key numbers (roughly 120-250 words)",
+                 "v3": "work through its method steps with the key numbers (roughly 120-250 words)"}[PROMPT_VERSION]
 FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v2": "the two final lines `BEST_kgCO2e_per_m2: <value>` and "
-                     "`RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
+                     "`RANGE_kgCO2e_per_m2: <low> - <high>`",
+               "v3": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
 SUBAGENT_INSTRUCTIONS = """\
 You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only your own knowledge.
 
@@ -124,7 +158,8 @@ Answer all {n_buildings} buildings, in the order they appear in the task file, w
 
 When you are finished, reply with exactly one line: `done: <number of answers written> answers in <number of parts> parts`. Do not include the answers themselves in your reply."""
 EXAMPLE_FINAL = {"v1": "RANGE_kgCO2e_per_m2: 40 - 75",
-                 "v2": "BEST_kgCO2e_per_m2: 55\nRANGE_kgCO2e_per_m2: 40 - 75"}[PROMPT_VERSION]
+                 "v2": "BEST_kgCO2e_per_m2: 55\nRANGE_kgCO2e_per_m2: 40 - 75",
+                 "v3": "RANGE_kgCO2e_per_m2: 40 - 75"}[PROMPT_VERSION]
 
 
 # --------------------------------------------------------------------------------------
