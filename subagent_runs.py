@@ -12,7 +12,8 @@ Steps
   python subagent_runs.py prepare --run-name 20261104_baseline-innate --runs 3
         -> results/<run-name>/subagent/tasks/run-R_chunk-K.md  (one file per subagent)
            results/<run-name>/subagent/manifest.json
-  (Claude Code: one subagent per task file writes subagent/answers/run-R_chunk-K_part-P.md)
+  (Claude Code: one subagent per task file, prompted with tasks/run-R_chunk-K.instructions.txt,
+   writes subagent/answers/run-R_chunk-K_part-P.md)
   python subagent_runs.py collect --run-name 20261104_baseline-innate
   python LLM-data-cleaning.py 20261104_baseline-innate
   python make_fig1_bands.py 20261104_baseline-innate
@@ -41,7 +42,7 @@ CSV_COLUMNS = [
     "project", "run_idx", "low", "high", "mid", "parse_ok", "failure_type",
     "ontology_mode", "geometry_mode", "finish_reason", "output_tokens", "thought_tokens",
     "cached_tokens", "prompt_tokens", "latency_s", "model", "temperature",
-    "thinking_setting", "timestamp",
+    "thinking_setting", "timestamp", "best",
 ]
 KEY_LINE = re.compile(r"^=====\s*KEY:\s*(project-\d+__run\d+)\s*=====\s*$", re.MULTILINE)
 
@@ -52,6 +53,18 @@ _RANGE_RE = re.compile(
     r"RANGE_kgCO2e_per_m2\s*:\s*([0-9][0-9,]*\.?[0-9]*)\s*(?:-|–|—|to)\s*([0-9][0-9,]*\.?[0-9]*)",
     re.IGNORECASE,
 )
+
+
+_BEST_RE = re.compile(r"BEST_kgCO2e_per_m2\s*:\s*([0-9][0-9,]*\.?[0-9]*)", re.IGNORECASE)
+
+
+def parse_best(text: str):
+    """Prompt v2 also asks for a single best estimate (last BEST line). None if absent."""
+    matches = _BEST_RE.findall(text.replace("*", "").replace("`", ""))
+    try:
+        return float(matches[-1].replace(",", "").rstrip(".")) if matches else None
+    except ValueError:
+        return None
 
 
 def parse_range(text: str):
@@ -118,8 +131,14 @@ def cmd_prepare(args):
                     f"## Buildings\n\n" + "\n\n".join(blocks) + "\n")
             path = sd / "tasks" / f"{name}.md"
             path.write_text(text, encoding="utf-8")
+            keys = [f"project-{p}__run{r}" for p in chunk]
+            instructions = cfg.SUBAGENT_INSTRUCTIONS.format(
+                task_file=path, n_lines=text.count("\n"), n_buildings=len(chunk), example_key=keys[0],
+                answers_prefix=sd / "answers" / name, answer_length=cfg.ANSWER_LENGTH,
+                final_lines=cfg.FINAL_LINES, example_final=cfg.EXAMPLE_FINAL)
+            (sd / "tasks" / f"{name}.instructions.txt").write_text(instructions, encoding="utf-8")
             tasks.append({"task": name, "run_idx": r, "file": str(path.relative_to(SCRIPT_DIR)),
-                          "keys": [f"project-{p}__run{r}" for p in chunk],
+                          "keys": keys,
                           "answers_prefix": str((sd / "answers" / name).relative_to(SCRIPT_DIR))})
 
     manifest = {"run_name": args.run_name, "created": datetime.now().isoformat(timespec="seconds"),
@@ -163,6 +182,7 @@ def cmd_collect(args):
         text = answers[key]
         (raw / f"{name}_run{run}.md").write_text(text, encoding="utf-8")
         low, high, ftype = parse_range(text)
+        best = parse_best(text)
         ok = ftype == ""
         n_fail += not ok
         by_project.setdefault(name, []).append({
@@ -173,6 +193,7 @@ def cmd_collect(args):
             "finish_reason": "", "output_tokens": "", "thought_tokens": "", "cached_tokens": "",
             "prompt_tokens": "", "latency_s": "", "model": manifest["model"], "temperature": "",
             "thinking_setting": f"effort={manifest['effort']}", "timestamp": stamp,
+            "best": best if (ok and best is not None) else "",
         })
     for name, rows in by_project.items():
         with open(out / f"{name}_runs.csv", "w", newline="", encoding="utf-8") as f:

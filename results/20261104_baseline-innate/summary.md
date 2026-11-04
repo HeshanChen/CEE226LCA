@@ -1,6 +1,6 @@
 # Run summary: 20261104_baseline-innate
 
-Enclosure (Shell - Enclosure), A1–A3, kgCO2e per m² floor area. Estimate = mean of the parsed run midpoints per building. APE = |estimate − truth| / truth. Coverage = truth inside estimate ±20%. CV = SD / mean of a building's run midpoints.
+Enclosure (Shell - Enclosure), A1–A3, kgCO2e per m² floor area. Estimate = mean of the parsed run midpoints per building (BEST rows: mean of the BEST lines, prompt v2). Incomplete ground truth = new construction with no fenestration GWP in the source LCA. APE = |estimate − truth| / truth. Coverage = truth inside estimate ±20%. CV = SD / mean of a building's run midpoints.
 
 ## Overall
 
@@ -8,6 +8,7 @@ Enclosure (Shell - Enclosure), A1–A3, kgCO2e per m² floor area. Estimate = me
 |---|---|---|---|---|---|---|---|---|---|---|
 | all projects | 292 | 79.7 | 48.6 | 96.0 | 37.9 | 0.75 | 19.5 | 19.0 | 78.0 | 56.0 |
 | new construction only | 243 | 77.4 | 50.2 | 93.4 | 37.5 | 0.76 | 18.9 | 17.3 | 83.5 | 59.5 |
+| excl. 10 incomplete ground truths | 282 | 80.5 | 48.7 | 57.8 | 37.3 | 0.72 | 20.2 | 19.1 | 79.5 | 55.8 |
 
 ## By climate zone
 

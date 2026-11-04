@@ -30,6 +30,7 @@ import pandas as pd
 SCRIPT_DIR = Path(__file__).resolve().parent
 RESULTS_ROOT = SCRIPT_DIR / "results"
 GROUND_TRUTH = RESULTS_ROOT / "ground_truth.csv"
+BREAKDOWN = RESULTS_ROOT / "ground_truth_breakdown.csv"   # from GWP-calculation/enclosure_breakdown.py
 METADATA = SCRIPT_DIR / "references" / "buildings_metadata_LLM.xlsx"
 DELTA = 0.20
 MIN_GROUP_N = 5            # groups smaller than this are pooled into "Other" in the breakdowns
@@ -46,9 +47,10 @@ def load(run_dir: Path) -> pd.DataFrame:
         mids = pd.to_numeric(ok["mid"], errors="coerce").dropna()
         if mids.empty:
             continue
+        best = pd.to_numeric(ok["best"], errors="coerce").dropna() if "best" in ok else pd.Series(dtype=float)
         rows.append({"project_index": int(re.search(r"project-(\d+)_", f.name).group(1)),
                      "estimate": mids.mean(), "sd_runs": mids.std(ddof=1) if len(mids) > 1 else np.nan,
-                     "n_runs": len(mids)})
+                     "n_runs": len(mids), "estimate_best": best.mean() if len(best) else np.nan})
     if not rows:
         raise SystemExit(f"No parsed runs in {run_dir}")
     est = pd.DataFrame(rows)
@@ -58,11 +60,22 @@ def load(run_dir: Path) -> pd.DataFrame:
     d = est.merge(gt[["project_index", "ECI_true_kgCO2e_m2"]], on="project_index").merge(meta, on="project_index")
     d = d.rename(columns={"ECI_true_kgCO2e_m2": "truth"}).dropna(subset=["truth"])
     d["cv_runs"] = d["sd_runs"] / d["estimate"]
+    d["climate"] = d["site_clim_zone"].fillna("Unknown").str.replace(r"\s*\(.*\)", "", regex=True)
+    d["flag_incomplete"] = False
+    if BREAKDOWN.exists():
+        fl = pd.read_csv(BREAKDOWN).set_index("project_index")["flag_incomplete"]
+        d["flag_incomplete"] = d["project_index"].map(fl).fillna(False).astype(bool)
+    return derive(d.sort_values("project_index"), "estimate")
+
+
+def derive(d: pd.DataFrame, col: str) -> pd.DataFrame:
+    """Error columns for the estimate in column `col` (run-mean midpoint or run-mean BEST)."""
+    d = d.copy()
+    d["estimate"] = d[col]
     d["ratio"] = d["estimate"] / d["truth"]
     d["ape"] = (d["estimate"] - d["truth"]).abs() / d["truth"]
     d["inside"] = (d["truth"] >= d["estimate"] * (1 - DELTA)) & (d["truth"] <= d["estimate"] * (1 + DELTA))
-    d["climate"] = d["site_clim_zone"].fillna("Unknown").str.replace(r"\s*\(.*\)", "", regex=True)
-    return d.sort_values("project_index")
+    return d
 
 
 def metrics(d: pd.DataFrame) -> dict:
@@ -165,12 +178,19 @@ def main(run: str):
     run_dir = RESULTS_ROOT / run
     d = load(run_dir)
     d.to_csv(run_dir / "per_project.csv", index=False)
-    overall = pd.DataFrame([{"subset": "all projects", **metrics(d)},
-                            {"subset": "new construction only",
-                             **metrics(d[d["bldg_proj_type"] == "New Construction"])}])
+    rows = [{"subset": "all projects", **metrics(d)},
+            {"subset": "new construction only", **metrics(d[d["bldg_proj_type"] == "New Construction"])},
+            {"subset": f"excl. {int(d['flag_incomplete'].sum())} incomplete ground truths",
+             **metrics(d[~d["flag_incomplete"]])}]
+    if d["estimate_best"].notna().all():
+        b = derive(d, "estimate_best")
+        rows += [{"subset": "all projects, BEST estimate", **metrics(b)},
+                 {"subset": "excl. incomplete, BEST estimate", **metrics(b[~b["flag_incomplete"]])}]
+    overall = pd.DataFrame(rows)
     lines = [f"# Run summary: {run}", "",
              "Enclosure (Shell - Enclosure), A1–A3, kgCO2e per m² floor area. Estimate = mean of the "
-             "parsed run midpoints per building. APE = |estimate − truth| / truth. Coverage = truth "
+             "parsed run midpoints per building (BEST rows: mean of the BEST lines, prompt v2). "
+             "Incomplete ground truth = new construction with no fenestration GWP in the source LCA. APE = |estimate − truth| / truth. Coverage = truth "
              f"inside estimate ±{DELTA:.0%}. CV = SD / mean of a building's run midpoints.", "",
              "## Overall", "", fmt(overall), "",
              "## By climate zone", "", fmt(by_group(d, "climate")), "",
