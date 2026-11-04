@@ -3,7 +3,7 @@
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
 
-> Status: draft. Sections 1–6 are complete. Section 7 (prompt v2 results) is filled in when the v2 run finishes.
+> Status: draft. Sections 1–7 are complete for prompts v1 and v2. The next prompt iteration (v3) is being designed.
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -21,7 +21,9 @@ The error is not random. The model:
 
 Its largest overestimates are mostly cases where the reference LCA itself is incomplete.
 
-From this analysis we wrote prompt v2. It defines the enclosure the way the dataset classifies it, requires a component-by-component take-off, names the high-impact materials, forbids anchoring on a typical value, adds renovation guidance, and asks for a best estimate. The final prompt is in Section 6 and Appendix A. Its results are in Section 7.
+From this analysis we wrote prompt v2. It defines the enclosure the way the dataset classifies it, requires a component-by-component take-off, names the high-impact materials, forbids anchoring on a typical value, adds renovation guidance, and asks for a best estimate. The prompt is described in Section 6 and given in full in Appendix A.
+
+Prompt v2 made the model **more consistent** (CV 19.0% → 13.8%) and **less compressed** (slope 0.46 → 0.55), but **less accurate**: coverage fell to 15.1% (McNemar p = 0.085), the median APE rose to 44.3%, and the bias went from 0.75 to 0.67. The model named XPS but kept assuming polyiso roofs, its bottom-up component intensities were low, and the renovation rule pushed estimates down (Section 7). In short, qualitative knowledge in a prompt is acknowledged but not applied; changing the numbers requires quantitative anchors at the step where each number is chosen.
 
 ## 2. Data and ground truth
 
@@ -160,7 +162,59 @@ The curtain wall range rests on aluminum-framed curtain wall EPDs, which report 
 
 ## 7. Results: prompt v2 vs v1
 
-*To be filled in when the run `20261104_prompt-v2` finishes: the same tables as Section 4, the failure-mode diagnostics side by side (`analysis/error_analysis_20261104_baseline-innate_vs_20261104_prompt-v2.md`), and the BEST vs RANGE-midpoint comparison.*
+All 876 v2 answers parsed (`results/20261104_prompt-v2/`). The same buildings, seeds and chunks were used as for v1.
+
+| Subset | Prompt | ±20% coverage | RMSE | median APE | MAPE | est/true (geo-mean) | CV across runs |
+|---|---|---|---|---|---|---|---|
+| All projects (292) | v1 | **19.5%** | **79.7** | **37.9%** | 96.0% | **0.75** | 19.0% |
+| | v2 midpoint | 15.1% | 81.0 | 44.3% | **83.0%** | 0.67 | **13.8%** |
+| | v2 BEST | 14.4% | 83.2 | 49.4% | 81.4% | 0.59 | 13.8% |
+| New construction (243) | v1 | 18.9% | 77.4 | 37.5% | 93.4% | 0.76 | 17.3% |
+| | v2 midpoint | 16.5% | 79.8 | 44.2% | 81.7% | 0.70 | 11.8% |
+| Excl. 10 incomplete (282) | v1 | 20.2% | 80.5 | 37.3% | 57.8% | 0.72 | 19.1% |
+| | v2 midpoint | 15.6% | 81.9 | 43.9% | 57.7% | 0.64 | 13.5% |
+
+**Paired tests (same 292 buildings).**
+- v2 errors are larger (Wilcoxon signed-rank on |log(est/true)|, p < 0.0001). v2 is closer to the truth for only 34% of buildings.
+- The drop in coverage is not significant (McNemar p = 0.085): 31 buildings were inside the band only with v1, and 18 only with v2.
+
+**Prompt v2 did not improve accuracy.** It improved consistency and reduced compression, but it made the underestimate worse. Diagnostics side by side are in `analysis/error_analysis_20261104_baseline-innate_vs_20261104_prompt-v2.md`.
+
+| Failure mode (Section 5) | v1 | v2 | Effect of v2 |
+|---|---|---|---|
+| Compression: log–log slope (1 = none) | 0.46 | 0.55 | better |
+| Compression: SD of estimates / SD of truth | 0.39 | 0.47 | better |
+| Low-end overestimate (truth < 25): est/true | 1.58 | 1.27 | better |
+| Consistency: mean CV across runs | 19.0% | 13.8% | better |
+| XPS mentioned, among projects that have XPS | 0.7% | 39.6% | the model now names it |
+| Projects with XPS: est/true | 0.67 | 0.58 | worse |
+| Envelope area not given: est/true | 0.65 | 0.57 | worse |
+| Cold zones 5–8 / warm zones 1–3: est/true | 0.65 / 0.77 | 0.61 / 0.69 | worse (gap similar) |
+| Minor renovation / major renovation: est/true | 0.85 / 0.77 | 0.56 / 0.63 | worse |
+| Flagged incomplete ground truth: est/true | 3.09 | 3.07 | unchanged (not an LLM error) |
+
+### 7.1 Why v2 underestimates more
+
+1. **Knowing a fact is not the same as applying it.**
+   - v2 answers name XPS 50 times more often, but 89% of them still assume **polyiso** roof insulation.
+   - XPS is mostly placed below grade or at slab edges: 274 mentions in that context against 114 at the roof.
+   - In the reference LCAs, most XPS sits at roof or floor level (54.5% of XPS GWP was tagged "Superstructure" in Tally). The model's assumption matches common practice, but not how these LCA models were built.
+   - As a result, the median roof intensity in the v2 take-offs is **35 kgCO2e/m²** (IQR 30–40), and projects with XPS got worse rather than better.
+2. **The bottom-up intensities are biased low.**
+   - Median component intensities in the v2 take-offs are 80 kgCO2e/m² for opaque walls (IQR 65–110), 35 for roofs, and 145 for glazing and curtain wall (IQR 126–320).
+   - Converted to per m² of envelope (160 projects with envelope area), the median is 66.8 for v2 against 72.4 for v1 and **86.7 for the truth**.
+   - An explicit take-off from early-stage information leaves out items that the reference LCA includes. The prompt's curtain-wall range (100–200 kgCO2e/m²) became the default value (median 145).
+3. **The renovation rule backfired.** "Count only new enclosure materials" moved minor renovations from 0.85 to 0.56 and major renovations from 0.77 to 0.63. For a model that already underestimates, a rule that subtracts makes things worse.
+4. **BEST is below the range midpoint** (median 0.93× the midpoint). The model's uncertainty is right-skewed, so its stated best estimate is the worse estimator here.
+
+### 7.2 Lessons for prompt design
+
+These lessons transfer beyond this dataset:
+
+- A **structured, step-by-step method** makes the model more consistent (CV −27%) and less anchored on a typical value. It also exposes the model's component-level priors: if those are biased, the structure carries the bias straight into the total.
+- **Qualitative knowledge** ("XPS is about 10× higher") gets repeated in the reasoning but does not change the numbers. To move an estimate, the prompt has to supply a **quantitative anchor at the step where the number is chosen**, together with the condition under which it applies (e.g. which insulation the LCA tool is likely to have modelled).
+- **Instructions that subtract** (exclusions, "only new materials") should be paired with what to include, otherwise they amplify an existing low bias.
+- Report the **range midpoint**, not a self-reported best value.
 
 ## 8. Limitations and next steps
 
