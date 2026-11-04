@@ -82,6 +82,10 @@ python summarize_run.py 20261104_baseline-innate
 - The course prompt says "use bldg_renovated_cfa + bldg_renovated_gfa", but there is no `bldg_renovated_cfa` column. The dataset normalizes renovations by `bldg_renovated_gfa + bldg_added_gfa`, and the prompt here says that.
 - The two course Gemini runners had drifted apart: batch sends papers + benchmarks, project-runs sends papers + practice guide. Here a single `experiment_config.py` defines the prompt.
 
+## Report
+
+**[`report/report.md`](report/report.md)** covers the data, setup, baseline, error analysis (why the model under- and overestimates), and the prompt v2 design and results. The final prompt is in [`report/appendix_prompts.md`](report/appendix_prompts.md), generated from `experiment_config.py`.
+
 ## Experiment log
 
 | Iteration | Run folder | Condition | Runs | ±20% coverage | RMSE | median APE | CV across runs |
