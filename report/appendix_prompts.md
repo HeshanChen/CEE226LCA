@@ -10,7 +10,7 @@ Each request is: system prompt, then the shared context (identical for every bui
 You are a building LCA expert.
 ````
 
-## B. Shared context (same in v1 and v2)
+## B. Shared context (same in v1, v2 and v3)
 
 The glossary has one line per feature in `references/data_glossary_LLM.xlsx`.
 
@@ -130,7 +130,7 @@ RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on that line)
 ````
 
-## D. Task text v2 (final prompt)
+## D. Task text v2
 
 ````text
 Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
@@ -158,7 +158,54 @@ RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on these lines)
 ````
 
-## E. Example building block, v2 (project-225)
+## E. Task text v3 (final prompt)
+
+Reference values come from `references/envelope_intensities_sources.md` (sources and conversions listed there).
+
+````text
+Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
+- exterior walls as complete assemblies: cladding, backup framing or studs, sheathing, cavity and continuous insulation, air and vapor barriers, and the interior gypsum layer of exterior walls; structural exterior walls (concrete, CMU, tilt-up) when they form the wall;
+- fenestration: windows, curtain wall, storefront and skylights (frames and glass), and exterior doors;
+- the roof assembly above the structural deck: insulation, cover board, membrane or roofing;
+- insulation at slab edges, below grade and under slabs that belongs to the thermal envelope.
+It excludes foundations, the structural frame, floor and roof decks or slabs, interior partitions and interior finishes.
+
+Method. Work through these steps and show the key numbers:
+1. Areas. If bldg_therm_env_area is given, use it as the total envelope area. Otherwise estimate the roof area (footprint = floor area / stories above grade), the above-grade wall area (perimeter x height) and the glazed area (bldg_wwr x wall area), plus any insulated ground-floor or below-grade area. State the resulting envelope-to-floor-area ratio; single-storey and low-rise buildings often exceed 1.
+2. Assemblies. From the climate zone, R-values, building use, structure, region and construction type, choose the most likely wall, glazing and roof assemblies, and name the insulation type and thickness. Whole-building LCA models from this period (Tally, One Click LCA) often model roof and below-grade insulation as XPS made with HFC blowing agents. When the insulation type is not known, include that case in your range, especially in colder climates where the insulation is thick.
+3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component. Use these reference values from EPDs and industry baselines (A1-A3, per m2 of component):
+   Opaque walls (per m2 of wall, complete assembly):
+   - steel stud + metal panel or ACM rainscreen: 70-110
+   - steel stud + brick veneer: 90-120; brick veneer on CMU backup: 135-165
+   - steel stud + EIFS: about 50; steel stud + fiber cement or stucco: 45-80
+   - wood stud + vinyl or wood siding: 25-45; wood stud + brick or stone veneer: 60-100
+   - insulated metal panel: newer products 27-72; legacy polyurethane (HFC) panels about 107 (2 in) to 274 (6 in)
+   - precast concrete sandwich panel: 90-165; architectural precast with backup wall: 80-130
+   - tilt-up concrete with interior insulation and gypsum: 80-125
+   - curtain-wall spandrel: 75-140
+   Fenestration (per m2 of unit, frame and glass):
+   - aluminum stick curtain wall: 120-150; aluminum unitized curtain wall: 150-210
+   - aluminum storefront: 140-155; aluminum window wall: 170-180; aluminum windows: 95-140
+   - vinyl windows: 40-90; fiberglass windows: 75-145
+   Roof above the deck (per m2 of roof, about R-25 to R-30, with membrane and cover board):
+   - polyiso: 20-28; mineral wool board: 35-55; low-GWP XPS: 28-40; metal standing seam over polyiso: 27-40
+   - XPS with HFC blowing agent: 85-110 when only product-stage emissions are counted, and up to 335-410 when the blowing-agent emissions are booked with the product, as some LCA tools do
+   - insulated metal roof panel: 27-72 for newer products, about 190 for a legacy 4 in panel
+   Insulation per m2 at RSI 1 (R-5.7): polyiso 2-4; EPS 2.5; mineral wool board 7-8; fiberglass batt about 1; closed-cell spray foam 3-5 (HFO) or 20-36 (HFC); XPS 4-11 (low-GWP), about 18 (HFC, product stage only) or 58-99 (HFC, with blowing-agent emissions)
+   Aluminum: about 6-13 kgCO2e per kg for North American extrusions; generic global aluminum data in LCA tools is about 16
+Complete assemblies include framing, attachments, sheathing, barriers, sealants, flashing and trim, which early-stage take-offs tend to leave out; do not go below the low end of these ranges unless the assembly is clearly minimal.
+4. Check. Convert your total to kgCO2e per m2 of envelope area and check that it is consistent with the reference values above. For new construction with conventional walls and 30-40% glazing, a blended value below about 50 kgCO2e per m2 of envelope usually means that a component, the aluminum and glazing content, or a high-carbon insulation option is missing; revisit those before you finalize.
+5. Total. Divide the enclosure total by the floor area. Give a range that reflects your uncertainty about the assemblies, including the higher-carbon alternatives that are plausible for this building. Do not pull the estimate toward a typical building: metal-clad, curtain-wall or thickly insulated enclosures can exceed 200 kgCO2e per m2 of floor area, and projects with little new enclosure work can fall below 10.
+6. Renovations. For renovations and tenant improvements the LCA covers only the new work, but that work often includes substantial new envelope elements (re-cladding, new curtain wall or windows, re-roofing). Do not assume the existing envelope is kept unless the data indicates it. Use bldg_proj_type, lca_phys_scope and mass_total per floor area as evidence of how much new material was installed.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+End your answer with exactly one final line in this format and nothing after it:
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on that line)
+````
+
+## F. Example building block, v3 (project-225)
 
 ````text
 site_country: United States
@@ -210,23 +257,40 @@ It excludes foundations, the structural frame, floor and roof decks or slabs, in
 
 Method. Work through these steps and show the key numbers:
 1. Areas. If bldg_therm_env_area is given, use it as the total envelope area. Otherwise estimate the roof area (footprint = floor area / stories above grade), the above-grade wall area (perimeter x height) and the glazed area (bldg_wwr x wall area), plus any insulated ground-floor or below-grade area. State the resulting envelope-to-floor-area ratio; single-storey and low-rise buildings often exceed 1.
-2. Assemblies. From the climate zone, R-values, building use, structure, region and construction type, choose the most likely wall, glazing and roof assemblies. Name the insulation type and estimate its thickness from the R-value.
-3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component, using values typical of the North American whole-building LCA tools of the assessment year (Tally, One Click LCA). Account for these high-impact materials:
-   - XPS insulation made with HFC blowing agents is common in these tools and carries roughly ten times or more the GWP of mineral wool, fiberglass or polyiso per unit of thermal resistance, so a thick XPS layer (for example roof or below-grade insulation in cold climates) can dominate the enclosure total.
-   - Aluminum is carbon-intensive per kg (curtain wall and storefront framing, window frames, metal panels, ACM). Aluminum-framed curtain wall is about 100-200 kgCO2e per m2 of facade, and fully glazed curtain wall facades are among the highest-carbon enclosures.
-   - Insulated glass units, precast concrete panels and masonry are also significant.
-4. Total. Sum the components, divide by the floor area, and give a range that reflects your uncertainty about the assemblies. Do not pull the estimate toward a typical building: metal-clad, curtain-wall or thickly insulated enclosures can exceed 200 kgCO2e per m2 of floor area, and projects with little new enclosure work can fall below 10.
-5. Renovations. For renovations and tenant improvements, count only new enclosure materials. Use bldg_proj_type, lca_phys_scope and mass_total per floor area to judge how much new envelope work was done. Major renovations often include new windows, cladding or roofing, and a high mass_total per floor area indicates substantial new material.
+2. Assemblies. From the climate zone, R-values, building use, structure, region and construction type, choose the most likely wall, glazing and roof assemblies, and name the insulation type and thickness. Whole-building LCA models from this period (Tally, One Click LCA) often model roof and below-grade insulation as XPS made with HFC blowing agents. When the insulation type is not known, include that case in your range, especially in colder climates where the insulation is thick.
+3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component. Use these reference values from EPDs and industry baselines (A1-A3, per m2 of component):
+   Opaque walls (per m2 of wall, complete assembly):
+   - steel stud + metal panel or ACM rainscreen: 70-110
+   - steel stud + brick veneer: 90-120; brick veneer on CMU backup: 135-165
+   - steel stud + EIFS: about 50; steel stud + fiber cement or stucco: 45-80
+   - wood stud + vinyl or wood siding: 25-45; wood stud + brick or stone veneer: 60-100
+   - insulated metal panel: newer products 27-72; legacy polyurethane (HFC) panels about 107 (2 in) to 274 (6 in)
+   - precast concrete sandwich panel: 90-165; architectural precast with backup wall: 80-130
+   - tilt-up concrete with interior insulation and gypsum: 80-125
+   - curtain-wall spandrel: 75-140
+   Fenestration (per m2 of unit, frame and glass):
+   - aluminum stick curtain wall: 120-150; aluminum unitized curtain wall: 150-210
+   - aluminum storefront: 140-155; aluminum window wall: 170-180; aluminum windows: 95-140
+   - vinyl windows: 40-90; fiberglass windows: 75-145
+   Roof above the deck (per m2 of roof, about R-25 to R-30, with membrane and cover board):
+   - polyiso: 20-28; mineral wool board: 35-55; low-GWP XPS: 28-40; metal standing seam over polyiso: 27-40
+   - XPS with HFC blowing agent: 85-110 when only product-stage emissions are counted, and up to 335-410 when the blowing-agent emissions are booked with the product, as some LCA tools do
+   - insulated metal roof panel: 27-72 for newer products, about 190 for a legacy 4 in panel
+   Insulation per m2 at RSI 1 (R-5.7): polyiso 2-4; EPS 2.5; mineral wool board 7-8; fiberglass batt about 1; closed-cell spray foam 3-5 (HFO) or 20-36 (HFC); XPS 4-11 (low-GWP), about 18 (HFC, product stage only) or 58-99 (HFC, with blowing-agent emissions)
+   Aluminum: about 6-13 kgCO2e per kg for North American extrusions; generic global aluminum data in LCA tools is about 16
+Complete assemblies include framing, attachments, sheathing, barriers, sealants, flashing and trim, which early-stage take-offs tend to leave out; do not go below the low end of these ranges unless the assembly is clearly minimal.
+4. Check. Convert your total to kgCO2e per m2 of envelope area and check that it is consistent with the reference values above. For new construction with conventional walls and 30-40% glazing, a blended value below about 50 kgCO2e per m2 of envelope usually means that a component, the aluminum and glazing content, or a high-carbon insulation option is missing; revisit those before you finalize.
+5. Total. Divide the enclosure total by the floor area. Give a range that reflects your uncertainty about the assemblies, including the higher-carbon alternatives that are plausible for this building. Do not pull the estimate toward a typical building: metal-clad, curtain-wall or thickly insulated enclosures can exceed 200 kgCO2e per m2 of floor area, and projects with little new enclosure work can fall below 10.
+6. Renovations. For renovations and tenant improvements the LCA covers only the new work, but that work often includes substantial new envelope elements (re-cladding, new curtain wall or windows, re-roofing). Do not assume the existing envelope is kept unless the data indicates it. Use bldg_proj_type, lca_phys_scope and mass_total per floor area as evidence of how much new material was installed.
 
 Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
 
-End your answer with exactly two final lines in this format and nothing after them:
-BEST_kgCO2e_per_m2: <value>
+End your answer with exactly one final line in this format and nothing after it:
 RANGE_kgCO2e_per_m2: <low> - <high>
-(plain numbers only, no units or other text on these lines)
+(plain numbers only, no units or other text on that line)
 ````
 
-## F. Subagent instructions (template)
+## G. Subagent instructions (template)
 
 Rendered per task by `subagent_runs.py prepare` into `results/<run>/subagent/tasks/<task>.instructions.txt`.
 

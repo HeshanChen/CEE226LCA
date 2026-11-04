@@ -21,8 +21,8 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v2"         # "v1" = baseline prompt, "v2" = revised after the baseline error analysis
-CONDITION = "prompt-v2"       # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "v3"         # "v1" baseline, "v2" after the baseline error analysis, "v3" after the v2 results
+CONDITION = "prompt-v3"       # label written to the ontology_mode column of the runs CSVs
 
 INCLUDE_PAPERS = False        # background papers (text extracted from the PDFs)
 PAPER_PATHS = [REF / f"{i}.pdf" for i in range(1, 5)]
@@ -96,8 +96,29 @@ RANGE_kgCO2e_per_m2: <low> - <high>
 # where numbers are chosen (references/envelope_intensities_sources.md), the XPS modelling
 # convention, a top-down check per m2 of envelope, renovations rewritten to not subtract, and
 # RANGE only (BEST was less accurate than the range midpoint).
-V3_INTENSITIES = "<<FILLED FROM references/envelope_intensities_sources.md>>"
-V3_TOPDOWN = "<<FILLED FROM references/envelope_intensities_sources.md>>"
+# Reference values: prompt-ready summary of references/envelope_intensities_sources.md (EPDs, CLF
+# North American Material Baselines 2023/2025, PCI, RDH, Kawneer, UBC; nothing from the Benke et al.
+# dataset or the CLF WBLCA benchmark). Source tags removed here; they are in that file.
+V3_INTENSITIES = """\
+   Opaque walls (per m2 of wall, complete assembly):
+   - steel stud + metal panel or ACM rainscreen: 70-110
+   - steel stud + brick veneer: 90-120; brick veneer on CMU backup: 135-165
+   - steel stud + EIFS: about 50; steel stud + fiber cement or stucco: 45-80
+   - wood stud + vinyl or wood siding: 25-45; wood stud + brick or stone veneer: 60-100
+   - insulated metal panel: newer products 27-72; legacy polyurethane (HFC) panels about 107 (2 in) to 274 (6 in)
+   - precast concrete sandwich panel: 90-165; architectural precast with backup wall: 80-130
+   - tilt-up concrete with interior insulation and gypsum: 80-125
+   - curtain-wall spandrel: 75-140
+   Fenestration (per m2 of unit, frame and glass):
+   - aluminum stick curtain wall: 120-150; aluminum unitized curtain wall: 150-210
+   - aluminum storefront: 140-155; aluminum window wall: 170-180; aluminum windows: 95-140
+   - vinyl windows: 40-90; fiberglass windows: 75-145
+   Roof above the deck (per m2 of roof, about R-25 to R-30, with membrane and cover board):
+   - polyiso: 20-28; mineral wool board: 35-55; low-GWP XPS: 28-40; metal standing seam over polyiso: 27-40
+   - XPS with HFC blowing agent: 85-110 when only product-stage emissions are counted, and up to 335-410 when the blowing-agent emissions are booked with the product, as some LCA tools do
+   - insulated metal roof panel: 27-72 for newer products, about 190 for a legacy 4 in panel
+   Insulation per m2 at RSI 1 (R-5.7): polyiso 2-4; EPS 2.5; mineral wool board 7-8; fiberglass batt about 1; closed-cell spray foam 3-5 (HFO) or 20-36 (HFC); XPS 4-11 (low-GWP), about 18 (HFC, product stage only) or 58-99 (HFC, with blowing-agent emissions)
+   Aluminum: about 6-13 kgCO2e per kg for North American extrusions; generic global aluminum data in LCA tools is about 16"""
 TASK_TEXT_V3 = """\
 Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
 - exterior walls as complete assemblies: cladding, backup framing or studs, sheathing, cavity and continuous insulation, air and vapor barriers, and the interior gypsum layer of exterior walls; structural exterior walls (concrete, CMU, tilt-up) when they form the wall;
@@ -112,7 +133,7 @@ Method. Work through these steps and show the key numbers:
 3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component. Use these reference values from EPDs and industry baselines (A1-A3, per m2 of component):
 {intensities}
 Complete assemblies include framing, attachments, sheathing, barriers, sealants, flashing and trim, which early-stage take-offs tend to leave out; do not go below the low end of these ranges unless the assembly is clearly minimal.
-4. Check. Convert your total to kgCO2e per m2 of envelope area and compare it with {topdown}. If your value is below that range, revisit the insulation type, the aluminum and glazing content and any missing components before you finalize.
+4. Check. Convert your total to kgCO2e per m2 of envelope area and check that it is consistent with the reference values above. For new construction with conventional walls and 30-40% glazing, a blended value below about 50 kgCO2e per m2 of envelope usually means that a component, the aluminum and glazing content, or a high-carbon insulation option is missing; revisit those before you finalize.
 5. Total. Divide the enclosure total by the floor area. Give a range that reflects your uncertainty about the assemblies, including the higher-carbon alternatives that are plausible for this building. Do not pull the estimate toward a typical building: metal-clad, curtain-wall or thickly insulated enclosures can exceed 200 kgCO2e per m2 of floor area, and projects with little new enclosure work can fall below 10.
 6. Renovations. For renovations and tenant improvements the LCA covers only the new work, but that work often includes substantial new envelope elements (re-cladding, new curtain wall or windows, re-roofing). Do not assume the existing envelope is kept unless the data indicates it. Use bldg_proj_type, lca_phys_scope and mass_total per floor area as evidence of how much new material was installed.
 
@@ -123,7 +144,7 @@ RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on that line)"""
 
 TASK_TEXTS = {"v1": TASK_TEXT_V1, "v2": TASK_TEXT_V2,
-              "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES, topdown=V3_TOPDOWN)}
+              "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES)}
 TASK_TEXT = TASK_TEXTS[PROMPT_VERSION]
 
 # Instructions given to each Claude Code subagent (the "LLM under test"). {placeholders} are

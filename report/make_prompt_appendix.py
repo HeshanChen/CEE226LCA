@@ -29,7 +29,7 @@ def fence(text: str) -> str:
 
 
 def main():
-    prefix, b2 = full_prompt("v2")
+    prefix, b3 = full_prompt("v3")
     lines = [
         "# Appendix: prompts",
         "",
@@ -43,7 +43,7 @@ def main():
         "",
         fence(cfg.SYSTEM_PROMPT),
         "",
-        "## B. Shared context (same in v1 and v2)",
+        "## B. Shared context (same in v1, v2 and v3)",
         "",
         "The glossary has one line per feature in `references/data_glossary_LLM.xlsx`.",
         "",
@@ -53,15 +53,22 @@ def main():
         "",
         fence(cfg.TASK_TEXT_V1),
         "",
-        "## D. Task text v2 (final prompt)",
+        "## D. Task text v2",
         "",
         fence(cfg.TASK_TEXT_V2),
         "",
-        f"## E. Example building block, v2 (project-{EXAMPLE_PROJECT})",
+        "## E. Task text v3 (final prompt)",
         "",
-        fence(b2),
+        "Reference values come from `references/envelope_intensities_sources.md` (sources and "
+        "conversions listed there).",
         "",
-        "## F. Subagent instructions (template)",
+        fence(cfg.TASK_TEXTS["v3"]),
+        "",
+        f"## F. Example building block, v3 (project-{EXAMPLE_PROJECT})",
+        "",
+        fence(b3),
+        "",
+        "## G. Subagent instructions (template)",
         "",
         "Rendered per task by `subagent_runs.py prepare` into "
         "`results/<run>/subagent/tasks/<task>.instructions.txt`.",

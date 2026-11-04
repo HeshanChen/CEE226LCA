@@ -3,7 +3,7 @@
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
 
-> Status: draft. Sections 1–7 are complete for prompts v1 and v2. The next prompt iteration (v3) is being designed.
+> Status: draft. Sections 1–8 are complete. The prompt v3 run (`20261104_prompt-v3`) is in progress, and its results will be added as Section 8.1.
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -158,7 +158,7 @@ The v2 task text replaces v1. The system prompt and the shared context (glossary
 
 The curtain wall range rests on aluminum-framed curtain wall EPDs, which report 117–134 kgCO2e/m² for A1–A3 ([One Click LCA EPD library](https://materials.oneclicklca.com/en/material/aluminium-framed-curtain-wall-system-double-glazed/661cc76cdc501e436af96490)). Arup's facade study reports 160–520 kgCO2e/m² over a wider boundary, A1–A5, B4 and C ([Arup](https://arup.com/globalassets/downloads/insights/the-carbon-foot-print-of-facades-the-significance-of-glass.pdf)).
 
-**On fitting to this dataset.** The error analysis that motivated v2 used the same 292 buildings that v2 is evaluated on. The goal of this project is a prompt that transfers to other projects, not a calibration to these 292. We therefore kept v2 to statements that hold outside this dataset: scope definitions, method steps, and literature-backed material facts. It contains no dataset statistics such as medians or fitted factors. A held-out evaluation on another dataset would be the clean test (Section 8).
+**On fitting to this dataset.** The error analysis that motivated v2 used the same 292 buildings that v2 is evaluated on. The goal of this project is a prompt that transfers to other projects, not a calibration to these 292. We therefore kept v2 to statements that hold outside this dataset: scope definitions, method steps, and literature-backed material facts. It contains no dataset statistics such as medians or fitted factors. A held-out evaluation on another dataset would be the clean test (Section 9).
 
 ## 7. Results: prompt v2 vs v1
 
@@ -216,7 +216,31 @@ These lessons transfer beyond this dataset:
 - **Instructions that subtract** (exclusions, "only new materials") should be paired with what to include, otherwise they amplify an existing low bias.
 - Report the **range midpoint**, not a self-reported best value.
 
-## 8. Limitations and next steps
+## 8. Prompt v3
+
+v3 keeps what worked in v2: the scope definition, the step-by-step method, and the rule against anchoring on a typical value. It changes what Section 7 showed did not work. Full text: Appendix A, section E.
+
+| v2 result (Section 7.1) | Prompt v3 change |
+|---|---|
+| XPS named but not applied; polyiso roofs assumed | Step 2 states the tool modelling convention: whole-building LCA models of this period (Tally, One Click LCA) often model roof and below-grade insulation as HFC-blown XPS. When the insulation type is unknown, the range must include that case, especially in colder climates |
+| Low bottom-up component intensities | Step 3 gives a reference table of A1–A3 intensities per m² of component: 8 wall types, 3 fenestration groups, roof assemblies by insulation type (HFC XPS: 85–110 counting the product stage only, up to 335–410 when blowing-agent emissions are booked with the product), insulation per m²·RSI, and aluminum per kg. The model is told that complete assemblies include framing, attachments, barriers, sealants and trim, and not to go below the low end unless the assembly is clearly minimal |
+| No sanity check on the total | Step 4: convert the total to per m² of envelope. For new construction with conventional walls and 30–40% glazing, a blended value below about 50 kgCO2e/m² of envelope signals a missing component or a missing high-carbon option |
+| Ranges did not include high-carbon alternatives | Step 5: the range must include the plausible higher-carbon alternatives (the midpoint is the estimate) |
+| The renovation rule subtracted | Step 6 is rewritten: renovations often include substantial new envelope work (re-cladding, new curtain wall or windows, re-roofing), so the model should not assume the existing envelope is kept unless the data says so |
+| BEST less accurate than the midpoint | Back to a single `RANGE` line |
+
+**Sources.** The reference values were compiled by a separate research subagent with web access into [`references/envelope_intensities_sources.md`](../references/envelope_intensities_sources.md), with source links, system boundaries and unit conversions. The sources include:
+- CLF North American Material Baselines 2023 and 2025;
+- PCI industry-average precast EPDs (2025);
+- Kawneer curtain wall, storefront and window EPDs (2021);
+- RDH Building Science wall assembly studies;
+- the UBC fenestration study;
+- SPRI, NAIMA and AEC industry EPDs (as reported in the CLF baselines);
+- the Arup/Saint-Gobain facade study.
+
+The research brief excluded the Benke et al. dataset and anything derived from it. The subagent also left out the CLF WBLCA Benchmark v2 results, because they probably share source models with the ground truth. Several wall values are assembly sums by the subagent and are marked as uncertain in that file. The "below about 50 per m² of envelope" threshold in step 4 is our own derivation from those component ranges, not a published benchmark.
+
+## 9. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
 - **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls.
