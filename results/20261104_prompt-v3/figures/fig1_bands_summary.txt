@@ -1,0 +1,333 @@
+Run: 20261104_prompt-v3
+Band: estimate ±20%.  inside = true ECI within the band; ABOVE = truth above the band (model underestimates); BELOW = truth below the band (model overestimates).
+
+Inside: 73/292 = 25.0%   Wilson 95% CI [20.4%, 30.3%]
+ABOVE:  143/292 = 49.0%
+BELOW:  76/292 = 26.0%
+
+ABOVE (143): project-1, project-2, project-5, project-6, project-8, project-9, project-10,
+    project-12, project-13, project-14, project-15, project-17, project-23, project-25, project-26,
+    project-27, project-30, project-34, project-35, project-36, project-40, project-42, project-44,
+    project-45, project-49, project-50, project-51, project-52, project-55, project-58, project-68,
+    project-69, project-73, project-75, project-77, project-79, project-85, project-86, project-88,
+    project-94, project-100, project-101, project-102, project-104, project-109, project-110,
+    project-111, project-112, project-113, project-114, project-115, project-117, project-120,
+    project-121, project-122, project-123, project-124, project-125, project-126, project-130,
+    project-134, project-136, project-137, project-141, project-142, project-143, project-145,
+    project-148, project-149, project-150, project-151, project-154, project-155, project-158,
+    project-159, project-160, project-161, project-163, project-164, project-166, project-167,
+    project-168, project-169, project-171, project-172, project-178, project-186, project-188,
+    project-189, project-190, project-191, project-196, project-197, project-198, project-199,
+    project-201, project-203, project-205, project-207, project-208, project-209, project-210,
+    project-211, project-213, project-214, project-218, project-220, project-222, project-223,
+    project-224, project-225, project-228, project-229, project-231, project-232, project-235,
+    project-236, project-237, project-238, project-239, project-240, project-242, project-244,
+    project-248, project-250, project-253, project-256, project-258, project-259, project-260,
+    project-262, project-264, project-265, project-268, project-272, project-273, project-276,
+    project-281, project-282, project-285, project-287, project-289, project-292
+BELOW (76): project-3, project-11, project-16, project-22, project-33, project-39, project-41,
+    project-43, project-46, project-53, project-54, project-56, project-57, project-60, project-61,
+    project-63, project-64, project-66, project-67, project-70, project-71, project-74, project-80,
+    project-84, project-89, project-91, project-93, project-95, project-98, project-99, project-105,
+    project-106, project-107, project-108, project-116, project-119, project-127, project-128,
+    project-131, project-132, project-138, project-139, project-140, project-147, project-153,
+    project-162, project-170, project-174, project-175, project-176, project-177, project-180,
+    project-181, project-182, project-183, project-184, project-187, project-195, project-204,
+    project-215, project-217, project-221, project-226, project-227, project-234, project-245,
+    project-246, project-247, project-251, project-261, project-267, project-275, project-277,
+    project-280, project-284, project-288
+
+Per building (ECI in kgCO2e/m2):
+    project  truth  estimate  band_low  band_high  est/truth result
+  project-1   73.8      37.2      29.7       44.6       0.50  ABOVE
+  project-2  137.9      46.7      37.3       56.0       0.34  ABOVE
+  project-3   64.6      96.7      77.3      116.0       1.50  BELOW
+  project-4  100.4      85.5      68.4      102.6       0.85 inside
+  project-5   82.0      65.8      52.7       79.0       0.80  ABOVE
+  project-6  307.4     129.2     103.3      155.0       0.42  ABOVE
+  project-7   85.2      93.3      74.7      112.0       1.10 inside
+  project-8  223.8      58.8      47.1       70.6       0.26  ABOVE
+  project-9   75.5      50.2      40.1       60.2       0.66  ABOVE
+ project-10   14.0       3.0       2.4        3.6       0.21  ABOVE
+ project-11   35.1     140.0     112.0      168.0       3.99  BELOW
+ project-12   79.2      63.7      50.9       76.4       0.80  ABOVE
+ project-13   62.2      46.2      36.9       55.4       0.74  ABOVE
+ project-14  227.6     119.2      95.3      143.0       0.52  ABOVE
+ project-15  178.6      99.2      79.3      119.0       0.56  ABOVE
+ project-16   22.9      51.5      41.2       61.8       2.25  BELOW
+ project-17  109.2      60.8      48.7       73.0       0.56  ABOVE
+ project-18   84.5      85.3      68.3      102.4       1.01 inside
+ project-19  175.6     149.2     119.3      179.0       0.85 inside
+ project-20  136.8     168.3     134.7      202.0       1.23 inside
+ project-21   65.2      74.8      59.9       89.8       1.15 inside
+ project-22   29.2     225.8     180.7      271.0       7.74  BELOW
+ project-23   62.6      52.0      41.6       62.4       0.83  ABOVE
+ project-24  106.1     108.3      86.7      130.0       1.02 inside
+ project-25   93.4      27.3      21.9       32.8       0.29  ABOVE
+ project-26  357.6     112.5      90.0      135.0       0.31  ABOVE
+ project-27   24.9       6.7       5.3        8.0       0.27  ABOVE
+ project-28  101.5      85.3      68.3      102.4       0.84 inside
+ project-29  122.9     143.3     114.7      172.0       1.17 inside
+ project-30   26.9      20.0      16.0       24.0       0.74  ABOVE
+ project-31  186.4     165.8     132.7      199.0       0.89 inside
+ project-32   45.4      41.3      33.1       49.6       0.91 inside
+ project-33   56.4     141.2     112.9      169.4       2.50  BELOW
+ project-34   83.5      55.2      44.1       66.2       0.66  ABOVE
+ project-35   17.2       5.7       4.5        6.8       0.33  ABOVE
+ project-36  316.5      73.7      58.9       88.4       0.23  ABOVE
+ project-37   55.5      54.3      43.5       65.2       0.98 inside
+ project-38   85.6      75.0      60.0       90.0       0.88 inside
+ project-39   24.1      69.5      55.6       83.4       2.89  BELOW
+ project-40  138.5      94.2      75.3      113.0       0.68  ABOVE
+ project-41   49.8      68.0      54.4       81.6       1.37  BELOW
+ project-42   10.4       4.3       3.5        5.2       0.42  ABOVE
+ project-43    6.8      15.0      12.0       18.0       2.20  BELOW
+ project-44   50.5      22.3      17.9       26.8       0.44  ABOVE
+ project-45   57.4      40.8      32.7       49.0       0.71  ABOVE
+ project-46   33.7      49.0      39.2       58.8       1.45  BELOW
+ project-47   79.8      79.2      63.3       95.0       0.99 inside
+ project-48   53.2      64.8      51.9       77.8       1.22 inside
+ project-49   50.2      38.8      31.1       46.6       0.77  ABOVE
+ project-50   42.0      22.8      18.3       27.4       0.54  ABOVE
+ project-51   42.2      24.0      19.2       28.8       0.57  ABOVE
+ project-52   91.8      35.2      28.1       42.2       0.38  ABOVE
+ project-53   26.8      34.3      27.5       41.2       1.28  BELOW
+ project-54    6.5      21.0      16.8       25.2       3.24  BELOW
+ project-55  131.9      36.2      28.9       43.4       0.27  ABOVE
+ project-56   10.7      26.8      21.5       32.2       2.51  BELOW
+ project-57   46.5      96.7      77.3      116.0       2.08  BELOW
+ project-58  107.8      65.5      52.4       78.6       0.61  ABOVE
+ project-59   65.8      69.7      55.7       83.6       1.06 inside
+ project-60   36.7      62.2      49.7       74.6       1.70  BELOW
+ project-61   94.6     119.2      95.3      143.0       1.26  BELOW
+ project-62   66.9      63.3      50.7       76.0       0.95 inside
+ project-63   71.8     152.5     122.0      183.0       2.12  BELOW
+ project-64   67.3      98.8      79.1      118.6       1.47  BELOW
+ project-65   70.5      69.3      55.5       83.2       0.98 inside
+ project-66    7.0      33.8      27.1       40.6       4.87  BELOW
+ project-67   20.0      90.2      72.1      108.2       4.50  BELOW
+ project-68   81.8      63.3      50.7       76.0       0.77  ABOVE
+ project-69  112.7      39.2      31.3       47.0       0.35  ABOVE
+ project-70   64.9     183.3     146.7      220.0       2.83  BELOW
+ project-71   24.6      45.3      36.3       54.4       1.85  BELOW
+ project-72   51.5      62.0      49.6       74.4       1.20 inside
+ project-73  123.6      60.7      48.5       72.8       0.49  ABOVE
+ project-74    0.6      46.0      36.8       55.2      71.88  BELOW
+ project-75  178.1     119.2      95.3      143.0       0.67  ABOVE
+ project-76   81.4      92.2      73.7      110.6       1.13 inside
+ project-77  202.6      55.2      44.1       66.2       0.27  ABOVE
+ project-78   37.9      38.0      30.4       45.6       1.00 inside
+ project-79   51.8      25.2      20.1       30.2       0.49  ABOVE
+ project-80    9.4     107.5      86.0      129.0      11.47  BELOW
+ project-81   53.5      62.5      50.0       75.0       1.17 inside
+ project-82  123.8     117.5      94.0      141.0       0.95 inside
+ project-83   56.9      49.7      39.7       59.6       0.87 inside
+ project-84   49.3      72.3      57.9       86.8       1.47  BELOW
+ project-85   12.9       2.2       1.7        2.6       0.17  ABOVE
+ project-86  126.2      87.5      70.0      105.0       0.69  ABOVE
+ project-87  101.8     105.0      84.0      126.0       1.03 inside
+ project-88  231.8      79.5      63.6       95.4       0.34  ABOVE
+ project-89   81.8     152.5     122.0      183.0       1.86  BELOW
+ project-90  159.3     168.3     134.7      202.0       1.06 inside
+ project-91   29.2     130.0     104.0      156.0       4.46  BELOW
+ project-92   83.9      84.2      67.3      101.0       1.00 inside
+ project-93   52.9     132.2     105.7      158.6       2.50  BELOW
+ project-94   36.2      25.0      20.0       30.0       0.69  ABOVE
+ project-95  120.1     164.2     131.3      197.0       1.37  BELOW
+ project-96  139.0     160.5     128.4      192.6       1.15 inside
+ project-97   53.6      60.5      48.4       72.6       1.13 inside
+ project-98   67.2     131.7     105.3      158.0       1.96  BELOW
+ project-99    6.5      11.5       9.2       13.8       1.76  BELOW
+project-100  214.5      82.5      66.0       99.0       0.38  ABOVE
+project-101   11.6       2.3       1.9        2.8       0.20  ABOVE
+project-102  123.0      89.3      71.5      107.2       0.73  ABOVE
+project-103   10.1      10.5       8.4       12.6       1.04 inside
+project-104    7.6       2.0       1.6        2.4       0.26  ABOVE
+project-105  104.6     135.0     108.0      162.0       1.29  BELOW
+project-106   63.0     114.2      91.3      137.0       1.81  BELOW
+project-107   87.7     140.8     112.7      169.0       1.61  BELOW
+project-108    0.5       9.5       7.6       11.4      19.39  BELOW
+project-109  357.2     166.7     133.3      200.0       0.47  ABOVE
+project-110   84.7      69.5      55.6       83.4       0.82  ABOVE
+project-111  144.5      27.0      21.6       32.4       0.19  ABOVE
+project-112  137.7      57.5      46.0       69.0       0.42  ABOVE
+project-113  104.7      67.3      53.9       80.8       0.64  ABOVE
+project-114  165.9      87.7      70.1      105.2       0.53  ABOVE
+project-115  209.0      70.3      56.3       84.4       0.34  ABOVE
+project-116   61.4      82.2      65.7       98.6       1.34  BELOW
+project-117  105.2      60.3      48.3       72.4       0.57  ABOVE
+project-118   30.1      29.7      23.7       35.6       0.99 inside
+project-119   39.3      53.0      42.4       63.6       1.35  BELOW
+project-120   87.5      57.0      45.6       68.4       0.65  ABOVE
+project-121   86.0      69.8      55.9       83.8       0.81  ABOVE
+project-122   10.0       3.5       2.8        4.2       0.35  ABOVE
+project-123   81.1      59.2      47.3       71.0       0.73  ABOVE
+project-124  111.8      46.0      36.8       55.2       0.41  ABOVE
+project-125   77.2      62.5      50.0       75.0       0.81  ABOVE
+project-126  131.2      95.0      76.0      114.0       0.72  ABOVE
+project-127   73.4     197.5     158.0      237.0       2.69  BELOW
+project-128   95.8     268.3     214.7      322.0       2.80  BELOW
+project-129  265.9     295.0     236.0      354.0       1.11 inside
+project-130   44.0      33.8      27.1       40.6       0.77  ABOVE
+project-131   61.9      95.0      76.0      114.0       1.53  BELOW
+project-132   77.0     102.0      81.6      122.4       1.33  BELOW
+project-133   35.0      30.7      24.5       36.8       0.88 inside
+project-134    2.6       1.8       1.5        2.2       0.70  ABOVE
+project-135    2.7       2.5       2.0        3.0       0.91 inside
+project-136    4.3       3.3       2.7        4.0       0.77  ABOVE
+project-137  513.9      75.0      60.0       90.0       0.15  ABOVE
+project-138   28.7      47.2      37.7       56.6       1.64  BELOW
+project-139   17.2      39.7      31.7       47.6       2.30  BELOW
+project-140   39.6      61.5      49.2       73.8       1.55  BELOW
+project-141   41.7      14.2      11.3       17.0       0.34  ABOVE
+project-142   48.1      27.8      22.3       33.4       0.58  ABOVE
+project-143   68.4      48.7      38.9       58.4       0.71  ABOVE
+project-144   32.0      34.7      27.7       41.6       1.08 inside
+project-145   92.8      33.7      26.9       40.4       0.36  ABOVE
+project-146   11.3      11.7       9.3       14.0       1.04 inside
+project-147   17.1      48.3      38.7       58.0       2.83  BELOW
+project-148  167.8      88.7      70.9      106.4       0.53  ABOVE
+project-149   67.9      45.7      36.5       54.8       0.67  ABOVE
+project-150   43.5      29.0      23.2       34.8       0.67  ABOVE
+project-151   67.1      27.7      22.1       33.2       0.41  ABOVE
+project-152  130.4     132.5     106.0      159.0       1.02 inside
+project-153   73.5      94.2      75.3      113.0       1.28  BELOW
+project-154  262.6     148.3     118.7      178.0       0.56  ABOVE
+project-155   83.4      54.5      43.6       65.4       0.65  ABOVE
+project-156   87.2      76.7      61.3       92.0       0.88 inside
+project-157  202.6     245.0     196.0      294.0       1.21 inside
+project-158   69.9      55.3      44.3       66.4       0.79  ABOVE
+project-159   55.1      32.7      26.1       39.2       0.59  ABOVE
+project-160  196.2     143.3     114.7      172.0       0.73  ABOVE
+project-161  126.9      85.5      68.4      102.6       0.67  ABOVE
+project-162   18.2      48.7      38.9       58.4       2.68  BELOW
+project-163    3.1       2.5       2.0        3.0       0.80  ABOVE
+project-164  123.4      96.7      77.3      116.0       0.78  ABOVE
+project-165   92.1      80.8      64.7       97.0       0.88 inside
+project-166  403.2      45.7      36.5       54.8       0.11  ABOVE
+project-167  130.7      97.5      78.0      117.0       0.75  ABOVE
+project-168   71.4      42.3      33.9       50.8       0.59  ABOVE
+project-169   46.4      31.2      24.9       37.4       0.67  ABOVE
+project-170   23.5      30.7      24.5       36.8       1.31  BELOW
+project-171  154.4     102.5      82.0      123.0       0.66  ABOVE
+project-172  141.6      49.5      39.6       59.4       0.35  ABOVE
+project-173  150.3     152.5     122.0      183.0       1.01 inside
+project-174   68.9     146.7     117.3      176.0       2.13  BELOW
+project-175   49.2      64.5      51.6       77.4       1.31  BELOW
+project-176   29.0      58.2      46.5       69.8       2.01  BELOW
+project-177  113.4     165.8     132.7      199.0       1.46  BELOW
+project-178  323.7     138.3     110.7      166.0       0.43  ABOVE
+project-179  114.2     137.5     110.0      165.0       1.20 inside
+project-180   89.9     129.2     103.3      155.0       1.44  BELOW
+project-181   64.1     195.0     156.0      234.0       3.04  BELOW
+project-182   66.2     116.0      92.8      139.2       1.75  BELOW
+project-183   75.7     126.7     101.3      152.0       1.67  BELOW
+project-184   37.7      56.3      45.1       67.6       1.49  BELOW
+project-185  116.6     102.2      81.7      122.6       0.88 inside
+project-186   98.6      82.2      65.7       98.6       0.83  ABOVE
+project-187   89.3     143.8     115.1      172.6       1.61  BELOW
+project-188   95.3      41.2      32.9       49.4       0.43  ABOVE
+project-189   76.7      12.0       9.6       14.4       0.16  ABOVE
+project-190  184.0     115.0      92.0      138.0       0.63  ABOVE
+project-191   88.5      30.0      24.0       36.0       0.34  ABOVE
+project-192   22.4      23.0      18.4       27.6       1.03 inside
+project-193   78.0      72.5      58.0       87.0       0.93 inside
+project-194   41.7      37.0      29.6       44.4       0.89 inside
+project-195   47.1      78.7      62.9       94.4       1.67  BELOW
+project-196  115.4      74.3      59.5       89.2       0.64  ABOVE
+project-197   79.0      59.5      47.6       71.4       0.75  ABOVE
+project-198  361.8      39.0      31.2       46.8       0.11  ABOVE
+project-199   51.2      17.5      14.0       21.0       0.34  ABOVE
+project-200   55.3      48.2      38.5       57.8       0.87 inside
+project-201  380.6      87.8      70.3      105.4       0.23  ABOVE
+project-202  113.3      95.0      76.0      114.0       0.84 inside
+project-203   55.8      30.0      24.0       36.0       0.54  ABOVE
+project-204   18.0      47.5      38.0       57.0       2.64  BELOW
+project-205   13.2       6.2       4.9        7.4       0.47  ABOVE
+project-206  159.0     140.8     112.7      169.0       0.89 inside
+project-207  250.1      96.2      76.9      115.4       0.38  ABOVE
+project-208   16.0      12.8      10.3       15.4       0.80  ABOVE
+project-209   62.0      35.8      28.7       43.0       0.58  ABOVE
+project-210   90.0      43.2      34.5       51.8       0.48  ABOVE
+project-211  236.4      72.2      57.7       86.6       0.31  ABOVE
+project-212   85.9      94.0      75.2      112.8       1.09 inside
+project-213  120.5      52.7      42.1       63.2       0.44  ABOVE
+project-214   59.9      27.3      21.9       32.8       0.46  ABOVE
+project-215   59.6      86.3      69.1      103.6       1.45  BELOW
+project-216  199.1     167.5     134.0      201.0       0.84 inside
+project-217   27.0     116.7      93.3      140.0       4.32  BELOW
+project-218  184.8      90.0      72.0      108.0       0.49  ABOVE
+project-219   97.4     115.2      92.1      138.2       1.18 inside
+project-220  265.4     131.3     105.1      157.6       0.49  ABOVE
+project-221   38.3      55.8      44.7       67.0       1.46  BELOW
+project-222   95.5      46.2      36.9       55.4       0.48  ABOVE
+project-223  190.4      62.0      49.6       74.4       0.33  ABOVE
+project-224  105.1      62.0      49.6       74.4       0.59  ABOVE
+project-225   91.7      57.5      46.0       69.0       0.63  ABOVE
+project-226   34.2      95.3      76.3      114.4       2.78  BELOW
+project-227   28.2      70.3      56.3       84.4       2.49  BELOW
+project-228   26.1       2.3       1.9        2.8       0.09  ABOVE
+project-229  244.8      64.2      51.3       77.0       0.26  ABOVE
+project-230   94.8     116.7      93.3      140.0       1.23 inside
+project-231  162.2      58.3      46.7       70.0       0.36  ABOVE
+project-232  322.0     164.2     131.3      197.0       0.51  ABOVE
+project-233   92.0      80.0      64.0       96.0       0.87 inside
+project-234   15.5      46.8      37.5       56.2       3.02  BELOW
+project-235   74.2      57.2      45.7       68.6       0.77  ABOVE
+project-236   86.4      69.5      55.6       83.4       0.80  ABOVE
+project-237   66.2      46.8      37.5       56.2       0.71  ABOVE
+project-238   77.2      49.0      39.2       58.8       0.64  ABOVE
+project-239   81.6      64.3      51.5       77.2       0.79  ABOVE
+project-240  131.8      92.0      73.6      110.4       0.70  ABOVE
+project-241   70.7      85.0      68.0      102.0       1.20 inside
+project-242   77.7      52.7      42.1       63.2       0.68  ABOVE
+project-243   56.3      60.3      48.3       72.4       1.07 inside
+project-244  159.0      42.2      33.7       50.6       0.27  ABOVE
+project-245   25.0     150.0     120.0      180.0       6.00  BELOW
+project-246   58.0      95.5      76.4      114.6       1.65  BELOW
+project-247   59.1      85.0      68.0      102.0       1.44  BELOW
+project-248  147.7      84.5      67.6      101.4       0.57  ABOVE
+project-249  119.4     104.2      83.3      125.0       0.87 inside
+project-250   83.9      40.7      32.5       48.8       0.48  ABOVE
+project-251   67.9     117.5      94.0      141.0       1.73  BELOW
+project-252   85.6      78.7      62.9       94.4       0.92 inside
+project-253   99.9      43.2      34.5       51.8       0.43  ABOVE
+project-254   50.5      53.0      42.4       63.6       1.05 inside
+project-255  103.5      88.3      70.7      106.0       0.85 inside
+project-256  115.6      43.2      34.5       51.8       0.37  ABOVE
+project-257   64.4      69.3      55.5       83.2       1.08 inside
+project-258  120.3      91.2      72.9      109.4       0.76  ABOVE
+project-259  112.1      51.0      40.8       61.2       0.45  ABOVE
+project-260  107.7      83.7      66.9      100.4       0.78  ABOVE
+project-261  116.8     162.5     130.0      195.0       1.39  BELOW
+project-262   39.0      27.3      21.9       32.8       0.70  ABOVE
+project-263   44.3      43.7      34.9       52.4       0.99 inside
+project-264  141.4      75.5      60.4       90.6       0.53  ABOVE
+project-265   55.1      35.7      28.5       42.8       0.65  ABOVE
+project-266   95.4      80.8      64.7       97.0       0.85 inside
+project-267   39.6      80.8      64.7       97.0       2.04  BELOW
+project-268  105.2      25.7      20.5       30.8       0.24  ABOVE
+project-269  108.6      98.3      78.7      118.0       0.91 inside
+project-270   78.6      70.8      56.7       85.0       0.90 inside
+project-271  157.2     136.7     109.3      164.0       0.87 inside
+project-272  238.2     163.3     130.7      196.0       0.69  ABOVE
+project-273  110.0      71.8      57.5       86.2       0.65  ABOVE
+project-274   70.6      85.8      68.7      103.0       1.22 inside
+project-275   78.1     126.7     101.3      152.0       1.62  BELOW
+project-276  110.5      52.5      42.0       63.0       0.48  ABOVE
+project-277   64.6      89.2      71.3      107.0       1.38  BELOW
+project-278   45.1      44.5      35.6       53.4       0.99 inside
+project-279   93.4     100.8      80.7      121.0       1.08 inside
+project-280   45.2     196.7     157.3      236.0       4.35  BELOW
+project-281  143.8      65.8      52.7       79.0       0.46  ABOVE
+project-282   60.6      47.8      38.3       57.4       0.79  ABOVE
+project-283   34.4      38.7      30.9       46.4       1.13 inside
+project-284   26.7      36.8      29.5       44.2       1.38  BELOW
+project-285  129.2      56.0      44.8       67.2       0.43  ABOVE
+project-286   68.1      84.2      67.3      101.0       1.24 inside
+project-287  317.4     199.2     159.3      239.0       0.63  ABOVE
+project-288   97.5     184.2     147.3      221.0       1.89  BELOW
+project-289  205.3      91.7      73.3      110.0       0.45  ABOVE
+project-290   75.5      72.7      58.1       87.2       0.96 inside
+project-291  123.3     120.0      96.0      144.0       0.97 inside
+project-292  336.2      55.0      44.0       66.0       0.16  ABOVE

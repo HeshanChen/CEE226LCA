@@ -3,7 +3,7 @@
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
 
-> Status: draft. Sections 1–8 are complete. The prompt v3 run (`20261104_prompt-v3`) is in progress, and its results will be added as Section 8.1.
+> Status: complete for prompts v1–v3 (3 runs × 292 buildings each). The final prompt is v3 (Appendix A, section E).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -24,6 +24,14 @@ Its largest overestimates are mostly cases where the reference LCA itself is inc
 From this analysis we wrote prompt v2. It defines the enclosure the way the dataset classifies it, requires a component-by-component take-off, names the high-impact materials, forbids anchoring on a typical value, adds renovation guidance, and asks for a best estimate. The prompt is described in Section 6 and given in full in Appendix A.
 
 Prompt v2 made the model **more consistent** (CV 19.0% → 13.8%) and **less compressed** (slope 0.46 → 0.55), but **less accurate**: coverage fell to 15.1% (McNemar p = 0.085), the median APE rose to 44.3%, and the bias went from 0.75 to 0.67. The model named XPS but kept assuming polyiso roofs, its bottom-up component intensities were low, and the renovation rule pushed estimates down (Section 7). In short, qualitative knowledge in a prompt is acknowledged but not applied; changing the numbers requires quantitative anchors at the step where each number is chosen.
+
+Prompt v3 does exactly that (Section 8):
+- an externally sourced table of component intensities at the step where intensities are chosen;
+- the HFC-XPS modelling convention;
+- a per-envelope sanity check;
+- a renovation rule that no longer subtracts.
+
+**v3 is the final prompt.** Coverage is **25.0%** (v1 19.5%), RMSE 76.0, bias 0.86 and CV 12.5%. The improvement over v1 is consistent but borderline significant (McNemar p = 0.085, Wilcoxon p = 0.053); over v2 it is clearly significant (p = 0.002). The non-XPS part of the enclosure is now estimated without bias (0.99), and so are buildings whose envelope area is given (0.99). What remains is compression at the high end (buildings above 200 are at 0.38), more overestimation of light enclosures, and renovations.
 
 ## 2. Data and ground truth
 
@@ -240,10 +248,64 @@ v3 keeps what worked in v2: the scope definition, the step-by-step method, and t
 
 The research brief excluded the Benke et al. dataset and anything derived from it. The subagent also left out the CLF WBLCA Benchmark v2 results, because they probably share source models with the ground truth. Several wall values are assembly sums by the subagent and are marked as uncertain in that file. The "below about 50 per m² of envelope" threshold in step 4 is our own derivation from those component ranges, not a published benchmark.
 
+### 8.1 Results: prompt v3 vs v2 and v1
+
+All 876 v3 answers parsed (`results/20261104_prompt-v3/`). The model, effort, features, buildings, seeds and chunks are the same as for v1 and v2.
+
+During run 2 a container restart interrupted the six subagents after 130 of the run's 292 answers. The remaining 162 buildings were answered by six continuation subagents, using the same prompt and only the missing buildings (`subagent_runs.py resume`, recorded in the run manifest). Those 162 buildings therefore shared a context with different neighbours than planned.
+
+| Subset | Prompt | ±20% coverage | RMSE | median APE | est/true (geo-mean) | CV across runs |
+|---|---|---|---|---|---|---|
+| All projects (292) | v1 | 19.5% (15.4–24.5) | 79.7 | **37.9%** | 0.75 | 19.0% |
+| | v2 | 15.1% (11.4–19.6) | 81.0 | 44.3% | 0.67 | 13.8% |
+| | **v3** | **25.0% (20.4–30.3)** | **76.0** | 40.0% | **0.86** | **12.5%** |
+| New construction (243) | v1 | 18.9% | 77.4 | 37.5% | 0.76 | 17.3% |
+| | **v3** | **26.3%** | **74.1** | 38.0% | **0.91** | **10.9%** |
+| Excl. 10 incomplete (282) | v1 | 20.2% | 80.5 | 37.3% | 0.72 | 19.1% |
+| | **v3** | **25.9%** | **76.5** | 37.4% | **0.83** | **12.6%** |
+
+**Paired tests (same 292 buildings).**
+- **v3 vs v1:** 46 buildings are inside the band only with v3, and 30 only with v1 (McNemar p = 0.085). The median |log(est/true)| falls from 0.456 to 0.426 (Wilcoxon p = 0.053), and v3 is closer to the truth for 57% of buildings. The improvement is consistent but only borderline significant at 3 runs × 292 buildings.
+- **v3 vs v2:** the improvement is significant (McNemar p = 0.002; Wilcoxon p < 0.0001), and v3 is closer for 66% of buildings.
+- **Median APE:** v3 is slightly worse than v1 (40.0% against 37.9%) even though its log error is lower. This is because v3 moves estimates up, and APE penalises overestimates more than underestimates.
+- **Over/underestimates:** with v1, 58% of buildings were underestimated by more than 20% and 18% overestimated by more than 20%. With v3 the figures are 46% and 29%. The bias is smaller and the errors are more balanced.
+
+| Failure mode (Section 5) | v1 | v2 | v3 |
+|---|---|---|---|
+| Overall bias, est/true (geo-mean) | 0.75 | 0.67 | **0.86** |
+| Compression: log–log slope (1 = none) | 0.46 | 0.55 | **0.59** |
+| Compression: SD of estimates / SD of truth | 0.39 | 0.47 | **0.63** |
+| Truth 50–100: est/true | 0.76 | 0.71 | **0.91** |
+| Truth 100–200 / > 200: est/true | 0.54 / 0.28 | 0.51 / 0.27 | **0.69 / 0.38** |
+| Truth < 25 / 25–50: est/true | 1.58 / 1.09 | **1.27 / 0.93** | 1.53 / 1.31 |
+| XPS mentioned among projects that have XPS | 0.7% | 39.6% | **96.0%** |
+| HFC / blowing agent mentioned | 0% | 4% | **88%** |
+| Projects with XPS: est/true | 0.67 | 0.58 | **0.75** |
+| Est/(truth − XPS) | 0.84 | 0.77 | **0.99** |
+| Cold zones 5–8 / warm zones 1–3: est/true | 0.65 / 0.77 | 0.61 / 0.69 | **0.82 / 0.98** |
+| Envelope area given / not given: est/true | 0.81 / 0.65 | 0.75 / 0.57 | **0.99 / 0.73** |
+| Minor / major renovation: est/true | **0.85 / 0.77** | 0.56 / 0.63 | 0.74 / 0.71 |
+| Tenant improvement: est/true | 0.24 | 0.26 | 0.26 |
+
+**What worked.**
+- **Quantitative anchors at the decision step.** XPS (with its blowing agent) is now named in 96% of answers for projects that contain XPS.
+- **The non-XPS part of the enclosure is now unbiased.** est/(truth − XPS) went from 0.84 to 0.99.
+- **When the envelope area is given, the estimate is unbiased overall** (0.99). The per-component reference values and the per-envelope check are what fixed the low bottom-up totals.
+- **The climate gap closed for warm zones.** Warm zones are now at 0.98. Cold zones (0.82) remain underestimated because of thick HFC-XPS layers: projects where XPS is more than 30% of the truth are still at 0.61.
+
+**What is left.**
+1. **Compression is reduced but not removed** (slope 0.59). Buildings above 200 kgCO2e/m² are still at 0.38, and their extreme values (e.g. 300+ kgCO2e/m² of curtain wall or XPS) are not predictable from the features.
+2. **Low-carbon buildings are now overestimated more.** In the truth 25–50 bin, est/true rose from 1.09 to 1.31. The "do not go below the low end" instruction and the per-envelope check push light enclosures up, which is the price of correcting the low bias.
+3. **When the envelope area is missing, buildings are still underestimated** (0.73).
+4. **Renovations still fall short of v1.** They recovered from v2 but not to v1's level, and tenant improvements are unchanged at 0.26.
+
+**Final prompt.** v3 is the best of the three prompts by coverage, RMSE, bias, log error and consistency, and is the final prompt of this study (Appendix A, section E).
+
 ## 9. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
-- **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls.
+- **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls. In v3 run 2, 162 buildings were answered in continuation tasks after a container restart (Section 8.1).
+- **Statistical power.** With 3 runs × 292 buildings, the v3-vs-v1 gain is borderline significant (McNemar p = 0.085). More runs or a second dataset would settle it.
 - **Functional unit.** Results are per m² of floor area, not per m² of wall, and the enclosure includes windows, doors and roofs.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
@@ -268,29 +330,29 @@ python GWP-calculation/enclosure_breakdown.py
 ```
 
 ```bash
-python subagent_runs.py prepare --run-name 20261104_prompt-v2 --runs 3 --model-label "claude-opus-5-5 (Claude Code subagent)" --effort medium
+python subagent_runs.py prepare --run-name 20261104_prompt-v3 --runs 3 --model-label "claude-opus-5-5 (Claude Code subagent)" --effort medium
 ```
 
 Then start one Claude Code subagent per `results/<run>/subagent/tasks/*.instructions.txt` (model Opus, effort medium), and collect the answers:
 
 ```bash
-python subagent_runs.py collect --run-name 20261104_prompt-v2
+python subagent_runs.py collect --run-name 20261104_prompt-v3
 ```
 
 ```bash
-python LLM-data-cleaning.py 20261104_prompt-v2
+python LLM-data-cleaning.py 20261104_prompt-v3
 ```
 
 ```bash
-python make_fig1_bands.py 20261104_prompt-v2
+python make_fig1_bands.py 20261104_prompt-v3
 ```
 
 ```bash
-python summarize_run.py 20261104_prompt-v2
+python summarize_run.py 20261104_prompt-v3
 ```
 
 ```bash
-python analysis/error_analysis.py 20261104_baseline-innate 20261104_prompt-v2
+python analysis/error_analysis.py 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
 ```
 
 ```bash

@@ -93,7 +93,7 @@ python summarize_run.py 20261104_baseline-innate
 | pilot | `20261104_pilot-sonnet_run0-chunk01` | Sonnet 5.5 subagent, 49 buildings, pipeline test only | 49 × 1 | 36.7% | 62.2 | 31% | n/a |
 | 0 | `20261104_baseline-innate` | **Baseline**: Opus 5.5 subagents (effort medium), innate knowledge, all 49 features, no papers, no ontology | 292 × 3 | **19.5%** (95% CI 15.4–24.5%) | **79.7** | **37.9%** | **19.0%** |
 | 1 | `20261104_prompt-v2` | Prompt v2 (scope matching the dataset, component take-off, named high-impact materials, no anchoring, renovation rule, BEST line), same model and features | 292 × 3 | 15.1% (11.4–19.6%) | 81.0 | 44.3% | **13.8%** |
-| 2 | | Prompt v3: being designed (report Section 8) | | | | | |
+| 2 | `20261104_prompt-v3` | **Prompt v3 (final)**: v2 + external component-intensity table (`references/envelope_intensities_sources.md`), HFC-XPS modelling convention, per-envelope check, non-subtracting renovation rule, RANGE only | 292 × 3 | **25.0%** (20.4–30.3%) | **76.0** | 40.0% | **12.5%** |
 | 3 | | Feature study: full set vs. envelope-relevant subsets | | | | | |
 
 ### Baseline findings (iteration 0)
