@@ -84,8 +84,25 @@ python summarize_run.py 20261104_baseline-innate
 
 ## Experiment log
 
-| Iteration | Condition | Runs | Status |
-|---|---|---|---|
-| 0 | Baseline: innate knowledge, all 49 features, no papers, no ontology | 292 × 3 | in progress |
-| 1 | + envelope-focused papers in place of the whole-building PDFs | | planned |
-| 2 | Feature study: full set vs. envelope-relevant subsets | | planned |
+| Iteration | Run folder | Condition | Runs | ±20% coverage | RMSE | median APE | CV across runs |
+|---|---|---|---|---|---|---|---|
+| pilot | `20261104_pilot-sonnet_run0-chunk01` | Sonnet 5.5 subagent, 49 buildings, pipeline test only | 49 × 1 | 36.7% | 62.2 | 31% | n/a |
+| 0 | `20261104_baseline-innate` | **Baseline**: Opus 5.5 subagents (effort medium), innate knowledge, all 49 features, no papers, no ontology | 292 × 3 | **19.5%** (95% CI 15.4–24.5%) | **79.7** | **37.9%** | **19.0%** |
+| 1 | | + envelope-focused papers / material data in place of the whole-building PDFs | | | | | |
+| 2 | | Feature study: full set vs. envelope-relevant subsets | | | | | |
+
+### Baseline findings (iteration 0)
+
+All 876 answers parsed (292 buildings × 3 runs). Full tables are in `results/20261104_baseline-innate/summary.md`, and figures in `results/20261104_baseline-innate/figures/`.
+
+- **Systematic underestimate.** The geometric mean of estimate/true is 0.75, and the median estimate is 56 against a true median of 78 kgCO2e/m². For 63% of buildings, the true value lies above the ±20% band.
+- **Compressed range.** Estimates span 1.7–168 kgCO2e/m² (SD 30.7 across buildings), while true values span 0.5–514 (SD 78.0). The model pulls every building toward about 50–100, so it misses high-carbon enclosures.
+- **Climate pattern.** Underestimation is larger in cold zones (5A 0.68×, 5B 0.65×, 7 0.57×, 2B 0.45×) than in warm marine and dry zones (3C 1.10×, 3B 0.94×). One hypothesis to test in iteration 1: insulation is the largest enclosure A1–A3 contributor in this dataset (26% of GWP, ahead of aluminum at 22%), and the model may underweight it.
+- **Use pattern.** Healthcare (1.14×) and multifamily (0.79×) come closest. Transportation hubs (0.56×) and public order and safety (0.66×) are underestimated most.
+- **Near-zero renovations are handled well.** Tenant fit-outs and minor renovations with a true value of 0.5–7 often received "0 – 5" style answers. See the parser note in `subagent_runs.py`.
+- These numbers are **not comparable** to the course whole-building A–C results (34–46% coverage), because the scope (enclosure A1–A3) and the model differ.
+
+### Method notes for the report
+
+- The LLM is a Claude Code subagent, not an API call. Each subagent answers 48–49 buildings in one context, and buildings are shuffled with a different seed for each run. The prompt asks the model to treat every building independently and to read only its task file, with no web access or code. Separate API calls would be fully independent; this setup is not.
+- The functional unit is per m² of **floor area** (the dataset's normalization), not per m² of wall as in the proposal. The enclosure element also includes windows, doors and roofing.
