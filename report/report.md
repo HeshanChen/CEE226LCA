@@ -39,6 +39,8 @@ Prompt v3 does exactly that (Section 8):
 
 **Feature study** (Section 10). With prompt v3, a 10-feature early-design input set is as accurate as all 48 features, and removing `mass_total` or the LCA-derived fields does not hurt. Every difference between feature sets lies within the run-to-run spread. The limiting information is the assembly type, which no feature provides.
 
+**Implications for LEED v5** (Section 11). The v3 estimates support MRp2 hotspot screening and the comparison of envelope alternatives at schematic design, but they are not precise enough to document an MRc2 reduction for an individual building. The enclosure is a median 19% of whole-building A–C carbon, so a 30% enclosure cut is about 6% of the building.
+
 ## 2. Data and ground truth
 
 **Source.** Benke et al. (2025), *A Harmonized Dataset of High-Resolution Embodied Life Cycle Assessment Results for Buildings in North America*, Scientific Data ([doi:10.1038/s41597-025-05216-0](https://doi.org/10.1038/s41597-025-05216-0); data on [figshare](https://figshare.com/articles/dataset/28462145), CC BY 4.0). The `full_lca_results.xlsx` file has 927,950 rows, one per material, element and life cycle stage, covering 292 projects.
@@ -65,6 +67,8 @@ Prompt v3 does exactly that (Section 8):
 XPS in this dataset carries **43.6 kgCO2e/kg**, against 1.2 for high-density mineral wool, 2.4 for fiberglass and 3.1 for polyiso. This is consistent with XPS made with HFC blowing agents, which the LCA tools of the assessment years (Tally, One Click LCA) modelled. 149 of the 292 projects contain XPS.
 
 **Data-quality flag.** 10 new-construction projects (27, 35, 66, 74, 80, 91, 141, 217, 234, 264) have **no window, glazing, curtain wall or storefront GWP at all** in their enclosure inventory. Some of them report a WWR of 0.5–0.7. Project 74, for example, has WWR 0.65 and a true value of 0.64 kgCO2e/m². These look like incomplete source LCA models rather than real buildings with glass-free envelopes. They are kept in every headline metric, for comparability, and also reported separately ("excl. incomplete").
+
+![Figure 2.1: Share of enclosure A1–A3 GWP by material group, 292 projects. XPS alone is 15.5%.](figures/fig_composition.png)
 
 ## 3. LLM experiment setup
 
@@ -152,6 +156,10 @@ The model leans on geometry more than the data justifies. The envelope-to-floor-
 ### 5.4 Ruled out
 
 R-values, WWR, building size, completion year and `lca_ec_reductions` each correlate weakly with the error (|r| ≤ 0.26). Consistency across runs is acceptable: the median CV is 17%, the mean 19%.
+
+![Figure 5.1: Median estimate/reference by reference bin; all prompts compress](figures/fig_bins.png)
+
+![Figure 5.2: Subgroups behind each failure mode, by prompt](figures/fig_diagnostics.png)
 
 ## 6. Prompt v2
 
@@ -307,6 +315,10 @@ During run 2 a container restart interrupted the six subagents after 130 of the 
 
 **Final prompt.** v3 is the best of the three prompts by coverage, RMSE, bias, log error and consistency, and is the final prompt of this study (Appendix A, section E).
 
+![Figure 8.1: Estimate vs reference for v1 and v3 (1:1 line, ±20% band)](figures/fig_scatter_v1_v3.png)
+
+![Figure 8.2: Coverage (95% CI) and median absolute log error, all 292 and test 88](figures/fig_prompts.png)
+
 ## 9. Held-out evaluation
 
 **No suitable external dataset.** We looked for an independent dataset with the same structure (element-level enclosure A1–A3 results plus early-stage features for North American buildings) and found none:
@@ -398,7 +410,47 @@ On the test split (88 buildings), the same picture holds: min has 30.7% coverage
 2. **The model does not depend on the leakage-prone fields.** Removing `mass_total`, or all LCA-derived fields, does not make the estimates worse; the no-lca condition is in fact marginally better. The v1–v3 results are therefore not an artefact of features that encode the reference LCA.
 3. **Prompt content matters more than feature selection.** Moving from v2 to v3 changed the median abs log error by 0.137 and coverage by 10 points (Section 8.1). No feature set changed either by more than 0.020 or 4.5 points.
 
-## 11. Limitations and next steps
+![Figure 10.1: Feature sets vs all 48 features; grey band is run-to-run noise](figures/feature_study.png)
+
+## 11. Implications for LEED v5
+
+LEED v5 brings embodied carbon into the rating system:
+
+- **Prerequisite MRp2 (Quantify and Assess Embodied Carbon)**: quantify the embodied carbon of the main building elements, including the enclosure, and identify the largest hotspots.
+- **Credit MRc2 (Reduce Embodied Carbon)**: reward reductions, either through a whole-building LCA compared with a baseline (Option 1) or through product-level reductions documented with EPDs (Option 2).
+
+Figure 11.1 is the team's diagram, revised from the draft "Building Envelope LCA and LEED Goals". The main changes:
+
+- the study boundary is marked in the life cycle: A1–A3 is in scope; A4–A5, B1–B5 and C1–C4/D are outside;
+- two estimation routes are added, the reference LCA and the LLM estimate (prompt v3), both producing enclosure A1–A3 results;
+- the "LEED goals" column is made specific to LEED v5: MRp2 → MRc2 → check contribution and evidence gaps, leading to a recommended envelope design with its estimated LEED contribution and remaining documentation/data gaps.
+
+![Figure 11.1: Building-envelope LCA and LEED v5 goals (revised from the draft)](figures/fig_leed.png)
+
+**MRp2: hotspot screening.** At schematic design no material inventory exists, and the prerequisite's purpose is to direct attention to the largest sources. The v3 estimates suit that purpose:
+
+- the bias is small, −14% overall and close to zero for buildings without XPS;
+- the reasoning names the components that drive enclosure carbon in the data: aluminum curtain wall and framing, insulation type (HFC-XPS), metal panels and glazing.
+
+Agreement with the reference's top-3 materials still needs a quantitative test. The answers give hotspots in prose rather than in a structured form, so this is left as future work.
+
+**MRc2: reductions need precision the LLM does not have.** Credit points scale with the percentage reduction against a baseline. The v3 errors are:
+
+- a run-to-run CV of 12.5%;
+- a median absolute error of about 35–40%;
+- coverage of only one building in four within ±20%.
+
+These are as large as, or larger than, the reductions a project typically documents, so an absolute LLM estimate cannot demonstrate a credit-level reduction for an individual building. The more promising use is a **paired** comparison of envelope alternatives for the same building with the same prompt, where shared biases partly cancel. That comparison was not tested here and needs an LCA for documentation.
+
+**Option 1: enclosure gains are diluted.** The enclosure is a median 19% of whole-building A–C carbon in this dataset. A 30% enclosure reduction is therefore only about 6% at the whole-building level. Envelope decisions alone rarely carry a whole-building target; they are most valuable together with structure. In Option 2's product-level pathway, high-impact products such as HFC-blown XPS, aluminum extrusions and insulated metal panels have the largest EPD-to-EPD spreads (v3 reference table, Appendix A).
+
+**Three changes would make early estimates and LEED baselines more predictable:**
+
+1. report assembly type at schematic design;
+2. state which insulation and aluminum datasets the LCA tool assumes. The HFC-XPS convention alone accounts for about half of our estimates' bias;
+3. flag inventories with missing element groups. The 10 incomplete references in this dataset would distort any baseline built from them.
+
+## 12. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
 - **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls. In v3 run 2, 162 buildings were answered in continuation tasks after a container restart (Section 8.1).
@@ -407,6 +459,7 @@ On the test split (88 buildings), the same picture holds: min has 30.7% coverage
 - **Feature study with one run.** Each feature condition was run once, and 7 of the 9 leave-one-group-out ablations were stopped to limit token use. The conclusion "no feature set matters" rests on differences that lie within the run-to-run spread; it is a null result, not proof that the features are irrelevant.
 - **Functional unit.** Results are per m² of floor area, not per m² of wall, and the enclosure includes windows, doors and roofs.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
+- **The LEED analysis is qualitative.** No credit thresholds or hotspot agreement were computed.
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
 - **Next steps:**
   - evaluate the final prompt on an external dataset or a new project set (e.g. map the CarbEnMats/GBDB enclosure fields to this feature set);

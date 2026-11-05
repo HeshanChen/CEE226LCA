@@ -1,6 +1,6 @@
-# LLM 能估算建筑外围护结构的隐含碳吗？误差分析与 Prompt 设计
+# LLM 能估算建筑外围护结构的隐含碳吗？误差分析、Prompt 设计与 LEED v5 启示
 
-CEE226 第 8 组：George Zheng、Zixuan Zhao、Heshan Chen、Fei Cheng、Jamie Liu。
+CEE226 第 8 组：George Zheng（jhzheng@stanford.edu）、Zixuan Zhao（zalex467@stanford.edu）、Heshan Chen（heshan@stanford.edu）、Fei Cheng（feicheng@stanford.edu）、Jamie Liu（jamiexyl@stanford.edu）。
 本文属于项目 *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*。
 
 > English version: [`report.md`](report.md)。两个版本内容一致；最终 prompt 以英文原文为准（附录 A）。
@@ -64,6 +64,8 @@ prompt v3 正是这样做的（第 8 节）：
 
 **Feature 研究**（第 10 节）。用 v3 时，只给 10 个早期设计 feature，准确率就和给全部 48 个一样；去掉 `mass_total` 或 LCA 事后字段也不会变差。不同 feature 集之间的差异，都没有超出同一 prompt 重复运行时的波动。限制准确率的是构造类型信息，而没有任何 feature 提供这一点。
 
+**对 LEED v5 的意义**（第 11 节）。v3 的估算可以在方案阶段用于 MRp2 的热点筛查和围护方案比较，但精度不足以证明单栋建筑在 MRc2 中的减碳。enclosure 只占整楼 A–C 隐含碳的约 19%，所以围护减碳 30% 只相当于整楼约 6%。
+
 ## 2. 数据与 ground truth
 
 **来源。** Benke et al. (2025)，*A Harmonized Dataset of High-Resolution Embodied Life Cycle Assessment Results for Buildings in North America*，Scientific Data（[doi:10.1038/s41597-025-05216-0](https://doi.org/10.1038/s41597-025-05216-0)；数据在 [figshare](https://figshare.com/articles/dataset/28462145)，CC BY 4.0）。`full_lca_results.xlsx` 共 927,950 行，每行对应一个项目在某个构件、某个生命周期阶段的一种材料，涵盖 292 个项目。
@@ -90,6 +92,8 @@ prompt v3 正是这样做的（第 8 节）：
 这个数据集里 XPS 的排放因子是 **43.6 kgCO2e/kg**，而高密度矿棉是 1.2，玻璃棉 2.4，polyiso 3.1。这与用 HFC 发泡剂生产的 XPS 相符，当时的 LCA 工具（Tally、One Click LCA）就是这样建模的。292 个项目中有 149 个含有 XPS。
 
 **数据质量标记。** 有 10 个新建项目（27、35、66、74、80、91、141、217、234、264）的 enclosure 清单里**完全没有窗、玻璃、幕墙或店面的 GWP**，但其中一些项目报告的 WWR 是 0.5–0.7。例如项目 74 的 WWR 为 0.65，真实值却只有 0.64 kgCO2e/m²。这更像是原始 LCA 模型不完整，而不是真的有不带玻璃的建筑。为了可比，这些项目保留在所有主要指标里，另外单独报告剔除它们之后的结果（"剔除不完整"）。
+
+![图 2.1：enclosure A1–A3 GWP 的材料构成（292 个项目）。XPS 单独占 15.5%。](figures/fig_composition.png)
 
 ## 3. LLM 实验设置
 
@@ -177,6 +181,10 @@ prompt v3 正是这样做的（第 8 节）：
 ### 5.4 已排除的因素
 
 R 值、WWR、建筑规模、竣工年份和 `lca_ec_reductions` 与误差的相关都很弱（|r| ≤ 0.26）。各轮之间的一致性尚可：CV 中位数 17%，均值 19%。
+
+![图 5.1：按参考值分档的估算/参考比值中位数，三版 prompt 都有压缩](figures/fig_bins.png)
+
+![图 5.2：各失效模式对应的子组，按 prompt 版本](figures/fig_diagnostics.png)
 
 ## 6. Prompt v2
 
@@ -332,6 +340,10 @@ v3 的 876 个答案全部解析成功（`results/20261104_prompt-v3/`）。模�
 
 **最终 prompt。** 在命中率、RMSE、偏差、log 误差和一致性上，v3 都是三版中最好的，因此作为本研究的最终 prompt（附录 A 的 E 节）。
 
+![图 8.1：v1 与 v3 的估算对参考值（1:1 线和 ±20% 带）](figures/fig_scatter_v1_v3.png)
+
+![图 8.2：全部 292 栋和 88 栋测试集上的命中率（95% CI）与 log 误差中位数](figures/fig_prompts.png)
+
 ## 9. Held-out 评估
 
 **没有合适的外部数据集。** 我们找过结构相同的独立数据集（北美建筑、按构件分的 enclosure A1–A3 结果、加上早期设计 feature），没有找到：
@@ -423,7 +435,47 @@ v3 的 876 个答案全部解析成功（`results/20261104_prompt-v3/`）。模�
 2. **模型不依赖可能泄露答案的字段。** 去掉 `mass_total` 或全部 LCA 事后字段，估算都没有变差，no-lca 甚至略好。所以 v1–v3 的结果并不是靠那些编码了参考 LCA 的 feature 撑起来的。
 3. **Prompt 内容比 feature 选择重要得多。** 从 v2 到 v3，log 误差绝对值中位数变化 0.137，命中率变化 10 个百分点（第 8.1 节）；而任何 feature 集带来的变化都不超过 0.020 和 4.5 个百分点。
 
-## 11. 局限与下一步
+![图 10.1：各 feature 集相对全部 48 个 feature 的差异，灰带为轮次间波动](figures/feature_study.png)
+
+## 11. 对 LEED v5 的意义
+
+LEED v5 把隐含碳纳入了评分体系：
+
+- **先决条件 MRp2（Quantify and Assess Embodied Carbon）**：量化主要建筑构件（包括外围护结构）的隐含碳，并找出最大的几个热点。
+- **得分项 MRc2（Reduce Embodied Carbon）**：奖励减碳。可以用整楼 LCA 与基准方案比较（Option 1），也可以用 EPD 证明产品层面的减碳（Option 2）。
+
+图 11.1 是我们讨论后修改的流程图（初稿为组内的 "Building Envelope LCA and LEED Goals"）。主要修改有三处：
+
+- 在生命周期中标出研究边界：本研究只覆盖 A1–A3，A4–A5、B1–B5、C1–C4/D 标为范围外；
+- 加入两条估算路线：参考 LCA 和 LLM 估算（prompt v3），二者都产出 enclosure A1–A3 结果；
+- 把右侧的 "LEED goals" 具体化为 LEED v5 的 MRp2 → MRc2 → 检查贡献与证据缺口，最后得到推荐的围护方案，以及它的预计 LEED 贡献和仍缺的文档/数据。
+
+![图 11.1：建筑外围护 LCA 与 LEED v5 目标（由初稿修改）](figures/fig_leed.png)
+
+**MRp2：适合做热点筛查。** 方案设计阶段还没有材料清单，而这个先决条件的目的就是把注意力引向最大的排放来源。v3 的估算适合这个用途：
+
+- 偏差小，整体为 −14%，没有 XPS 的建筑基本无偏；
+- 模型的推理会点出数据中真正主导 enclosure 碳排的构件：铝幕墙和铝框、保温类型（HFC-XPS）、金属板和玻璃。
+
+热点和参考 LCA 前 3 名材料是否一致，还需要定量检验。目前模型的回答是用文字写出热点，不是结构化输出，所以这一项留作下一步。
+
+**MRc2：证明减碳所需的精度，LLM 达不到。** 得分取决于相对基准的减碳百分比，而 v3 的误差是：
+
+- 轮次间 CV 12.5%；
+- 绝对误差中位数约 35–40%；
+- 只有四分之一的建筑落在 ±20% 以内。
+
+这些误差和项目通常申报的减碳幅度一样大，甚至更大。所以对单栋建筑，LLM 的绝对估算不能用来证明达到得分要求。更有希望的用法是**配对比较**：对同一栋楼、用同一个 prompt 比较不同围护方案，共同的偏差可以部分抵消。这一点本研究没有测试，申报时仍需要正式 LCA。
+
+**Option 1：围护的减碳会被稀释。** 在本数据集中，enclosure 的中位数只占整楼 A–C 隐含碳的 19%。围护减碳 30%，在整楼层面只相当于约 6%。单靠围护很难达到整楼减碳目标，围护决策和结构一起考虑时最有价值。在 Option 2 的产品路径中，HFC 发泡 XPS、铝型材、夹芯金属板这类高碳产品，不同 EPD 之间的差距最大（附录 A 的 v3 参考表）。
+
+**让早期估算和 LEED 基准更可预测的三条建议：**
+
+1. 方案阶段就报告构造类型；
+2. 写明 LCA 工具默认使用的保温和铝材数据集。仅 HFC-XPS 这一个建模习惯，就影响了我们估算偏差的一半左右；
+3. 标记缺少构件组的清单。本数据集中 10 个不完整的参考 LCA，会扭曲任何以它们为基础的基准。
+
+## 12. 局限与下一步
 
 - **缺少构造信息。** 没有任何 feature 描述外墙构造，所以不论 prompt 怎么写，准确率都有上限。最有希望的改进是按 proposal（6.1 节）原本的设想，把构造类型加入输入。
 - **subagent 不等于单独的 API 调用。** 同一个任务文件里的回答共享上下文，独立性不如单独的 API 调用。v3 第 2 轮中有 162 栋是在容器重启后由续跑任务回答的（第 8.1 节）。
@@ -432,6 +484,7 @@ v3 的 876 个答案全部解析成功（`results/20261104_prompt-v3/`）。模�
 - **Feature 研究只跑了一轮。** 每个 feature 条件只跑了一次，9 组 leave-one-group-out 消融中有 7 组为控制 token 用量而中止。"feature 集没有影响"这个结论，依据的是落在轮次波动范围以内的差异；它是一个零结果，不能证明这些 feature 无关紧要。
 - **功能单位。** 结果是每 m² 楼面面积，而不是每 m² 外墙；enclosure 还包括窗、门和屋面。
 - **Ground truth 的质量。** 质量参差不齐：有 10 个项目被标记为不完整，各工具使用的数据年代也不同（HFC XPS）。
+- **LEED 分析是定性的。** 没有计算得分阈值，也没有定量检验热点是否一致。
 - **依赖模型。** 结果取决于所用的模型及其版本（Claude Opus 5.5，effort medium）。
 - **下一步：**
   - 在外部数据集或新的项目集上评估最终 prompt（例如把 CarbEnMats/GBDB 的 enclosure 字段映射到本研究的 feature 集）；
