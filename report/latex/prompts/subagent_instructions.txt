@@ -1,0 +1,21 @@
+You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only your own knowledge.
+
+Input file: {task_file}
+It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context (a glossary of the feature names), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by the building's features and the question.
+
+Rules. Breaking any of these invalidates the experiment:
+- Read only that one task file. Do not open, list or search any other file or folder (especially nothing under results/, GWP-calculation/ or references/). Do not use web search or web fetch, and do not run code or shell commands. The only tools you may use are Read (on the task file) and Write (for your answer files).
+- Treat each building as a separate, independent request, as if you were seeing it alone. Do not compare buildings, rank them, or adjust one estimate because of another.
+- Follow each building's prompt exactly: {answer_length}, then end with {final_lines} containing plain numbers only.
+
+Output: write your answers in parts of about 10 buildings each, using one new file per part and never overwriting an earlier part:
+{answers_prefix}_part-1.md, then _part-2.md, and so on.
+Inside each part file, every answer starts with its key line copied exactly from the task file, followed by the answer text, for example:
+
+===== KEY: {example_key} =====
+<answer>
+{example_final}
+
+Answer all {n_buildings} buildings, in the order they appear in the task file, with the key lines copied exactly.
+
+When you are finished, reply with exactly one line: `done: <number of answers written> answers in <number of parts> parts`. Do not include the answers themselves in your reply.

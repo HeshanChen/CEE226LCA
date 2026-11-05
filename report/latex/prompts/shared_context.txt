@@ -1,0 +1,101 @@
+Forget the information from previous sessions and calculate everything from the beginning.
+
+data_glossary_LLM contains feature names and descriptions for the data:
+
+- project_index: Unique project index number
+- site_country: Country where the project is located
+- site_region: Region where the project is located. Based on the 2019 National Ready Mix Concrete Association regions.
+- site_state_province: State or province where the project is located.
+- site_clim_zone: Climate Zone where the project is located per respective energy code of country.
+- bldg_proj_type: Type of construction which details whether the project is new or a type of modification to an existing building.
+- bldg_compl_year: Year of project's actual construction completion, certificate of occupancy, or anticipated project completion year.
+- bldg_code_year: Corresponding year of the international building code (IBC) or other equivalent the project complied with.
+- bldg_energy_code_year: Corresponding year of the international energy conservation code (IECC) or other equivalent the project complied with.
+- bldg_ibc_type: Type of construction per IBC.
+- bldg_park_type: Type of attached/integrated parking structure or "parkade".
+- bldg_cfa [m2]: Total constructed floor area (CFA) which includes the gross internal floor area (GFA) of the building and the gross floor area of any attached/integrated parking components.
+- bldg_gfa [m2]: Total gross internal floor area (GFA) of the building.
+- bldg_parking_gfa [m2]: The total horizontal area occupied by any attached/integrated parking components.
+- bldg_added_gfa [m2]: The total horizontal area where new floor area was added to an existing building (i.e., the floor area of an addition).
+- bldg_renovated_gfa [m2]: The total horizontal area where the existing building was renovated.
+- bldg_prim_use: Primary classification of the building by principal activity
+- bldg_sec_use: Secondary classification of building by principal activity.
+- bldg_occupants: Total building occupancy as derived from building code
+- bldg_res_units: Total number of residential units in the building
+- bldg_stories_above: Binned categorization of the number of stories above finished ground level.
+- bldg_stories_below: Binned categorization of the number of stories below finished ground level.
+- bldg_height [m]: Binned categorization of the total height of the building above finished ground level.
+- bldg_therm_env_area [m2]: Total area of the building's thermal envelope.
+- bldg_wwr: The ratio of total vertical fenestration area to total above-grade wall area
+- bldg_rval_walls: Average nominal R-value of building's above-grade walls.
+- bldg_rval_roofs: Average nominal R-value of building's roofs.
+- str_seis_site_cls: Classification of the site for seismic design based on its soil and engineering properties.
+- str_sdc: Categorization of required seismic design based on risk category and site location.
+- str_wind_speed [m/s]: Ultimate wind speed used for ultimate wind design based on location.
+- str_prim_horiz_sys: Type of primary horizontal gravity system. Structural floor construction system that supports at least 2/3 of the combined floor and roof area of the superstructure.
+- str_prim_vert_sys: Type of primary vertical gravity system. System that transfers gravity loads to the foundation of the building.
+- str_lat_sys: Type of lateral system that resists lateral loads of the building.
+- str_podium: Designation for whether the project is a podium building - a building with two distinct zones with two different structural materials and systems
+- str_sec_horiz_sys: The horizontal gravity system (as defined in Primary Horizontal Gravity System) for the podium portion of the building.
+- str_sec_vert_sys: The vertical gravity system (as defined in Primary Vertical Gravity System) for the podium portion of the building
+- str_grid_long [m]: Average center to center spacing of longer typical project column grid.
+- str_grid_short [m]: Average center to center spacing of shorter typical project column grid.
+- str_fdn_type: Type of foundation used to support gravity and lateral loads of project.
+- str_sys_summary: Simplified summary of the buildings primary horizontal, vertical, and lateral system.
+- lca_assessment_year: Year the LCA was performed
+- lca_design_phase: The design phase of the project when the LCA was performed
+- lca_RSP [years]: Reference study period for the LCA
+- lca_software: Software tool used for the LCA
+- lca_purp_of_assessment: Primary reason the LCA was undertaken.
+- lca_phys_scope: The physical scope (building elements) included in the assessment.
+- lca_ec_reductions: Yes/No designation to indicate if the WBLCA results reflect efforts by the design or construction team to reduce the embodied carbon of the project during design, procurement, and/or construction of the building.
+- lca_ec_reduction_percent: Approximate percent reduction in embodied carbon of the building compared to a baseline model, if applicable.
+- mass_total [kg]: Total mass of project. Sum of the project's total mass (inv_mass) for life cycle stages A-C
+- stored_carbon_total [kg CO2e]: Total stored carbon of project. Sum of the project's total stored carbon (inv_stored_carbon) for life cycle stages A1-A3
+- gwp_a_to_c [kg CO2e]: Sum of the project's total global warming potential (gwp) for life cycle stages A-C
+- ap_a_to_c [kg SO2e]: Sum of the project's total acidification potential (ap) for life cycle stages A-C
+- ep_a_to_c [kg Ne]: Sum of the project's total eutrophication potential (ep) for life cycle stages A-C
+- sfp_a_to_c [kg O3e]: Sum of the project's total smog formation potential (sfp) for life cycle stages A-C
+- odp_a_to_c [kg CFC-11e]: Sum of the project's total ozone depletion potential (odp) for life cycle stages A-C
+- nred_a_to_c [MJ]: Sum of the project's total non-renewable energy demand (nred) for life cycle stages A-C
+- mui_total_GFA [kg/m3]: Total material use intensity. Sum of the project's total material use intensity (mui_gfa) over the full RSP normailized by GFA for new construction projects. Includes material replacements from module B.
+- eci_a_to_c_GFA [kgCO2e/m2]: Embodied carbon intensity. Sum of the project's total global warming potential (gwp) for life cycle stages A-C normalized by GFA for new construction projects.
+- epi_a_to_c_GFA [kgNe/m2]: Eutrophication potential intensity. Sum of the project's total eutrophication potential (ep) for life cycle stages A-C normalized by GFA for new construction projects.
+- api_a_to_c_GFA [kgSO2e/m2]: Acidification potential intensity. Sum of the project's total acidification potential (ap) for life cycle stages A-C normalized by GFA for new construction projects.
+- sfpi_a_to_c_GFA [kgO3e/m2]: Smog formation potential intensity. Sum of the project's total smog formation potential (sfp) for life cycle stages A-C normalized by GFA for new construction projects.
+- odpi_a_to_c_GFA [kgCFC11e/m2]: Ozone depletion potential intensity. Sum of the project's total ozone depletion potential (odp) for life cycle stages A-C normalized by GFA for new construction projects.
+- nredi_a_to_c_GFA [MJ/m2]: Non-renewable energy demand intensity. Sum of the project's total non-renewable energy depletion intensity (nredi) for life cycle stages A-C normalized by GFA for new construction projects.
+- mui_total_CFA [kg/m2]: Total material use intensity. Sum of the project's total material use intensity (mui_cfa) over the full RSP normailized by CFA for new construction projects. Includes material replacements from module B.
+- eci_a_to_c_CFA [kgCO2e/m2]: Embodied carbon intensity. Sum of the project's total global warming potential (gwp) for life cycle stages A-C normalized by CFA for new construction projects.
+- epi_a_to_c_CFA [kgNe/m2]: Eutrophication potential intensity. Sum of the project's total eutrophication potential (ep) for life cycle stages A-C normalized by CFA for new construction projects.
+- api_a_to_c_CFA [kgSO2e/m2]: Acidification potential intensity. Sum of the project's total acidification potential (ap) for life cycle stages A-C normalized by CFA for new construction projects.
+- sfpi_a_to_c_CFA [kgO3e/m2]: Smog formation potential intensity. Sum of the project's total smog formation potential (sfp) for life cycle stages A-C normalized by CFA for new construction projects.
+- odpi_a_to_c_CFA [kgCFC11e/m2]: Ozone depletion potential intensity. Sum of the project's total ozone depletion potential (odp) for life cycle stages A-C normalized by CFA for new construction projects.
+- nredi_a_to_c_CFA [MJ/m2]: Non-renewable energy demand intensity. Sum of the project's total non-renewable energy depletion intensity (nredi) for life cycle stages A-C normalized by CFA for new construction projects.
+- ec_per_occupant_a_to_c [
+kgCO2e/occupant
+
+]: Embodied carbon per occupant. Sum of the project's total global warming potential (gwp) for life cycle stages A-C normalized by the number of buildings occupants (bldg_occupants).
+- ec_per_res_unit_a_to_c [kgCO2e/ unit]: Embodied carbon per residential unit. Summary of the project's total GWP (gwp) for life cycle stages A-C normalized by number of residential units (bldg_res_units).
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan: nan
+- nan [kg]: nan
+- nan [kg CO2e]: nan
+- nan [kg CO2e]: nan
+- nan [kg SO2e]: nan
+- nan [kg Ne]: nan
+- nan [kg O3e]: nan
+- nan [kg CFC-11e]: nan
+- nan [MJ]: nan
+- nan [kg/m2]: nan
+- nan [kg/m2]: nan
+
+Reference the given feature information above. Estimate the embodied carbon of the building enclosure of the building below:

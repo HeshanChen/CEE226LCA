@@ -1,0 +1,39 @@
+site_country: United States
+site_region: Eastern
+site_clim_zone: Zone 5A (Cool Humid)
+bldg_code_year: 2015
+bldg_energy_code_year: 2009
+bldg_proj_type: New Construction
+bldg_ibc_type: Type I-A
+bldg_park_type: No Parking
+bldg_cfa: 25000
+bldg_gfa: 25000
+bldg_prim_use: Healthcare
+bldg_occupants: 2062
+bldg_stories_above: 6 to 10
+bldg_stories_below: 2
+bldg_height: 22.6-30 m
+bldg_therm_env_area: 12133.1318
+bldg_wwr: 0.4
+str_seis_site_cls: D
+str_sdc: C
+str_wind_speed: 56.77408
+str_prim_horiz_sys: Steel: Frame + concrete on metal deck
+str_prim_vert_sys: Steel: Columns
+str_lat_sys: Steel: Moment frames
+str_podium: Primary system defined above is on a podium
+str_sec_horiz_sys: Concrete: Non-PT framing
+str_sec_vert_sys: Concrete: CIP
+str_grid_long: 10.668
+str_grid_short: 10.668
+str_fdn_type: Deep foundation > 50' (15m)
+str_sys_summary: Steel
+lca_assessment_year: 2023
+lca_design_phase: Construction
+lca_rsp: 60
+lca_software: Tally LCA
+lca_purp_of_assessment: Voluntary: Internal Benchmarking
+lca_phys_scope: BSECF
+lca_ec_reductions: Yes
+lca_ec_reduction_percent: 0.106
+mass_total: 39350375.72180476

@@ -19,3 +19,7 @@ results/*/batch/
 
 # Subagent task files are regenerated exactly by "subagent_runs.py prepare" (fixed seeds)
 results/*/subagent/tasks/
+report/latex/*.aux
+report/latex/*.log
+report/latex/*.out
+report/latex/*.toc

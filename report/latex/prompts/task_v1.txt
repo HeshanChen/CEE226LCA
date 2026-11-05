@@ -1,0 +1,7 @@
+Scope: the building enclosure only, i.e. OmniClass "Shell - Enclosure" (exterior walls and cladding, exterior windows, curtain walls and storefronts, exterior doors, roofing, and their insulation). Exclude substructure, superstructure, interior construction and interior finishes. Life cycle stages: A1-A3 only (product stage: raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D.
+
+Provide a plausible range of the enclosure's A1-A3 embodied carbon in units of kgCO2e per m2 of building floor area (a range, not a single value). For floor area, use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa. Briefly state your method and key assumptions.
+
+End your answer with exactly one final line in this format and nothing after it:
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on that line)
