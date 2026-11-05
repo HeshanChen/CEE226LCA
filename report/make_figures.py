@@ -160,9 +160,9 @@ def fig_diagnostics(d, b, m):
     ax.set_yticks(range(len(rows)), [r[0] for r in rows])
     ax.invert_yaxis()
     ax.set_xlabel("Median estimate / reference (1× = unbiased)")
-    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.06), frameon=False, fontsize=8, ncol=3,
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.17), frameon=False, fontsize=8, ncol=3,
               handletextpad=0.2, columnspacing=0.8)
-    ax.set_title("Failure modes by prompt version", loc="left", fontsize=10, color=INK, pad=22)
+    ax.set_title("Failure modes by prompt version", loc="left", fontsize=10, color=INK)
     save(fig, "fig_diagnostics")
 
 

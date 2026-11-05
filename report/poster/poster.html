@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LLM Enclosure Carbon Poster</title>
+<style>
+  @page { size: 48in 36in; margin: 0; }
+  :root {
+    --cardinal: #8C1515; --cardinal-dark: #820000; --bright: #B1040E;
+    --ink: #1a1a1a; --ink2: #4d4f53; --rule: #d9d6d0; --paper: #ffffff; --tint: #f6f2ef;
+    --v1: #2a78d6; --v2: #eda100; --v3: #B1040E;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); }
+  body { width: 48in; height: 36in; font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
+         color: var(--ink); font-size: 35px; line-height: 1.36; }
+  header { background: var(--cardinal); color: #fff; height: 4.6in; padding: 0.55in 0.9in 0.4in;
+           display: flex; justify-content: space-between; align-items: flex-end; }
+  header h1 { font-family: "Liberation Serif", "DejaVu Serif", Georgia, serif; font-size: 112px; line-height: 1.05;
+              margin: 0 0 22px; font-weight: 700; max-width: 34in; }
+  header .sub { font-size: 44px; opacity: 0.95; margin: 0 0 16px; }
+  header .authors { font-size: 36px; }
+  header .right { text-align: right; font-size: 34px; line-height: 1.4; }
+  header .right b { font-family: "Liberation Serif", Georgia, serif; font-size: 58px; display: block; letter-spacing: 1px; }
+  .band { height: 0.16in; background: var(--cardinal-dark); }
+  main { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.55in; padding: 0.55in 0.9in 0.3in; height: 30.7in; }
+  .col { display: flex; flex-direction: column; gap: 0.42in; min-height: 0; }
+  section { border-top: 10px solid var(--cardinal); padding-top: 18px; }
+  h2 { font-family: "Liberation Serif", Georgia, serif; color: var(--cardinal); font-size: 68px; margin: 0 0 14px; line-height: 1.1; }
+  h3 { font-size: 39px; margin: 16px 0 6px; color: var(--ink); }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 10px; padding-left: 38px; }
+  li { margin-bottom: 7px; }
+  img { width: 100%; display: block; }
+  .cap { font-size: 27px; color: var(--ink2); margin-top: 6px; }
+  .big { display: flex; gap: 22px; margin: 10px 0 14px; }
+  .big div { flex: 1; background: var(--tint); border-left: 10px solid var(--cardinal); padding: 14px 18px; }
+  .big b { display: block; font-size: 84px; color: var(--cardinal); line-height: 1.05; font-family: "Liberation Serif", Georgia, serif; }
+  .big span { font-size: 28px; color: var(--ink2); }
+  table { border-collapse: collapse; width: 100%; font-size: 32px; margin: 6px 0 10px; }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 2px solid var(--rule); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { border-bottom: 4px solid var(--ink2); font-size: 28px; color: var(--ink2); }
+  tr.v3 td { font-weight: 700; color: var(--cardinal); }
+  .dot { display: inline-block; width: 22px; height: 22px; border-radius: 50%; vertical-align: -2px; margin-right: 8px; }
+  .callout { background: var(--cardinal); color: #fff; padding: 26px 30px; font-size: 37px; line-height: 1.35; }
+  .callout b { font-size: 41px; }
+  .flow { display: flex; align-items: stretch; gap: 10px; margin: 12px 0; font-size: 28px; text-align: center; }
+  .flow div { flex: 1; background: var(--tint); border: 3px solid var(--cardinal); padding: 12px 8px; }
+  .flow i { align-self: center; color: var(--cardinal); font-style: normal; font-size: 36px; }
+  pre { font-family: "DejaVu Sans Mono", "Liberation Mono", monospace; font-size: 24px; line-height: 1.3; white-space: pre-wrap;
+        background: var(--tint); border-left: 8px solid var(--cardinal); padding: 14px 16px; margin: 6px 0; }
+  .steps { counter-reset: s; list-style: none; padding-left: 0; }
+  .steps li { counter-increment: s; padding-left: 58px; position: relative; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 2px; width: 46px; height: 46px; border-radius: 50%;
+                      background: var(--cardinal); color: #fff; font-weight: 700; text-align: center; line-height: 46px; }
+  footer { position: absolute; bottom: 0.3in; left: 0.9in; right: 0.9in; font-size: 25px; color: var(--ink2);
+           display: flex; justify-content: space-between; border-top: 2px solid var(--rule); padding-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Can an LLM estimate the embodied carbon of a building enclosure?</h1>
+    <p class="sub">Error analysis and prompt design for early-stage A1–A3 estimates on 292 North American buildings</p>
+    <p class="authors">George Zheng · Zixuan Zhao · Heshan Chen · Fei Cheng · Jamie Liu</p>
+  </div>
+  <div class="right"><b>Stanford University</b>CEE226 · Group 8<br>November 2026</div>
+</header>
+<div class="band"></div>
+<main>
+  <!-- Column 1 -->
+  <div class="col">
+    <section>
+      <h2>Question</h2>
+      <p>Exterior-envelope choices lock in much of a building's embodied carbon at schematic design, when no LCA exists yet. Can a large language model, given only early-stage features, estimate the <b>cradle-to-gate (A1–A3) embodied carbon of the enclosure</b>, and which prompt design makes it better?</p>
+    </section>
+    <section>
+      <h2>Data &amp; ground truth</h2>
+      <ul>
+        <li>292 US/Canadian projects, harmonized WBLCA dataset (Benke et al., <i>Sci. Data</i> 2025): 928k material rows, 48 early-stage features.</li>
+        <li>Ground truth: OmniClass <b>Shell – Enclosure</b>, stage <b>A1–A3</b>, kgCO<sub>2</sub>e per m² floor area. Median 78, range 0.5–514.</li>
+        <li>10 new buildings have no window/glazing data at all: incomplete reference LCAs, flagged.</li>
+      </ul>
+      <img src="../figures/fig_composition.png" alt="Enclosure carbon by material group">
+      <p class="cap">XPS insulation is 15.5% of all enclosure carbon (43.6 kgCO<sub>2</sub>e/kg, the HFC-blown product in Tally/One Click LCA of the period).</p>
+    </section>
+    <section>
+      <h2>Method</h2>
+      <div class="flow">
+        <div>48 features + glossary</div><i>→</i><div>Prompt v1 / v2 / v3</div><i>→</i>
+        <div>Claude Opus 5.5 subagents (medium effort)</div><i>→</i><div>RANGE low–high</div><i>→</i><div>Compare with reference LCA</div>
+      </div>
+      <ul>
+        <li>3 runs × 292 buildings per prompt; seeded shuffles, identical chunks → paired comparisons.</li>
+        <li>Subagents read only their task file: no web, no code, no ground truth.</li>
+        <li>Metrics: ±20% coverage, RMSE, |log(est/ref)|, bias (geometric mean), run-to-run CV.</li>
+        <li>Held-out test set: 88 buildings (stratified, seed 226).</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Column 2 -->
+  <div class="col">
+    <section>
+      <h2>Baseline: why the model fails</h2>
+      <div class="big">
+        <div><b>19.5%</b><span>within ±20% (v1)</span></div>
+        <div><b>0.46</b><span>log–log slope (1 = ideal)</span></div>
+        <div><b>0.75</b><span>estimate / reference</span></div>
+      </div>
+      <img src="../figures/fig_bins.png" alt="Compression by reference bin">
+      <p class="cap">The model compresses every building toward ~50–60 kgCO<sub>2</sub>e/m²: light enclosures are overestimated, heavy ones underestimated 3–4×.</p>
+      <img src="../figures/fig_scatter_v1_v3.png" alt="Estimate vs reference v1 and v3" style="margin-top:14px">
+      <p class="cap">Estimate vs. reference (line 1:1, band ±20%): v3 lifts the cloud toward the diagonal but the top end stays compressed.</p>
+      <h3>Root causes, from 876 reasoning texts</h3>
+      <ol>
+        <li><b>HFC-blown XPS is never considered</b>: mentioned in 0.6% of answers. XPS explains about half of the bias (est/ref 0.72 → 0.84 when XPS is removed from the reference), and the cold-climate gap too.</li>
+        <li><b>Envelope area</b>: 0.81 when given, 0.65 when the model has to estimate it.</li>
+        <li><b>Curtain-wall tail</b> and <b>renovations</b> scoped too narrowly.</li>
+        <li><b>The intensity per m² of envelope</b> drives the error (r = −0.79), and <b>no feature describes the wall assembly</b>.</li>
+      </ol>
+      <p>Largest overestimates = incomplete reference LCAs (median est/ref 3.1 for the 10 flagged buildings).</p>
+    </section>
+  </div>
+
+  <!-- Column 3 -->
+  <div class="col">
+    <section>
+      <h2>Three prompts</h2>
+      <table>
+        <thead><tr><th>Prompt</th><th>Coverage</th><th>RMSE</th><th>|log| med.</th><th>Bias</th><th>CV</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot" style="background:var(--v1)"></span>v1 plain</td><td>19.5%</td><td>79.7</td><td>0.456</td><td>0.75</td><td>19.0%</td></tr>
+          <tr><td><span class="dot" style="background:var(--v2)"></span>v2 method + facts</td><td>15.1%</td><td>81.0</td><td>0.563</td><td>0.67</td><td>13.8%</td></tr>
+          <tr class="v3"><td><span class="dot" style="background:var(--v3)"></span>v3 anchors</td><td>25.0%</td><td>76.0</td><td>0.426</td><td>0.86</td><td>12.5%</td></tr>
+        </tbody>
+      </table>
+      <h3>v2: scope + step-by-step take-off + named materials</h3>
+      <p>More consistent, but <b>less accurate</b>: 89% of answers still assumed polyiso roofs (roof intensity stayed at 35), bottom-up intensities were low (67 vs. 87 per m² of envelope), and "count only new materials" pushed renovations down.</p>
+      <h3>v3: quantitative anchors where numbers are chosen</h3>
+      <ul>
+        <li>Component A1–A3 table from EPDs &amp; CLF baselines (walls, glazing, roofs by insulation, aluminum).</li>
+        <li>Tool convention: legacy models often use HFC XPS, so include that case.</li>
+        <li>Per-envelope sanity check; renovation rule that no longer subtracts.</li>
+      </ul>
+      <img src="../figures/fig_diagnostics.png" alt="Failure modes by prompt">
+      <p class="cap">v3 removes the bias for buildings without XPS (0.97), with a given envelope area (0.99) and in warm zones (0.98).</p>
+      <div class="callout"><b>Lesson.</b> Qualitative knowledge in a prompt is repeated but not applied. Sourced numbers at the decision step move the estimate.</div>
+    </section>
+  </div>
+
+  <!-- Column 4 -->
+  <div class="col">
+    <section>
+      <h2>Held-out test &amp; features</h2>
+      <img src="../figures/fig_prompts.png" alt="Coverage and log error by prompt">
+      <ul>
+        <li>All 292: v3 vs. v1 McNemar p = 0.085, Wilcoxon p = 0.053; vs. v2 p = 0.002.</li>
+        <li>Test 88: v3 26.1% vs. 20.5% coverage, RMSE 69 vs. 74, not significant (p = 0.41). Every finding behind v2/v3 replicates on the 204 dev buildings.</li>
+        <li><b>Feature study</b> (figure below): 10 early-design inputs (climate, use, type, area, storeys, WWR, R-values) are as good as all 48. Removing the leakage-prone <code>mass_total</code> does not hurt. All differences are within run-to-run noise.</li>
+      </ul>
+    </section>
+    <section style="border-top:none;padding-top:0">
+      <img src="../figures/feature_study.png" alt="Feature study">
+    </section>
+    <section>
+      <h2>Takeaways</h2>
+      <ol class="steps">
+        <li>LLMs give usable early-stage enclosure estimates for hotspot screening (¼ within ±20%, bias −14%), but not reliable building-level credit predictions.</li>
+        <li>The error is structured (compression, material blind spots), so error analysis on the model's reasoning shows which prompt fix to make.</li>
+        <li>The ceiling is information, not prompting: adding <b>assembly type</b> to the inputs is the next step.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Final prompt (v3, excerpt)</h2>
+<pre>1. Areas. Use bldg_therm_env_area if given; otherwise take off roof,
+   walls and glazing (bldg_wwr) and state the envelope/floor ratio.
+2. Assemblies. Choose wall, glazing, roof; name insulation type and
+   thickness. LCA models of this period often model roof and
+   below-grade insulation as HFC-blown XPS -> include that case.
+3. Intensities (A1-A3 per m2 of component), e.g.
+   steel stud + metal panel 70-110 | brick on CMU 135-165
+   unitized curtain wall 150-210 | aluminum windows 95-140
+   roof + polyiso 20-28 | roof + HFC XPS 85-110 (up to 335-410)
+4. Check: below ~50 per m2 of envelope -> something is missing.
+5. Range incl. higher-carbon alternatives; do not anchor on a
+   typical building.  6. Renovations: do not assume the envelope
+   is kept.            RANGE_kgCO2e_per_m2: &lt;low&gt; - &lt;high&gt;</pre>
+      <p class="cap">Full prompts, code and all 5,000+ model answers: github.com/HeshanChen/CEE226LCA</p>
+    </section>
+  </div>
+</main>
+<footer>
+  <span>Data: Benke et al. (2025) Sci. Data 12, doi:10.1038/s41597-025-05216-0 (CC BY 4.0). Intensities: CLF N. American Material Baselines 2023/2025, PCI, Kawneer, RDH EPDs.</span>
+  <span>Model: Claude Opus 5.5 (medium effort), Claude Code subagents</span>
+</footer>
+</body>
+</html>
