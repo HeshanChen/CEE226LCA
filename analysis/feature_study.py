@@ -36,6 +36,8 @@ CONDITIONS = {"all": "20261104_prompt-v3", "early": "20261105_feat-early", "env"
               "min": "20261105_feat-min",
               **{f"no-{g}": f"20261105_ablate-no-{g}" for g in cfg.FEATURE_GROUPS}}
 INK, INK2, GRID, SURFACE, SERIES = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb", "#2a78d6"
+# Run-to-run spread of median |log err| for prompt v3 itself (runs 0/1/2: 0.461, 0.436, 0.454)
+NOISE = 0.025
 
 
 def estimates(run: str, runs=None) -> pd.Series:
@@ -117,17 +119,21 @@ def main():
     fr = [r for r in fig_rows if r["condition"] != REF]
     if fr:
         fr.sort(key=lambda r: r["Δ median |log err|"])
-        fig, ax = plt.subplots(figsize=(7.2, 0.42 * len(fr) + 1.4), facecolor=SURFACE)
+        fig, ax = plt.subplots(figsize=(7.6, 0.45 * len(fr) + 1.6), facecolor=SURFACE)
         ax.set_facecolor(SURFACE)
         y = np.arange(len(fr))
         vals = [r["Δ median |log err|"] for r in fr]
+        ax.axvspan(-NOISE, NOISE, color=GRID, alpha=0.6, zorder=0, linewidth=0)
         ax.barh(y, vals, color=SERIES, height=0.55, zorder=2)
         ax.axvline(0, color=INK2, linewidth=1)
+        ax.set_xlim(-0.06, 0.06)
+        ax.text(NOISE, len(fr) - 0.35, " run-to-run spread of v3 (±0.025)", fontsize=7.5, color=INK2, va="bottom")
         ax.set_yticks(y, [f"{r['condition']}  ({r['features']} features)" for r in fr], fontsize=8.5, color=INK)
         for yi, r in zip(y, fr):
             star = " *" if r["Wilcoxon p"] < 0.05 else ""
-            ax.text(r["Δ median |log err|"], yi, f"  {r['Δ median |log err|']:+.3f}{star}", va="center",
-                    ha="left" if r["Δ median |log err|"] >= 0 else "right", fontsize=8, color=INK2)
+            v = r["Δ median |log err|"]
+            ax.text(v + (0.002 if v >= 0 else -0.002), yi, f"{v:+.3f}{star}", va="center",
+                    ha="left" if v >= 0 else "right", fontsize=8, color=INK2, zorder=3)
         ax.spines[["top", "right", "left"]].set_visible(False)
         ax.tick_params(colors=INK2, labelsize=8.5)
         ax.grid(axis="x", color=GRID, linewidth=0.6, zorder=0)

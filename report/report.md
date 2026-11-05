@@ -3,12 +3,12 @@
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
 
-> Status: complete for prompts v1–v3 (3 runs × 292 buildings each), including a held-out evaluation on 88 test buildings (Section 9). The final prompt is v3 (Appendix A, section E).
+> Status: complete. Prompts v1–v3 were run 3 times on each of the 292 buildings, with a held-out evaluation on 88 test buildings (Section 9) and a feature study (Section 10). The final prompt is v3 (Appendix A, section E).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
 
-The LLM in this study is Claude Opus 5.5, run as a Claude Code subagent with medium reasoning effort. Given the 49 early-stage features of each of the 292 buildings in the CLF harmonized WBLCA dataset, it estimated the **cradle-to-gate (A1–A3) embodied carbon of the building enclosure**, in kgCO2e per m² of floor area.
+The LLM in this study is Claude Opus 5.5, run as a Claude Code subagent with medium reasoning effort. Given the 48 early-stage features of each of the 292 buildings in the CLF harmonized WBLCA dataset, it estimated the **cradle-to-gate (A1–A3) embodied carbon of the building enclosure**, in kgCO2e per m² of floor area.
 
 With a plain prompt (v1, innate knowledge), only **19.5%** of the estimates land within ±20% of the reference LCA. RMSE is 79.7 kgCO2e/m² and the median absolute percentage error is 37.9%.
 
@@ -34,6 +34,8 @@ Prompt v3 does exactly that (Section 8):
 **v3 is the final prompt.** On all 292 buildings, coverage is **25.0%** (v1 19.5%), RMSE 76.0, bias 0.86 and CV 12.5%. The improvement over v1 is consistent but borderline significant (McNemar p = 0.085, Wilcoxon p = 0.053); over v2 it is clearly significant (p = 0.002). The non-XPS part of the enclosure is now estimated without bias (0.99), and so are buildings whose envelope area is given (0.99). What remains is compression at the high end (buildings above 200 are at 0.38), more overestimation of light enclosures, and renovations.
 
 **Held-out test set** (88 buildings, stratified split; Section 9). v3 reaches 26.1% coverage against 20.5% for v1, with RMSE 69.2 against 74.1, bias 0.86 against 0.75 and CV 11.2% against 19.2%. Its median log error is the same as v1's, and the v1–v3 difference is not significant at this size (McNemar p = 0.41). Every finding that motivated v2 and v3 replicates on the 204 dev buildings alone.
+
+**Feature study** (Section 10). With prompt v3, a 10-feature early-design input set is as accurate as all 48 features, and removing `mass_total` or the LCA-derived fields does not hurt. Every difference between feature sets lies within the run-to-run spread. The limiting information is the assembly type, which no feature provides.
 
 ## 2. Data and ground truth
 
@@ -65,7 +67,7 @@ XPS in this dataset carries **43.6 kgCO2e/kg**, against 1.2 for high-density min
 ## 3. LLM experiment setup
 
 - **Model.** Claude Opus 5.5, run as Claude Code subagents with reasoning effort *medium*. The course reference code uses the Gemini API, which we did not use. A pilot with Sonnet 5.5 (49 buildings, 1 run) only tested the pipeline.
-- **Inputs.** All 49 features of `references/buildings_metadata_LLM.xlsx`, plus the feature glossary. No papers, no benchmark tables and no ontology, i.e. the innate-knowledge condition.
+- **Inputs.** All 48 features of `references/buildings_metadata_LLM.xlsx` (49 columns including `project_index`), plus the feature glossary. No papers, no benchmark tables and no ontology, i.e. the innate-knowledge condition.
 - **Protocol.** 292 buildings × 3 runs = 876 estimates per prompt version. Each subagent answers one task file: the shared context plus 48–49 buildings. For each run, the buildings are shuffled with a fixed seed (1000 + run index) and split into 6 chunks. v1 and v2 use identical chunks, so results can be compared building by building.
 - **Isolation.** A subagent may read only its task file and write only its answer files. It may not use web search, run code, or open any other file, so it cannot see the ground truth. Unlike separate API calls, the buildings in one task file share a context. The instructions ask the model to treat each building independently, and the per-run shuffle changes each building's neighbours from run to run.
 - **Parsing.** We use the course parser (`RANGE_kgCO2e_per_m2: low - high`, last match wins), with one change: a lower bound of 0 is accepted. In v1, 11 answers for renovations and tenant fit-outs had a lower bound of 0 (for example "0 – 5"). These projects have true values of 2.6–26 kgCO2e/m², 10 of them below 14, so the course parser would have discarded exactly the low-carbon cases. Prompt v2 adds a `BEST_kgCO2e_per_m2` line.
@@ -107,7 +109,7 @@ Source: `analysis/error_analysis_20261104_baseline-innate.md`, plus the per-mate
 - Midpoints cluster at 42–62 kgCO2e/m².
 - The 20 buildings with the largest errors contribute 68% of the squared error, and all 20 are underestimates.
 
-The model leans on geometry more than the data justifies. The envelope-to-floor-area ratio correlates 0.62 with the log estimate but only 0.39 with the log truth, and mass per floor area 0.68 against 0.53. What it misses is the intensity per m² of envelope. In the truth this ranges from 19 to 278 kgCO2e per m² of envelope (5th–95th percentile); in the estimates, from 20 to 144. This intensity alone correlates −0.79 with the log error. It is set by material and assembly choice, and **none of the 49 features describes the wall assembly**.
+The model leans on geometry more than the data justifies. The envelope-to-floor-area ratio correlates 0.62 with the log estimate but only 0.39 with the log truth, and mass per floor area 0.68 against 0.53. What it misses is the intensity per m² of envelope. In the truth this ranges from 19 to 278 kgCO2e per m² of envelope (5th–95th percentile); in the estimates, from 20 to 144. This intensity alone correlates −0.79 with the log error. It is set by material and assembly choice, and **none of the 48 features describes the wall assembly**.
 
 ### 5.2 Why the model underestimates
 
@@ -307,7 +309,7 @@ During run 2 a container restart interrupted the six subagents after 130 of the 
 
 **No suitable external dataset.** We looked for an independent dataset with the same structure (element-level enclosure A1–A3 results plus early-stage features for North American buildings) and found none:
 - The CLF WBLCA Benchmark v2 results probably share source models with the Benke et al. dataset.
-- The open CarbEnMats / Global Buildings Database ([Zenodo](https://zenodo.org/records/8363895)) has more than 1,200 mostly European case studies, a different schema, and no equivalent of the 49 features.
+- The open CarbEnMats / Global Buildings Database ([Zenodo](https://zenodo.org/records/8363895)) has more than 1,200 case studies, but only 172 of them report an envelope A1–A3 value, and all of those are European (Belgium 105, Netherlands 47, Finland 19, UK 1). Its "envelope" covers only openings and finishes; exterior walls and roofs are counted under structure. For those 172 buildings the envelope area, WWR and U-values are empty, and the number of storeys is given for only 12%. We checked the data and decided not to map it.
 - The Mendeley "virtual building database" ([link](https://data.mendeley.com/datasets/znbp3szd75/1)) is synthetic.
 
 We therefore held out part of this dataset.
@@ -355,18 +357,59 @@ The same prompt revisions would therefore have followed from the dev set alone. 
 
 **Conclusion.** v3 is the best prompt on all, dev and test buildings for coverage, RMSE, bias and consistency. Its advantage in typical error over the plain baseline is small and is not statistically established on the held-out set. A larger or external test set is needed to settle it.
 
-## 10. Limitations and next steps
+## 10. Feature study: which inputs does the model need?
+
+**Question.** The baseline analysis showed that the error comes from assembly and material choices, which none of the inputs describe (Section 5.1). Does the model need all 48 features, or would early-design information be enough? This is the feature-study iteration suggested by the course team: the full input set against smaller envelope-relevant subsets.
+
+**Design.** Prompt v3 is kept fixed. The buildings, seeds, chunks, model (Opus 5.5) and effort (medium) are the same as before; only the feature list changes, and the glossary is filtered to match. The three floor-area fields are in every set, because the task defines the unit with them. To limit token use, each condition was run **once (run 0)** and compared building by building with run 0 of v3 on all 48 features (`analysis/feature_study.py`, `analysis/feature_study.md`).
+
+| Condition | Features | Contents |
+|---|---|---|
+| all (= v3) | 48 | every column of `buildings_metadata_LLM.xlsx` |
+| early | 39 | all minus the LCA-derived fields (`lca_*`) and `mass_total`, i.e. design-stage information only |
+| env | 15 | climate zone, state, use, project type, floor area, storeys, height, envelope area, WWR, wall and roof R-values, structure summary, IBC type |
+| min | 10 | climate zone, use, project type, floor area, storeys, WWR, wall and roof R-values (proposal 6.1) |
+| no-lca | 40 | all minus the 8 `lca_*` fields |
+| no-mass | 47 | all minus `mass_total` |
+
+`mass_total` is the sum of the reference LCA's own inventory mass (stages A–C), so it is not known at early design and partly encodes the answer. It correlates 0.53 with the true value. Prompts v2 and v3 also suggested using it for renovations.
+
+Leave-one-group-out ablations for the other seven groups (site, code year, use type, size, geometry, thermal, structure) were prepared (`FEATURE_SETS`), but we stopped them to limit token use. 50 answers of `no-geometry` exist but are not analysed.
+
+**Results (run 0, all 292 buildings; paired with "all").**
+
+| Condition | Features | ±20% coverage | median abs log error | est/true geo-mean | RMSE | Δ abs log error vs all | Wilcoxon p | McNemar p |
+|---|---|---|---|---|---|---|---|---|
+| all | 48 | 24.3% | 0.461 | 0.86 | 77.8 | – | – | – |
+| early | 39 | 21.6% | 0.462 | 0.88 | 81.2 | +0.001 | 0.13 | 0.30 |
+| env | 15 | 19.9% | 0.463 | 0.93 | 80.6 | +0.001 | 0.33 | 0.085 |
+| min | 10 | **25.3%** | 0.476 | 0.81 | **77.3** | +0.015 | 0.81 | 0.83 |
+| no-lca | 40 | **25.3%** | **0.441** | 0.90 | 78.6 | −0.020 | 0.57 | 0.77 |
+| no-mass | 47 | 22.6% | 0.452 | 0.85 | 79.2 | −0.009 | 0.92 | 0.56 |
+
+On the test split (88 buildings), the same picture holds: min has 30.7% coverage against 28.4% for all, and no difference in log error is significant. Two coverage drops on test, early −8.0 points (p = 0.065) and env −10.2 points (p = 0.049), do not survive the multiple comparisons (5 conditions × 3 splits). Their log errors do not differ (p = 0.08 and 0.11).
+
+**How large is the noise?** Running the same prompt again changes the result by about as much as any feature set does. Across the three v3 runs, single-run coverage was 24.3 / 24.3 / 22.3% and the median abs log error 0.461 / 0.436 / 0.454 (spread 0.025). For v1 the spreads were 3.4 points and 0.048. Every feature-set difference above lies within this run-to-run spread (`analysis/figures/feature_study.png`).
+
+**Conclusions.**
+1. **Ten early-design inputs are as good as all 48.** Climate zone, use, project type, floor area, storeys, WWR and the R-values give the same accuracy as the full set. The other 38 features add nothing measurable, which is consistent with Section 5.1: the missing information is the assembly, and no subset provides it. For the proposal's question this is the practical result. An LLM estimate at schematic design needs only the information a designer already has.
+2. **The model does not depend on the leakage-prone fields.** Removing `mass_total`, or all LCA-derived fields, does not make the estimates worse; the no-lca condition is in fact marginally better. The v1–v3 results are therefore not an artefact of features that encode the reference LCA.
+3. **Prompt content matters more than feature selection.** Moving from v2 to v3 changed the median abs log error by 0.137 and coverage by 10 points (Section 8.1). No feature set changed either by more than 0.020 or 4.5 points.
+
+## 11. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
 - **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls. In v3 run 2, 162 buildings were answered in continuation tasks after a container restart (Section 8.1).
 - **Held-out split assigned after the runs.** The dev-only replication (Section 9) shows that the prompt design did not depend on the test buildings. Even so, only a dataset the prompts have never been checked against can fully rule out overfitting.
 - **Statistical power.** With 3 runs, the v3-vs-v1 gain is borderline on all 292 buildings (McNemar p = 0.085) and not significant on the 88 test buildings (p = 0.41). More runs per building or more buildings would settle it.
+- **Feature study with one run.** Each feature condition was run once, and 7 of the 9 leave-one-group-out ablations were stopped to limit token use. The conclusion "no feature set matters" rests on differences that lie within the run-to-run spread; it is a null result, not proof that the features are irrelevant.
 - **Functional unit.** Results are per m² of floor area, not per m² of wall, and the enclosure includes windows, doors and roofs.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
 - **Next steps:**
   - evaluate the final prompt on an external dataset or a new project set (e.g. map the CarbEnMats/GBDB enclosure fields to this feature set);
-  - run a feature study with envelope-relevant subsets (`FEATURES` in `experiment_config.py`);
+  - add assembly-type inputs (cladding, insulation type, glazing system), the information the feature study shows is missing;
+  - finish the remaining leave-one-group-out ablations (`FEATURE_SETS` in `experiment_config.py`, already prepared);
   - test domain context with CLF Material Baselines and EPDs;
   - extend to 10 runs per building (the proposal protocol), with seeds 1003–1009.
 

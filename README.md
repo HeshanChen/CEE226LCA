@@ -72,7 +72,7 @@ python summarize_run.py 20261104_baseline-innate
 | `summarize_run.py` | Proposal metrics (RMSE, MAPE, median APE, ±20% coverage, CV across runs), overall and by climate zone / primary use, plus `fig2_estimate_vs_truth.png` and `fig3_ratio_by_group.png` |
 | `results/ground_truth.csv` | Enclosure A1–A3 ground truth (with total GWP and floor area columns) |
 | `results/ground_truth_TA_wholebuilding_A-C.csv` | The course's whole-building A–C ground truth, kept for comparison |
-| `references/` | Building metadata (49 features), glossary, CLF practice guide, A–C benchmarks |
+| `references/` | Building metadata (48 features), glossary, CLF practice guide, A–C benchmarks |
 | `scripts/fetch_reference_pdfs.sh` | Downloads the 4 background papers (not re-hosted here: publisher copyright) |
 | `gemini_lca_batch.py`, `gemini_lca_project_runs.py` | Course Gemini runners. **Not used** in this project; they still carry the whole-building A–C prompt |
 
@@ -92,10 +92,14 @@ python summarize_run.py 20261104_baseline-innate
 | Iteration | Run folder | Condition | Runs | ±20% coverage | RMSE | median APE | CV across runs |
 |---|---|---|---|---|---|---|---|
 | pilot | `20261104_pilot-sonnet_run0-chunk01` | Sonnet 5.5 subagent, 49 buildings, pipeline test only | 49 × 1 | 36.7% | 62.2 | 31% | n/a |
-| 0 | `20261104_baseline-innate` | **Baseline**: Opus 5.5 subagents (effort medium), innate knowledge, all 49 features, no papers, no ontology | 292 × 3 | **19.5%** (95% CI 15.4–24.5%) | **79.7** | **37.9%** | **19.0%** |
+| 0 | `20261104_baseline-innate` | **Baseline**: Opus 5.5 subagents (effort medium), innate knowledge, all 48 features, no papers, no ontology | 292 × 3 | **19.5%** (95% CI 15.4–24.5%) | **79.7** | **37.9%** | **19.0%** |
 | 1 | `20261104_prompt-v2` | Prompt v2 (scope matching the dataset, component take-off, named high-impact materials, no anchoring, renovation rule, BEST line), same model and features | 292 × 3 | 15.1% (11.4–19.6%) | 81.0 | 44.3% | **13.8%** |
 | 2 | `20261104_prompt-v3` | **Prompt v3 (final)**: v2 + external component-intensity table (`references/envelope_intensities_sources.md`), HFC-XPS modelling convention, per-envelope check, non-subtracting renovation rule, RANGE only | 292 × 3 | **25.0%** (20.4–30.3%) | **76.0** | 40.0% | **12.5%** |
-| 3 | | Feature study: full set vs. envelope-relevant subsets | | | | | |
+| 3 | `20261105_feat-*`, `20261105_ablate-no-*` | Feature study with prompt v3 (run 0 only): early (39), env (15), min (10), no-lca (40), no-mass (47) vs all 48 | 292 × 1 each | 19.9–25.3% (all: 24.3%) | 77.3–81.2 | – | – |
+
+### Feature study
+
+Every feature set gives the same accuracy as all 48 features, within the run-to-run spread of prompt v3. The 10-feature early-design set (`min`) is as good as the full set, and removing `mass_total` or the LCA-derived fields does not hurt. See report Section 10, `analysis/feature_study.md` and `analysis/figures/feature_study.png`.
 
 ### Held-out test set
 
