@@ -137,7 +137,7 @@ def cmd_prepare(args):
             instructions = cfg.SUBAGENT_INSTRUCTIONS.format(
                 task_file=path, n_lines=text.count("\n"), n_buildings=len(chunk), example_key=keys[0],
                 answers_prefix=sd / "answers" / name, answer_length=cfg.ANSWER_LENGTH,
-                final_lines=cfg.FINAL_LINES, example_final=cfg.EXAMPLE_FINAL)
+                final_lines=cfg.FINAL_LINES, example_final=cfg.EXAMPLE_FINAL, knowledge=cfg.KNOWLEDGE, context_desc=cfg.CONTEXT_DESC)
             (sd / "tasks" / f"{name}.instructions.txt").write_text(instructions, encoding="utf-8")
             tasks.append({"task": name, "run_idx": r, "file": str(path.relative_to(SCRIPT_DIR)),
                           "keys": keys,
@@ -187,7 +187,7 @@ def cmd_resume(args):
         instructions = cfg.SUBAGENT_INSTRUCTIONS.format(
             task_file=path, n_lines=text.count("\n"), n_buildings=len(keys), example_key=keys[0],
             answers_prefix=sd / "answers" / name, answer_length=cfg.ANSWER_LENGTH,
-            final_lines=cfg.FINAL_LINES, example_final=cfg.EXAMPLE_FINAL)
+            final_lines=cfg.FINAL_LINES, example_final=cfg.EXAMPLE_FINAL, knowledge=cfg.KNOWLEDGE, context_desc=cfg.CONTEXT_DESC)
         (sd / "tasks" / f"{name}.instructions.txt").write_text(instructions, encoding="utf-8")
         made.append({"task": name, "keys": keys, "created": datetime.now().isoformat(timespec="seconds")})
         print(f"{name}: {len(keys)} buildings, {text.count(chr(10)):,} lines")

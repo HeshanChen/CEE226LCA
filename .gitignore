@@ -12,6 +12,8 @@ GWP-calculation/*.pkl
 # Background papers are publisher-copyrighted, so they are not re-hosted here.
 # Get them with: bash scripts/fetch_reference_pdfs.sh
 references/*.pdf
+# Envelope documents (domain condition): get with bash scripts/fetch_envelope_docs.sh
+references/envelope_docs/*.pdf
 
 # Regenerable per-run outputs (rebuilt by "subagent_runs.py collect" / Gemini batch files)
 results/*/raw/

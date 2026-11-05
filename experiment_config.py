@@ -21,14 +21,20 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v3"         # "v1" baseline, "v2" after the baseline error analysis, "v3" after the v2 results
-CONDITION = "prompt-v3"       # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "v1"         # "v1" baseline, "v2" after the baseline error analysis, "v3" after the v2 results
+CONDITION = "domain-envelope"  # label written to the ontology_mode column of the runs CSVs
 
 INCLUDE_PAPERS = False        # background papers (text extracted from the PDFs)
 PAPER_PATHS = [REF / f"{i}.pdf" for i in range(1, 5)]
 INCLUDE_PRACTICE_GUIDE = False
 PRACTICE_GUIDE_PATH = REF / "250524_CLF-LCA-Practice-Guide.txt"
 EXTRA_CONTEXT_PATHS: list[Path] = []   # later iterations, e.g. [REF / "envelope_notes.md"]
+# Envelope-focused documents (domain-knowledge condition): replace the general whole-building
+# papers. Publicly available PDFs, fetched with scripts/fetch_envelope_docs.sh (not re-hosted).
+INCLUDE_ENVELOPE_DOCS = True
+ENVELOPE_DOC_PATHS = [REF / "envelope_docs" / f for f in
+                      ("rdh2025.pdf", "clf2023.pdf", "arup_glass.pdf", "ubc2022.pdf")]
+MAX_ENVELOPE_DOC_CHARS = 30_000   # per document, truncated like the course pipeline's MAX_PDF_CHARS
 MAX_PDF_CHARS = 100_000
 
 # Building features sent for each building: "all" (every column in buildings_metadata_LLM.xlsx)
@@ -196,11 +202,15 @@ FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v2": "the two final lines `BEST_kgCO2e_per_m2: <value>` and "
                      "`RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v3": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
+CONTEXT_DESC = ("a glossary of the feature names and four reference documents on enclosure embodied carbon"
+                if INCLUDE_ENVELOPE_DOCS else "a glossary of the feature names")
+KNOWLEDGE = ("your own knowledge and the reference documents included in the task file"
+             if INCLUDE_ENVELOPE_DOCS or INCLUDE_PAPERS else "your own knowledge")
 SUBAGENT_INSTRUCTIONS = """\
-You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only your own knowledge.
+You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only {knowledge}.
 
 Input file: {task_file}
-It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context (a glossary of the feature names), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by the building's features and the question.
+It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context ({context_desc}), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by the building's features and the question.
 
 Rules. Breaking any of these invalidates the experiment:
 - Read only that one task file. Do not open, list or search any other file or folder (especially nothing under results/, GWP-calculation/ or references/). Do not use web search or web fetch, and do not run code or shell commands. The only tools you may use are Read (on the task file) and Write (for your answer files).
@@ -272,6 +282,15 @@ def build_prefix() -> list[str]:
         parts.append("This document contains a detailed practice guide on life cycle assessment of "
                      "buildings focused on implementation. Use this guideline for LCA estimation:"
                      f"\n\n{PRACTICE_GUIDE_PATH.read_text(encoding='utf-8')}")
+    if INCLUDE_ENVELOPE_DOCS:
+        missing = [p.name for p in ENVELOPE_DOC_PATHS if not p.exists() or p.stat().st_size < 1000]
+        if missing:
+            raise SystemExit(f"Envelope documents missing: {missing}. Run scripts/fetch_envelope_docs.sh")
+        docs = "\n\n".join(f"--- Document: {p.stem} ---\n{read_pdf(p, MAX_ENVELOPE_DOC_CHARS)}"
+                            for p in ENVELOPE_DOC_PATHS)
+        parts.append("These documents contain background information about the embodied carbon of "
+                     "building enclosures (wall assemblies, insulation, glazing, windows and material "
+                     f"baselines):\n\n{docs}")
     for p in EXTRA_CONTEXT_PATHS:
         parts.append(f"Additional reference ({p.name}):\n\n{p.read_text(encoding='utf-8')}")
     parts.append("Reference the given feature information above. Estimate the embodied carbon of "
@@ -303,6 +322,8 @@ def settings() -> dict:
         "papers": [p.name for p in PAPER_PATHS] if INCLUDE_PAPERS else [],
         "include_practice_guide": INCLUDE_PRACTICE_GUIDE,
         "extra_context": [p.name for p in EXTRA_CONTEXT_PATHS],
+        "envelope_docs": ([p.name for p in ENVELOPE_DOC_PATHS] if INCLUDE_ENVELOPE_DOCS else []),
+        "max_envelope_doc_chars": MAX_ENVELOPE_DOC_CHARS if INCLUDE_ENVELOPE_DOCS else None,
         "features": FEATURES,
         "feature_set": next((k for k, v in FEATURE_SETS.items() if v == FEATURES), "custom"),
         "system_prompt": SYSTEM_PROMPT,

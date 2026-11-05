@@ -74,12 +74,23 @@ We narrow that question to the enclosure and to the product stage (A1--A3), wher
 \item What do the answers imply for the LEED~v5 embodied-carbon prerequisite and credit?
 \end{enumerate}
 
+\textbf{Scope relative to the proposal.} The proposal planned a reference LCA of three modelled wall assemblies in two to three climates and two uses, per m$^2$ of wall and in six TRACI categories. It also planned three knowledge conditions with 10 runs each, and an evaluation of LEED credit outcomes. After the course check-in we adopted the course's dataset-based design, which changed four things:
+\begin{itemize}
+\item \emph{Ground truth.} Reported enclosure A1--A3 GWP of 292 real projects replaces modelled assemblies. Only GWP is evaluated, and the unit is per m$^2$ of floor area.
+\item \emph{Climate and use (proposal RQ1).} These are analysed from the data (Section~\ref{sec:data}), not from modelled assemblies.
+\item \emph{Knowledge conditions.} We test the innate baseline, a domain-knowledge condition with envelope-focused documents (Section~\ref{sec:domain}) and two prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the domain and feature conditions) instead of 10.
+\item \emph{LEED.} MRp2 hotspot agreement is measured with a mention-based proxy (Section~\ref{sec:leed}). MRc2 point-band agreement, the LEED-aligned ontology and the cost/regulation/performance drivers are discussed only qualitatively or left out.
+\end{itemize}
+
 \section{Data and Ground Truth}
+\label{sec:data}
 \textbf{Source.} The harmonized dataset of Benke et al.~\cite{benke2025} (CC~BY~4.0) holds 927,950 material-level LCA results for 292 projects in the US and Canada, with 48 early-stage features per project.
 
 \textbf{Scope and unit.} We keep OmniClass \texttt{Shell - Enclosure} and stage \texttt{A1-A3} (55,807 rows) and divide by floor area. We use \texttt{bldg\_cfa} for new construction and renovated plus added GFA for the 49 renovations, which reproduces the dataset's own normalization for all 292 projects. The enclosure includes windows, doors and roofs, and the unit is per m$^2$ of floor area rather than the proposal's 1~m$^2$ of wall, because wall area is missing for most projects.
 
 \textbf{Distribution.} Values have a median of 78.0~\coe{}, a mean of 95.6 and a range of 0.49--513.9. The enclosure is a median 19\% of whole-building A--C carbon.
+
+\textbf{Climate and use (proposal RQ1).} We looked at the 233 new-construction projects with complete references (231 with a climate zone). Building use matters (Kruskal--Wallis $p<10^{-6}$): medians run from 53.6~\coe{} for multifamily and 64.5 for warehouses, through 87.2 for offices and 89.3 for education, to 132.6 for public safety and 157.2 for transport hubs. Climate does not reach significance ($p=0.26$): the medians are 80.6 in warm zones (1--3), 85.9 in zone~4 and 95.1 in cold zones (5--8). Per m$^2$ of floor area, use (through glazing share and envelope-to-floor ratio) shapes enclosure carbon more than climate (through insulation).
 
 \textbf{Composition.} Insulation (26.4\%) and aluminum (22.0\%) dominate (Fig.~\ref{fig:composition}). XPS alone is 15.5\%, at 43.6~kgCO$_2$e/kg, against 1.2 for mineral wool and 3.1 for polyiso. That is the HFC-blown product modelled by Tally and One Click LCA in the assessment years. 149 projects contain XPS.
 
@@ -257,7 +268,12 @@ LEED~v5 makes embodied carbon part of the rating system. Prerequisite MRp2 (\emp
 \begin{itemize}
 \item The bias is small, $-14\%$ overall and close to zero for buildings without XPS.
 \item The reasoning names the components that drive enclosure carbon in the data: aluminum curtain wall and framing, insulation type (HFC-XPS), metal panels and glazing.
-\item A quantitative test of agreement with the reference's top-3 materials is future work, since the answers give hotspots in prose rather than in a structured form.
+\end{itemize}
+We tested hotspot agreement with a proxy. Each building's top-3 hotspots are the three largest of 11 design-level material categories in the reference; an answer counts as naming a category when it mentions the category (keyword match, \path{analysis/hotspot_agreement.py}). Excluding the 10 incomplete references:
+\begin{itemize}
+\item v3 answers name the reference top-1 hotspot in 94.6\% of cases and recall 89.7\% of the top-3. Naming the same number of categories at random would give 60.5\%; v1 reaches 81.4\% and 77.1\%.
+\item The answers are building-specific. For the 80 buildings whose top-1 hotspot is not one of the three most common categories (insulation, glass, aluminum), v3 names the top-1 in 82.1\% of cases, where a constant typical-building guess scores 0\%.
+\item The answers are not a ranked shortlist: they name 6.7 categories on average, and their precision (41\%) is below that of the typical-building guess (60\%). For MRp2 the prompt should ask for a ranked top-3 explicitly.
 \end{itemize}
 
 \textbf{MRc2: reductions need precision the LLM does not have.} Credit points scale with the percentage reduction against a baseline. The relevant errors are:
@@ -285,7 +301,7 @@ These are as large as, or larger than, the reductions a project typically docume
 \item The feature study used one run per condition, and 7 of 9 planned ablations were stopped to limit cost.
 \item The unit is per m$^2$ of floor area.
 \item Reference quality is uneven.
-\item The LEED analysis is qualitative: no credit thresholds or hotspot agreement were computed.
+\item Hotspot agreement uses a mention-based proxy, and MRc2 point-band agreement was not computed.
 \item Results are specific to Claude Opus~5.5.
 \end{itemize}
 
