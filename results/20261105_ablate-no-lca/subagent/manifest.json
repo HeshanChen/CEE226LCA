@@ -693,5 +693,77 @@
       ],
       "answers_prefix": "results/20261105_ablate-no-lca/subagent/answers/run-0_chunk-06"
     }
+  ],
+  "resumes": [
+    {
+      "task": "run-0_chunk-01_resume",
+      "keys": [
+        "project-285__run0",
+        "project-230__run0",
+        "project-169__run0",
+        "project-31__run0",
+        "project-66__run0",
+        "project-48__run0",
+        "project-112__run0",
+        "project-74__run0",
+        "project-188__run0",
+        "project-67__run0",
+        "project-181__run0"
+      ],
+      "created": "2026-11-05T00:33:14"
+    },
+    {
+      "task": "run-0_chunk-02_resume",
+      "keys": [
+        "project-82__run0",
+        "project-141__run0",
+        "project-219__run0",
+        "project-147__run0",
+        "project-287__run0",
+        "project-250__run0",
+        "project-104__run0",
+        "project-224__run0",
+        "project-202__run0"
+      ],
+      "created": "2026-11-05T00:33:14"
+    },
+    {
+      "task": "run-0_chunk-05_resume",
+      "keys": [
+        "project-233__run0",
+        "project-133__run0",
+        "project-161__run0",
+        "project-56__run0",
+        "project-213__run0",
+        "project-235__run0",
+        "project-124__run0",
+        "project-240__run0"
+      ],
+      "created": "2026-11-05T00:33:14"
+    },
+    {
+      "task": "run-0_chunk-06_resume",
+      "keys": [
+        "project-2__run0",
+        "project-58__run0",
+        "project-178__run0",
+        "project-284__run0",
+        "project-288__run0",
+        "project-266__run0",
+        "project-14__run0",
+        "project-236__run0",
+        "project-223__run0",
+        "project-59__run0",
+        "project-50__run0",
+        "project-75__run0",
+        "project-1__run0",
+        "project-91__run0",
+        "project-237__run0",
+        "project-117__run0",
+        "project-114__run0",
+        "project-33__run0"
+      ],
+      "created": "2026-11-05T00:33:14"
+    }
   ]
 }

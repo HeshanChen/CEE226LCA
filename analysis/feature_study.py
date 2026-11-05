@@ -4,12 +4,12 @@ feature_study.py - which input features matter? Prompt v3 with different feature
 
 Conditions (all prompt v3, same buildings, seeds and chunks):
   all      = 20261104_prompt-v3 (48 features)
-  early, env, min                     = 20261105_feat-<set>  (3 runs)
+  early, env, min                     = 20261105_feat-<set>  (run 0)
   no-<group> (leave-one-group-out)    = 20261105_ablate-no-<group>  (1 run)
 
 Every condition is compared with "all" on run 0 only (the ablations have one run), as paired
 differences per building: ±20% coverage (McNemar) and |log(est/true)| (Wilcoxon). The three main
-subsets are also compared on the mean of 3 runs. Results for all / dev / test (results/split.csv).
+conditions were run once (run 0) to limit token use. Results for all / dev / test (results/split.csv).
 
 Writes: analysis/feature_study.md, analysis/figures/feature_study.png
 """
@@ -109,21 +109,6 @@ def main():
             if sp == "all":
                 fig_rows.append(row)
         lines += [f"## {sp} split, run 0", "", table(rows), ""]
-    # 3-run comparison for the main subsets
-    lines += ["## Main subsets, mean of 3 runs (all buildings / test split)", ""]
-    rows = []
-    for k in ["all", "early", "env", "min"]:
-        if k not in avail:
-            continue
-        e3 = estimates(avail[k])
-        for sp in ["all", "test"]:
-            idx = truth.index if sp == "all" else split.index[split == sp]
-            m = metrics(e3.reindex(idx), truth.reindex(idx))
-            rows.append({"condition": k, "split": sp, "n": m["n"], "coverage %": m["coverage %"],
-                         "median |log err|": m["median |log err|"], "geo-mean est/true": m["geo-mean est/true"],
-                         "RMSE": m["RMSE"]})
-    if rows:
-        lines += [table(rows), ""]
     out = ROOT / "analysis" / "feature_study.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(lines))
