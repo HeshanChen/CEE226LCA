@@ -166,10 +166,15 @@ def cmd_resume(args):
     answers = read_answers(sd)
     made = []
     for t in manifest["tasks"]:
+        if args.runs is not None and t["run_idx"] not in args.runs:
+            continue
         keys = [k for k in t["keys"] if k not in answers]
         if not keys:
             continue
         name = f"{t['task']}_resume"
+        n_prev = len(list((sd / "tasks").glob(f"{t['task']}_resume*.md")))
+        if n_prev:
+            name = f"{t['task']}_resume{n_prev + 1}"
         blocks = [f"===== KEY: {k} =====\n"
                   f"{cfg.build_building_prompt(cfg.format_building(meta.loc[int(k.split('__')[0].split('-')[1])]))}"
                   for k in keys]
@@ -268,6 +273,8 @@ def main():
     c.add_argument("--run-name", required=True)
     r = sp.add_parser("resume")
     r.add_argument("--run-name", required=True)
+    r.add_argument("--runs", type=lambda v: [int(x) for x in v.split(",")], default=None,
+                   help="only these run indices, e.g. 0 or 0,1")
     args = ap.parse_args()
     {"prepare": cmd_prepare, "collect": cmd_collect, "resume": cmd_resume}[args.cmd](args)
 

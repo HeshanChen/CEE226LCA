@@ -1372,5 +1372,155 @@
       ],
       "answers_prefix": "results/20261105_feat-early/subagent/answers/run-2_chunk-06"
     }
+  ],
+  "resumes": [
+    {
+      "task": "run-0_chunk-01_resume",
+      "keys": [
+        "project-26__run0",
+        "project-261__run0",
+        "project-19__run0",
+        "project-196__run0",
+        "project-129__run0",
+        "project-95__run0",
+        "project-20__run0",
+        "project-4__run0",
+        "project-285__run0",
+        "project-230__run0",
+        "project-169__run0",
+        "project-31__run0",
+        "project-66__run0",
+        "project-48__run0",
+        "project-112__run0",
+        "project-74__run0",
+        "project-188__run0",
+        "project-67__run0",
+        "project-181__run0"
+      ],
+      "created": "2026-11-05T00:09:51"
+    },
+    {
+      "task": "run-0_chunk-02_resume",
+      "keys": [
+        "project-43__run0",
+        "project-107__run0",
+        "project-268__run0",
+        "project-195__run0",
+        "project-192__run0",
+        "project-7__run0",
+        "project-183__run0",
+        "project-286__run0",
+        "project-118__run0",
+        "project-125__run0",
+        "project-82__run0",
+        "project-141__run0",
+        "project-219__run0",
+        "project-147__run0",
+        "project-287__run0",
+        "project-250__run0",
+        "project-104__run0",
+        "project-224__run0",
+        "project-202__run0"
+      ],
+      "created": "2026-11-05T00:09:51"
+    },
+    {
+      "task": "run-0_chunk-03_resume",
+      "keys": [
+        "project-289__run0",
+        "project-77__run0",
+        "project-52__run0",
+        "project-215__run0",
+        "project-162__run0",
+        "project-204__run0",
+        "project-167__run0",
+        "project-121__run0",
+        "project-97__run0",
+        "project-159__run0",
+        "project-98__run0",
+        "project-198__run0",
+        "project-163__run0",
+        "project-83__run0",
+        "project-12__run0",
+        "project-21__run0",
+        "project-251__run0",
+        "project-274__run0",
+        "project-51__run0"
+      ],
+      "created": "2026-11-05T00:09:51"
+    },
+    {
+      "task": "run-0_chunk-04_resume",
+      "keys": [
+        "project-152__run0",
+        "project-78__run0",
+        "project-176__run0",
+        "project-87__run0",
+        "project-35__run0",
+        "project-210__run0",
+        "project-116__run0",
+        "project-72__run0",
+        "project-76__run0",
+        "project-92__run0",
+        "project-252__run0",
+        "project-200__run0",
+        "project-9__run0",
+        "project-130__run0",
+        "project-103__run0",
+        "project-94__run0",
+        "project-187__run0",
+        "project-85__run0",
+        "project-220__run0"
+      ],
+      "created": "2026-11-05T00:09:51"
+    },
+    {
+      "task": "run-0_chunk-05_resume",
+      "keys": [
+        "project-144__run0",
+        "project-62__run0",
+        "project-123__run0",
+        "project-89__run0",
+        "project-53__run0",
+        "project-244__run0",
+        "project-37__run0",
+        "project-153__run0",
+        "project-247__run0",
+        "project-60__run0",
+        "project-233__run0",
+        "project-133__run0",
+        "project-161__run0",
+        "project-56__run0",
+        "project-213__run0",
+        "project-235__run0",
+        "project-124__run0",
+        "project-240__run0"
+      ],
+      "created": "2026-11-05T00:09:51"
+    },
+    {
+      "task": "run-0_chunk-06_resume",
+      "keys": [
+        "project-2__run0",
+        "project-58__run0",
+        "project-178__run0",
+        "project-284__run0",
+        "project-288__run0",
+        "project-266__run0",
+        "project-14__run0",
+        "project-236__run0",
+        "project-223__run0",
+        "project-59__run0",
+        "project-50__run0",
+        "project-75__run0",
+        "project-1__run0",
+        "project-91__run0",
+        "project-237__run0",
+        "project-117__run0",
+        "project-114__run0",
+        "project-33__run0"
+      ],
+      "created": "2026-11-05T00:09:51"
+    }
   ]
 }
