@@ -5,7 +5,7 @@ Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall
 
 > 中文版：[`report_zh.md`](report_zh.md). Both versions have the same content; the final prompt is the English text in Appendix A.
 >
-> Status: complete. Prompts v1–v3 were run 3 times on each of the 292 buildings, with a held-out evaluation on 88 test buildings (Section 9) and a feature study (Section 10). The final prompt is v3 (Appendix A, section E).
+> Status: complete. Prompts v1–v3 were run 3 times on each of the 292 buildings, with an envelope-document domain condition (Section 8.2), a held-out evaluation on 88 test buildings (Section 9) and a feature study (Section 10). The final prompt is v3 (Appendix A, section E).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -41,6 +41,18 @@ Prompt v3 does exactly that (Section 8):
 
 **Implications for LEED v5** (Section 11). The v3 estimates support MRp2 hotspot screening and the comparison of envelope alternatives at schematic design, but they are not precise enough to document an MRc2 reduction for an individual building. The enclosure is a median 19% of whole-building A–C carbon, so a 30% enclosure cut is about 6% of the building.
 
+**Envelope documents in context** (Section 8.2). Following the TA's suggestion, we replaced the general whole-building papers with four envelope-focused documents, kept the v1 prompt, and ran once. The estimates got **worse**: the median log error rose by 0.090 (Wilcoxon p < 0.001) and the bias moved from 0.72 to 0.61. The documents describe current low-carbon products, while the reference LCAs used the tool data of their assessment years. v3 beats this condition on every metric.
+
+**Climate and use** (Section 2, proposal RQ1). Building use matters (p < 10⁻⁶): medians of 53.6 for multifamily, 87.2 for offices and 157.2 kgCO2e/m² for transport hubs. Climate does not reach significance (p = 0.26): 80.6 warm, 85.9 zone 4, 95.1 cold.
+
+**Hotspot agreement** (Section 11, MRp2). v3 answers name the reference's top-1 hotspot in 94.6% of cases, against 60.5% when the same number of categories is named at random. They name 6.7 categories on average, though, not a ranked top 3.
+
+**Scope relative to the proposal.** After the Nov 3 check-in we adopted the course's dataset-based design:
+- The ground truth is the reported enclosure A1–A3 GWP of 292 real projects, not three modelled wall assemblies. The unit is per m² of floor area, and only GWP is evaluated.
+- RQ1 (climate and use) is analysed from the data.
+- Knowledge conditions: the innate baseline, the envelope-document domain condition and two prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the document condition and the feature study) instead of 10.
+- LEED: hotspot agreement uses a mention-based proxy. MRc2 point-band agreement, the LEED-aligned ontology and the cost, regulation and performance drivers are discussed only qualitatively or left out.
+
 ## 2. Data and ground truth
 
 **Source.** Benke et al. (2025), *A Harmonized Dataset of High-Resolution Embodied Life Cycle Assessment Results for Buildings in North America*, Scientific Data ([doi:10.1038/s41597-025-05216-0](https://doi.org/10.1038/s41597-025-05216-0); data on [figshare](https://figshare.com/articles/dataset/28462145), CC BY 4.0). The `full_lca_results.xlsx` file has 927,950 rows, one per material, element and life cycle stage, covering 292 projects.
@@ -67,6 +79,24 @@ Prompt v3 does exactly that (Section 8):
 XPS in this dataset carries **43.6 kgCO2e/kg**, against 1.2 for high-density mineral wool, 2.4 for fiberglass and 3.1 for polyiso. This is consistent with XPS made with HFC blowing agents, which the LCA tools of the assessment years (Tally, One Click LCA) modelled. 149 of the 292 projects contain XPS.
 
 **Data-quality flag.** 10 new-construction projects (27, 35, 66, 74, 80, 91, 141, 217, 234, 264) have **no window, glazing, curtain wall or storefront GWP at all** in their enclosure inventory. Some of them report a WWR of 0.5–0.7. Project 74, for example, has WWR 0.65 and a true value of 0.64 kgCO2e/m². These look like incomplete source LCA models rather than real buildings with glass-free envelopes. They are kept in every headline metric, for comparability, and also reported separately ("excl. incomplete").
+
+**Climate and use (proposal RQ1).** New construction with complete references, 233 projects (231 with a climate zone), kgCO2e/m² floor area (`analysis/climate_use.py`):
+
+| Use | n | Median |
+|---|---|---|
+| Multifamily | 44 | 53.6 |
+| Warehouse | 20 | 64.5 |
+| Healthcare | 12 | 73.0 |
+| Office | 41 | 87.2 |
+| Education | 45 | 89.3 |
+| Laboratory | 18 | 93.3 |
+| Public assembly | 27 | 95.8 |
+| Public order and safety | 10 | 132.6 |
+| Transportation hub | 9 | 157.2 |
+
+- Use differs significantly (Kruskal–Wallis p = 2.7×10⁻⁷).
+- Climate does not reach significance (p = 0.26): 80.6 in warm zones (1–3), 85.9 in zone 4, 95.1 in cold zones (5–8).
+- Per m² of floor area, use (through glazing share and envelope-to-floor ratio) shapes enclosure carbon more than climate (through insulation).
 
 ![Figure 2.1: Share of enclosure A1–A3 GWP by material group, 292 projects. XPS alone is 15.5%.](figures/fig_composition.png)
 
@@ -319,6 +349,33 @@ During run 2 a container restart interrupted the six subagents after 130 of the 
 
 ![Figure 8.2: Coverage (95% CI) and median absolute log error, all 292 and test 88](figures/fig_prompts.png)
 
+### 8.2 Comparison: envelope documents in context (domain knowledge)
+
+The course design tests domain knowledge by placing reference documents in the context. Following the TA's suggestion at the check-in, we replaced the general whole-building papers with four envelope-focused documents:
+- RDH Building Science's wall-assembly LCA (2025);
+- the CLF 2023 North American Material Baselines;
+- the Arup/Saint-Gobain study of facades and glass;
+- a UBC study of fenestration embodied carbon (2022).
+
+Each was truncated to 30k characters, as in the course pipeline. The task text is v1 unchanged, so the documents are the only difference from the baseline. The condition was run once and compared building by building with run 0 of v1 and v3, which use the same chunks and order (`analysis/domain_study.py`).
+
+| Condition | Coverage | Median abs log | Bias | RMSE |
+|---|---|---|---|---|
+| v1 (innate) | 17.8% | 0.519 | 0.72 | 81.2 |
+| v1 + documents | 15.8% | 0.609 | 0.61 | 85.3 |
+| v3 (final prompt) | 24.3% | 0.461 | 0.86 | 77.8 |
+
+**Results: the documents made the estimates worse.**
+- The median log error rose by 0.090 (Wilcoxon p < 0.001), the bias moved from 0.72 to 0.61, and only 35% of buildings got closer. The drop in coverage (−2.1 points) is not significant (p = 0.48).
+- v3 beats the document condition on every metric (coverage +8.6 points, McNemar p = 0.011; log error −0.148, p < 0.001).
+
+**Why.** The documents were read: 22% of answers cite them, mostly to justify the low end of a range ("per RDH", "CLF baselines support the lower end"). But they describe **current** lower-carbon products: HFO-blown spray foam, recent EPD baselines and modern glazing. The reference LCAs were modelled with the tool data of their assessment years.
+- XPS mentions fell from 0.7% of answers to zero.
+- The ratio for projects with XPS fell from 0.64 to 0.50.
+- The ratio without XPS also fell, from 0.78 to 0.68.
+
+Like v2, this shows that more domain text does not correct a blind spot; it can deepen it when the text describes a different product vintage than the reference models. What worked in v3 was a short table of sourced intensities together with an explicit note on the modelling convention.
+
 ## 9. Held-out evaluation
 
 **No suitable external dataset.** We looked for an independent dataset with the same structure (element-level enclosure A1–A3 results plus early-stage features for North American buildings) and found none:
@@ -432,7 +489,21 @@ Figure 11.1 is the team's diagram, revised from the draft "Building Envelope LCA
 - the bias is small, −14% overall and close to zero for buildings without XPS;
 - the reasoning names the components that drive enclosure carbon in the data: aluminum curtain wall and framing, insulation type (HFC-XPS), metal panels and glazing.
 
-Agreement with the reference's top-3 materials still needs a quantitative test. The answers give hotspots in prose rather than in a structured form, so this is left as future work.
+**Hotspot agreement test** (`analysis/hotspot_agreement.py`). The answers are prose with no structured hotspot list, so we use a proxy:
+- reference hotspots: the 3 largest of 11 design-level material categories in each building's enclosure A1–A3;
+- LLM hotspots: the categories an answer mentions (keyword match).
+
+Excluding the 10 incomplete references:
+
+| Condition | Top-1 named | Top-3 recall | Chance at same count | Categories named per answer | Precision |
+|---|---|---|---|---|---|
+| Typical-building guess (insulation, glass, aluminum) | 71.6% | 61.1% | 27.3% | 3.0 | 60.4% |
+| v1 | 81.4% | 77.1% | 51.4% | 5.7 | 42.0% |
+| v2 | 93.3% | 89.7% | 67.5% | 7.4 | 36.9% |
+| v3 | 94.6% | 89.7% | 60.5% | 6.7 | 41.1% |
+
+- The answers are **building-specific**: for the 80 buildings whose top-1 hotspot is not one of the three common categories, v3 names it in 82.1% of cases, where the typical-building guess scores 0%.
+- The answers are **not a ranked top 3**: they name 6.7 categories on average, and their precision (41%) is below that of the typical guess (60%). For MRp2 the prompt should ask for a ranked top-3 explicitly.
 
 **MRc2: reductions need precision the LLM does not have.** Credit points scale with the percentage reduction against a baseline. The v3 errors are:
 
@@ -459,7 +530,8 @@ These are as large as, or larger than, the reductions a project typically docume
 - **Feature study with one run.** Each feature condition was run once, and 7 of the 9 leave-one-group-out ablations were stopped to limit token use. The conclusion "no feature set matters" rests on differences that lie within the run-to-run spread; it is a null result, not proof that the features are irrelevant.
 - **Functional unit.** Results are per m² of floor area, not per m² of wall, and the enclosure includes windows, doors and roofs.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
-- **The LEED analysis is qualitative.** No credit thresholds or hotspot agreement were computed.
+- **The LEED analysis is incomplete.** Hotspot agreement uses a mention-based proxy, and MRc2 point-band agreement was not computed.
+- **The document condition was run once,** with four documents truncated to 30k characters; other documents could behave differently.
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
 - **Next steps:**
   - evaluate the final prompt on an external dataset or a new project set (e.g. map the CarbEnMats/GBDB enclosure fields to this feature set);

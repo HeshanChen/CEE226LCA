@@ -165,6 +165,14 @@ function content(wk, sl) {
     const ty = TOP + 0.05 + 0.36 * (sl.rows.length + 1) + 0.35;
     bullets(s, sl.bullets, { x: M, y: ty, w: sl.tw, h: BOT - ty }, { fs: 16, gap: 10 });
     if (sl.img) image(s, sl.img, { x: M + sl.tw + 0.4, y: TOP + 0.05, w: W - 2 * M - sl.tw - 0.4, h: BOT - TOP }, sl.alt, dir);
+    if (sl.sideBullets) {
+      const x = M + sl.tw + 0.5, w = W - M - x;
+      s.addShape(pres.shapes.RECTANGLE, { x, y: TOP + 0.05, w, h: BOT - TOP - 0.05, fill: { color: C.background2 },
+        line: { color: C.background2, width: 0 }, objectName: "why panel" });
+      s.addText("Why", { x: x + 0.3, y: TOP + 0.25, w: w - 0.6, h: 0.45, fontSize: 18, bold: true, color: C.accent1,
+        margin: 0, isTextBox: true });
+      bullets(s, sl.sideBullets, { x: x + 0.3, y: TOP + 0.85, w: w - 0.6, h: BOT - TOP - 1.1 }, { fs: 16, gap: 12 });
+    }
   } else if (sl.type === "cards") {
     numberedCards(s, sl.cards, { x: M, y: TOP + 0.05, w: W - 2 * M, h: BOT - TOP - 0.05 }, sl.cols || 3, sl.cardFs || 16);
   } else if (sl.type === "quote") {
@@ -218,6 +226,12 @@ const WEEKS = [
                   "**XPS: 43.6 kgCO₂e/kg**, against 1.2 for mineral wool and 3.1 for polyiso: the HFC-blown product that Tally and One Click LCA modelled in the assessment years.",
                   "**149 of 292** projects contain XPS.",
                   "**Data quality:** 10 new-construction projects have no fenestration GWP at all, several with a WWR of 0.5–0.7. They are flagged, and results are reported with and without them."] },
+      { type: "stats", title: "Climate vs use: use matters more (proposal RQ1)",
+        stats: [["53.6", "median " + CO2 + ", multifamily (44 projects)"], ["87.2", "median, office (41)"],
+                ["157.2", "median, transportation hubs (9)"]],
+        bullets: ["**Use differs significantly** across 9 uses (Kruskal–Wallis p = 2.7×10⁻⁷). New construction with complete references, 233 projects.",
+                  "**Climate does not reach significance** (p = 0.26): warm zones 80.6, zone 4 85.9, cold zones 95.1.",
+                  "Per m² of floor area, use (glazing share, envelope-to-floor ratio) shapes enclosure carbon more than climate (insulation)."] },
       { type: "flow", title: "LLM experiment protocol",
         steps: ["**48 features** per building", "**Task file:** system prompt, glossary, 48–49 buildings",
                 "**Claude Opus 5.5** subagent, medium effort; no web, code or ground truth", "**Answer:** RANGE low – high → midpoint",
@@ -265,10 +279,10 @@ const WEEKS = [
     asks: ["Feedback on the **error taxonomy** before we revise the prompt.",
            "Any **domain knowledge** you would add to the prompt?"] },
 
-  { n: 3, date: "Nov 23", short: "Prompt v2", topic: "Prompt v2: adding qualitative knowledge",
+  { n: 3, date: "Nov 23", short: "Adding knowledge", topic: "Adding knowledge: v2 and documents",
     take: [["13.8%", "run-to-run CV (v1 19.0%): more consistent"],
            ["15.1%", "coverage (v1 19.5%): less accurate"],
-           ["89%", "of v2 answers still assume polyiso roof insulation"]],
+           ["0.61", "bias with envelope documents in context (v1 0.72): worse"]],
     slides: [
       { type: "cards", title: "What prompt v2 changed", cardFs: 18,
         cards: [["Scope", "Written to match the dataset's enclosure definition."],
@@ -289,8 +303,17 @@ const WEEKS = [
         bullets: ["**The facts were repeated, not applied.** XPS was named 50× more often, but 89% of answers still assumed polyiso roofs; the median roof intensity stayed at 35 " + CO2 + ".",
                   "**The take-offs were too light.** Bottom-up intensities came out at 66.8 per m² of envelope, against 86.7 in the reference.",
                   "**A subtracting rule hurt.** \"Count only new materials\" dropped minor renovations from 0.85 to 0.56."] },
+      { type: "tablefig", title: "Second way to add knowledge: envelope documents in context", tw: 6.2,
+        colW: [2.0, 1.05, 1.15, 0.8, 1.2],
+        head: ["Condition (run 0)", "Coverage", "Med. |log|", "Bias", "RMSE"],
+        rows: [["v1 (innate)", "17.8%", "0.519", "0.72", "81.2"], ["v1 + 4 envelope docs", "15.8%", "0.609", "0.61", "85.3"]],
+        bullets: ["Docs: RDH 2025 wall assemblies, CLF 2023 material baselines, Arup facades/glass, UBC fenestration (30k characters each); v1 task text unchanged.",
+                  "**Worse:** log error +0.090 (Wilcoxon p < 0.001); bias 0.72 → 0.61."],
+        sideBullets: ["**The documents were read:** 22% of answers cite them, mostly for the low end of a range.",
+                      "But they describe **today's low-carbon products** (HFO foams, recent EPDs, modern glazing); the reference LCAs used period tool data.",
+                      "XPS mentions fell to **0%**; the XPS-project ratio fell 0.64 → 0.50."] },
       { type: "quote", title: "Lesson for prompt design",
-        quote: "Qualitative knowledge gets repeated, not applied. To move the numbers, give numbers, at the step where the model chooses them.",
+        quote: "Qualitative knowledge, as instructions or as documents, gets repeated, not applied. To move the numbers, give numbers, at the step where the model chooses them.",
         sub: "This is the design principle behind **prompt v3**." },
     ],
     next: ["**Prompt v3:** sourced quantitative anchors. A table of external A1–A3 intensities per m² of component, placed at the decision step.",
@@ -351,14 +374,14 @@ const WEEKS = [
         alt: "Diagram: envelope life cycle, LCA and LLM estimates, LEED v5 MRp2 and MRc2 workflow",
         caption: "The study boundary is A1–A3. A reference LCA and the LLM estimate both produce enclosure results that feed **MRp2** (quantify, hotspots) and **MRc2** (reduce against a baseline). The LLM screens; an LCA documents." },
       { type: "cards", title: "LEED v5: screening yes, credit documentation no", cardFs: 17,
-        cards: [["MRp2: hotspots", "Bias is small (−14%; near zero without XPS), and the reasoning names the real drivers: curtain wall and framing, HFC-XPS, metal panels, glazing. **Suited to schematic-design screening.**"],
+        cards: [["MRp2: hotspots", "Answers name the reference **top-1 hotspot in 95%** of cases (chance at the same count: 61%), but list ~7 categories, not a ranked top 3. Bias is small (−14%). **Suited to screening; ask for a ranked top 3.**"],
                 ["MRc2: reductions", "CV 12.5%, median error ≈ 35–40%, coverage 1 in 4: as large as typical documented reductions. **Cannot document a credit-level reduction.** Paired comparison of alternatives is the promising, untested use."],
                 ["Option 1: dilution", "The enclosure is a median **19%** of whole-building A–C, so a 30% enclosure cut ≈ **6%** of the building. Envelope choices work best together with structure, or via Option 2 EPDs."]] },
       { type: "cards", title: "Deliverables and limitations", cols: 2, cardFs: 17,
         cards: [["Final prompt (v3)", "Full text in the paper's appendix, with the sourced intensity table."],
                 ["Paper, reports, poster", "ICML-style paper, English and Chinese reports, PPT poster; all code and results in the GitHub repo."],
-                ["Limitations", "Answers in one task file share a context; post-hoc split; v3–v1 gain borderline with 3 runs; feature study one run; per m² floor area; uneven reference quality; one model."],
-                ["Future work", "Assembly-type inputs; paired alternative comparison; hotspot-agreement test; an external test set."]] },
+                ["Limitations", "Answers in one task file share a context; post-hoc split; v3–v1 gain borderline with 3 runs; feature study and document condition one run each; per m² floor area; uneven reference quality; one model."],
+                ["Future work", "Assembly-type inputs; paired alternative comparison; a ranked top-3 hotspot output for MRp2; an external test set."]] },
     ],
     nextTitle: "Wrap-up", nextHead: "Take-aways",
     next: ["An LLM's error is **structured**: compression and material blind spots, which error analysis can locate.",

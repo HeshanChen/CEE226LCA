@@ -58,9 +58,9 @@ We test whether a large language model (Claude Opus~5.5, run as a Claude Code su
 
 With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the reference LCA. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. It also underestimates envelope area and misjudges renovations; its largest overestimates trace back to incomplete reference LCAs.
 
-Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Ten early-design inputs are as informative as all 48.
+Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Placing envelope-focused documents in context instead made the estimates worse (bias 0.61): the documents describe current low-carbon products rather than the data the reference LCAs used. Ten early-design inputs are as informative as all 48, and building use shapes enclosure carbon more than climate.
 
-For LEED~v5, the estimates support hotspot screening and comparison of envelope alternatives at schematic design (MRp2, MRc2), but they cannot document a credit-level reduction for an individual building.
+For LEED~v5, the answers name the reference's top hotspot 95\% of the time and support screening and the comparison of envelope alternatives at schematic design (MRp2, MRc2). They cannot document a credit-level reduction for an individual building.
 \end{quote}
 
 \section{Introduction}
@@ -210,6 +210,47 @@ Buildings & Prompt & Coverage (95\% CI) & RMSE & Median APE & Median $|\log|$ & 
 \label{fig:prompts}
 \end{figure*}
 
+\section{Domain Knowledge from Envelope Documents}
+\label{sec:domain}
+The course design tests domain knowledge by placing reference documents in the context. Following the check-in, we replaced the general whole-building papers with four envelope-focused documents, each truncated to 30k characters as in the course pipeline:
+\begin{itemize}
+\item RDH Building Science's wall-assembly LCA (2025)~\cite{rdh};
+\item the CLF 2023 North American Material Baselines~\cite{clf2025};
+\item the Arup/Saint-Gobain study of facades and glass~\cite{arup};
+\item a UBC study of fenestration embodied carbon~\cite{ubc}.
+\end{itemize}
+The task text is v1 unchanged, so the documents are the only difference from the baseline. The condition was run once and compared building by building with run~0 of v1 and v3, which use the same chunks and order (Table~\ref{tab:domain}).
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Envelope documents in context (run 0, 292 buildings). $p$: Wilcoxon on $|\log|$ error, paired against the row above.}
+\label{tab:domain}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lccccc}
+\toprule
+Condition & Cov. & Med.\ $|\log|$ & Bias & RMSE & $p$ \\
+\midrule
+v1 (innate) & 17.8\% & 0.519 & 0.72 & 81.2 & -- \\
+v1 + documents & 15.8\% & 0.609 & 0.61 & 85.3 & $<0.001$ \\
+v3 (final) & 24.3\% & 0.461 & 0.86 & 77.8 & $<0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Results.} The documents made the estimates \emph{worse}:
+\begin{itemize}
+\item The median $|\log|$ error rose by 0.090 (Wilcoxon $p<0.001$), the bias moved from 0.72 to 0.61, and only 35\% of buildings got closer. The drop in coverage ($-2.1$ points) is not significant ($p=0.48$).
+\item v3 beats the document condition on every metric (coverage $+8.6$ points, McNemar $p=0.011$; $|\log|$ error $-0.148$, $p<0.001$).
+\end{itemize}
+
+\textbf{Why.} The documents were read: 22\% of answers cite them, mostly to justify the low end of a range (``per RDH'', ``CLF baselines support the lower end''). But they describe \emph{current} lower-carbon products: HFO-blown spray foam, recent EPD baselines and modern glazing. The reference LCAs were modelled with the tool data of their assessment years.
+\begin{itemize}
+\item XPS mentions fell from 0.7\% of answers to zero.
+\item The ratio for projects with XPS fell from 0.64 to 0.50.
+\item The ratio without XPS also fell, from 0.78 to 0.68.
+\end{itemize}
+Like v2, this shows that more domain text does not correct a blind spot; it can deepen it when the text describes a different product vintage than the reference models. What worked in v3 was a short table of sourced intensities together with an explicit note on the modelling convention.
+
 \section{Held-out Evaluation}
 \textbf{No external test set.} No independent dataset with the same structure exists. The CLF WBLCA benchmark probably shares source models with the ground truth. CarbEnMats~\cite{carbenmats} has envelope A1--A3 values for only 172 European buildings, defines the element differently, and has no geometry fields.
 
@@ -298,6 +339,7 @@ These are as large as, or larger than, the reductions a project typically docume
 \item Answers in one task file share a context, so they are less independent than separate API calls.
 \item The held-out split was assigned after the runs.
 \item The v3--v1 gain is borderline with 3 runs.
+\item The document condition used one run and four documents truncated to 30k characters; other documents could behave differently.
 \item The feature study used one run per condition, and 7 of 9 planned ablations were stopped to limit cost.
 \item The unit is per m$^2$ of floor area.
 \item Reference quality is uneven.
@@ -306,7 +348,7 @@ These are as large as, or larger than, the reductions a project typically docume
 \end{itemize}
 
 \section{Conclusion}
-A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%.
+A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%. Qualitative instructions (v2) and envelope documents in context both made the estimates worse.
 
 For LEED~v5, this supports early hotspot screening and the comparison of alternatives, not credit documentation. Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
@@ -321,6 +363,7 @@ For LEED~v5, this supports early hotspot screening and the comparison of alterna
 \bibitem{kawneer} Kawneer (Arconic). EPDs for curtain wall, storefront and window systems, UL Environment, 2021.
 \bibitem{pci} Precast/Prestressed Concrete Institute. Industry-average EPDs for architectural and insulated precast, 2025.
 \bibitem{rdh} RDH Building Science. \emph{Embodied Carbon Analysis: Spray Foam Assemblies}, 2025; RDH \& Toronto Metropolitan University, \emph{Embodied Carbon Resource Guide}.
+\bibitem{ubc} S.~Zargar. \emph{Impacts of Fenestration Materials on the Embodied Carbon of Buildings}. UBC Sustainability Scholars, 2022.
 \bibitem{carbenmats} M.~R\"ock et al. CarbEnMats-Buildings: a global database on whole life carbon, energy and material intensity of buildings. Zenodo, 2023.
 \bibitem{leedv5} U.S. Green Building Council. \emph{LEED v5 Building Design and Construction}: MRp2 Quantify and Assess Embodied Carbon; MRc2 Reduce Embodied Carbon. 2025.
 \end{thebibliography}

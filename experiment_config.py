@@ -21,8 +21,8 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v1"         # "v1" baseline, "v2" after the baseline error analysis, "v3" after the v2 results
-CONDITION = "domain-envelope"  # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "v3"         # "v1" baseline, "v2" after the baseline error analysis, "v3" after the v2 results
+CONDITION = "prompt-v3"       # label written to the ontology_mode column of the runs CSVs
 
 INCLUDE_PAPERS = False        # background papers (text extracted from the PDFs)
 PAPER_PATHS = [REF / f"{i}.pdf" for i in range(1, 5)]
@@ -31,7 +31,7 @@ PRACTICE_GUIDE_PATH = REF / "250524_CLF-LCA-Practice-Guide.txt"
 EXTRA_CONTEXT_PATHS: list[Path] = []   # later iterations, e.g. [REF / "envelope_notes.md"]
 # Envelope-focused documents (domain-knowledge condition): replace the general whole-building
 # papers. Publicly available PDFs, fetched with scripts/fetch_envelope_docs.sh (not re-hosted).
-INCLUDE_ENVELOPE_DOCS = True
+INCLUDE_ENVELOPE_DOCS = False
 ENVELOPE_DOC_PATHS = [REF / "envelope_docs" / f for f in
                       ("rdh2025.pdf", "clf2023.pdf", "arup_glass.pdf", "ubc2022.pdf")]
 MAX_ENVELOPE_DOC_CHARS = 30_000   # per document, truncated like the course pipeline's MAX_PDF_CHARS
