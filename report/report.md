@@ -3,6 +3,8 @@
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
 
+> 中文版：[`report_zh.md`](report_zh.md). Both versions have the same content; the final prompt is the English text in Appendix A.
+>
 > Status: complete. Prompts v1–v3 were run 3 times on each of the 292 buildings, with a held-out evaluation on 88 test buildings (Section 9) and a feature study (Section 10). The final prompt is v3 (Appendix A, section E).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
@@ -415,7 +417,7 @@ On the test split (88 buildings), the same picture holds: min has 30.7% coverage
 
 ## Appendix A. Prompts
 
-See [`appendix_prompts.md`](appendix_prompts.md): system prompt, shared context, task text v1, **task text v2 (final)**, an example building block, and the subagent instruction template.
+See [`appendix_prompts.md`](appendix_prompts.md): system prompt, shared context, task texts v1 and v2, **task text v3 (final)**, an example building block, and the subagent instruction template.
 
 ## Appendix B. Reproduction
 
@@ -466,5 +468,11 @@ python analysis/error_analysis.py --split dev 20261104_baseline-innate 20261104_
 ```
 
 ```bash
+python analysis/feature_study.py
+```
+
+```bash
 python report/make_prompt_appendix.py
 ```
+
+Feature-study runs are prepared with `--feature-set <name> --runs 1`. Interrupted runs can be continued with `python subagent_runs.py resume --run-name <run> [--runs 0]`.

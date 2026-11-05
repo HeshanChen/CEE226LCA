@@ -85,7 +85,7 @@ python summarize_run.py 20261104_baseline-innate
 
 ## Report
 
-**[`report/report.md`](report/report.md)** covers the data, setup, baseline, error analysis (why the model under- and overestimates), and the prompt v2 design and results. The final prompt is in [`report/appendix_prompts.md`](report/appendix_prompts.md), generated from `experiment_config.py`.
+**[`report/report.md`](report/report.md)** (English) / **[`report/report_zh.md`](report/report_zh.md)** (中文) covers the data, setup, baseline, error analysis (why the model under- and overestimates), and the prompt v2 design and results. The final prompt is in [`report/appendix_prompts.md`](report/appendix_prompts.md), generated from `experiment_config.py`.
 
 ## Experiment log
 
