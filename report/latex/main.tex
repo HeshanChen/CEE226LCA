@@ -1,243 +1,236 @@
-\documentclass[11pt,letterpaper]{article}
+% ICML-style two-column paper (layout modelled on the ICML template: Times, 10pt, title between rules).
+\documentclass[10pt,letterpaper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{mathptmx}
 \usepackage[scaled=0.92]{helvet}
-\usepackage[margin=1in]{geometry}
+\usepackage[letterpaper,top=0.9in,bottom=1in,left=0.75in,right=0.75in,columnsep=0.25in]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{array}
 \usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{listings}
-\usepackage{caption}
+\usepackage[font=small,labelfont=bf]{caption}
 \usepackage{enumitem}
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
-\usepackage{textcomp}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,calc,arrows.meta,backgrounds}
+\usepackage{titlesec}
 
 \definecolor{cardinal}{HTML}{8C1515}
 \definecolor{codebg}{HTML}{F7F6F3}
 \hypersetup{colorlinks=true,linkcolor=cardinal,citecolor=cardinal,urlcolor=cardinal}
-\captionsetup{font=small,labelfont=bf}
-\setlist{itemsep=2pt,topsep=3pt}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{10pt}{5pt}
+\titlespacing*{\subsection}{0pt}{8pt}{4pt}
+\setlist{itemsep=1pt,topsep=2pt,leftmargin=*}
 \lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,breakatwhitespace=true,columns=fullflexible,
   keepspaces=true,frame=single,rulecolor=\color{gray!40},backgroundcolor=\color{codebg},
   xleftmargin=4pt,xrightmargin=4pt,aboveskip=6pt,belowskip=6pt,showstringspaces=false}
 \newcommand{\coe}{kgCO$_2$e/m$^2$}
 \newcommand{\figdir}{../figures}
-
-\title{\textbf{Can an LLM Estimate the Embodied Carbon of a Building Enclosure?}\\[2pt]
-\large Error Analysis and Prompt Design for Early-Stage A1--A3 Estimates on 292 North American Buildings}
-\author{George Zheng \and Zixuan Zhao \and Heshan Chen \and Fei Cheng \and Jamie Liu\\[4pt]
-\small CEE226, Stanford University --- Group 8\\
-\small Part of the project \emph{Climate- and Use-Specific Embodied Impacts of Exterior Wall Design:}\\
-\small \emph{A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits}}
-\date{November 2026}
-
+\newcommand{\au}[2]{\begin{tabular}[t]{c}\textbf{#1}\\[-1pt]{\small\texttt{#2@stanford.edu}}\end{tabular}}
 \emergencystretch=2em
-\begin{document}
-\maketitle
+\setlength{\parskip}{0pt}
 
-\begin{abstract}
-\noindent We test whether a large language model (Claude Opus~5.5, run as a Claude Code subagent with medium reasoning effort) can estimate the cradle-to-gate (A1--A3) embodied carbon of the building enclosure from early-stage design features. The reference values come from the 292 buildings of the harmonized North American WBLCA dataset of Benke et al.~\cite{benke2025}, normalized per m$^2$ of floor area. With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the reference LCA. An error analysis shows that the model compresses all buildings toward a typical value (log--log slope 0.46), never considers HFC-blown XPS insulation (15.5\% of all enclosure carbon, and about half of the systematic underestimate), underestimates envelope area when it is not given, and misjudges renovations. Its largest overestimates trace back to incomplete reference LCAs. A first revised prompt that added qualitative material knowledge and a step-by-step method made the model more consistent but \emph{less} accurate: the model repeated the knowledge without applying it to the numbers. A second revision placed externally sourced quantitative anchors (EPD and CLF baseline intensities) at the step where each number is chosen. It raised coverage to 25.0\%, lowered the bias from 0.75 to 0.86 (estimate/reference, geometric mean), and lowered the run-to-run CV from 19.0\% to 12.5\%. On a held-out test set of 88 buildings the gains point the same way but are not statistically significant. A feature study shows that ten early-design inputs are as informative as all 48; the binding constraint is missing assembly information, not prompt length or feature count. All data, prompts, code and model outputs are public.\footnote{\url{https://github.com/HeshanChen/CEE226LCA}}
-\end{abstract}
+\begin{document}
+\twocolumn[{%
+\begin{center}
+\vspace*{-0.15in}
+\rule{\textwidth}{3pt}\\[7pt]
+\mbox{\fontsize{15}{18}\selectfont\bfseries Can an LLM Estimate the Embodied Carbon of a Building Enclosure?}\\[4pt]
+\mbox{\fontsize{11}{13}\selectfont Error Analysis, Prompt Design, and Implications for LEED v5 Embodied Carbon Credits}\\[6pt]
+\rule{\textwidth}{1pt}\\[10pt]
+\au{George Zheng}{jhzheng}\hspace{2.2em}\au{Zixuan Zhao}{zalex467}\hspace{2.2em}\au{Heshan Chen}{heshan}\\[6pt]
+\au{Fei Cheng}{feicheng}\hspace{2.2em}\au{Jamie Liu}{jamiexyl}\\[8pt]
+{\small Department of Civil and Environmental Engineering, Stanford University \quad$\cdot$\quad CEE226, Group 8 \quad$\cdot$\quad November 2026}
+\vspace{14pt}
+\end{center}
+}]
+
+\begin{center}\textbf{\large Abstract}\end{center}
+\vspace{-4pt}
+\begin{quote}\small
+We test whether a large language model (Claude Opus~5.5, run as a Claude Code subagent with medium reasoning effort) can estimate the cradle-to-gate (A1--A3) embodied carbon of the building enclosure from early-stage design features. Reference values come from the 292 buildings of the harmonized North American WBLCA dataset of Benke et al.~\cite{benke2025}.
+
+With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the reference LCA. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. It also underestimates envelope area and misjudges renovations; its largest overestimates trace back to incomplete reference LCAs.
+
+Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Ten early-design inputs are as informative as all 48.
+
+For LEED~v5, the estimates support hotspot screening and comparison of envelope alternatives at schematic design (MRp2, MRc2), but they cannot document a credit-level reduction for an individual building.
+\end{quote}
 
 \section{Introduction}
-Early design decisions fix most of a building's embodied carbon, and the exterior enclosure is one of the most consequential and variable of them. Early-stage LCA is hard because design information is sparse, and the usual hand-off from architect to LCA practitioner is slow. Recent work shows that LLM in-context learning can support early-stage whole-building LCA, with domain knowledge and ontologies improving on innate knowledge~\cite{jung2026}. We narrow that question to the enclosure and to the product stage (A1--A3), where material choices dominate and where LEED~v5 embodied-carbon credits are earned in practice. We ask:
+Early design decisions fix most of a building's embodied carbon. The exterior enclosure is among the most consequential and variable of them. Early-stage LCA is hard because design information is sparse and the hand-off to an LCA practitioner is slow. LLM in-context learning has been shown to support early-stage whole-building LCA, with domain knowledge improving on innate knowledge~\cite{jung2026}.
+
+We narrow that question to the enclosure and to the product stage (A1--A3), where material choices dominate and where LEED~v5 embodied-carbon requirements start. We ask:
 \begin{enumerate}[label=\textbf{Q\arabic*}]
-\item How accurately and consistently does an LLM estimate enclosure A1--A3 embodied carbon from early-stage features, and why does it fail?
-\item Which prompt changes improve the estimates, and which do not?
-\item Which input features does the model actually need?
+\item How accurately and consistently does an LLM estimate enclosure A1--A3 carbon from early-stage features, and why does it fail?
+\item Which prompt changes help, and which do not?
+\item Which input features does the model need?
+\item What do the answers imply for the LEED~v5 embodied-carbon prerequisite and credit?
 \end{enumerate}
 
 \section{Data and Ground Truth}
-\textbf{Source.} The harmonized dataset of Benke et al.~\cite{benke2025} (CC~BY~4.0) contains 927,950 material-level LCA results for 292 projects in the US and Canada, with 48 early-stage features per project (49 columns including the project index).
+\textbf{Source.} The harmonized dataset of Benke et al.~\cite{benke2025} (CC~BY~4.0) holds 927,950 material-level LCA results for 292 projects in the US and Canada, with 48 early-stage features per project.
 
-\textbf{Scope and unit.} We keep OmniClass element \texttt{Shell - Enclosure} and stage \texttt{A1-A3} (55,807 rows) and divide the total by floor area. We use \texttt{bldg\_cfa} for new construction and \texttt{bldg\_renovated\_gfa + bldg\_added\_gfa} for the 49 renovations, which reproduces the dataset's own \texttt{eci\_a\_to\_c\_cfa} normalization for all 292 projects. The enclosure includes windows, doors and roofs, and the unit is per m$^2$ of \emph{floor} area. This differs from the proposal's functional unit (1~m$^2$ of wall), because wall area is missing for most projects.
+\textbf{Scope and unit.} We keep OmniClass \texttt{Shell - Enclosure} and stage \texttt{A1-A3} (55,807 rows) and divide by floor area. We use \texttt{bldg\_cfa} for new construction and renovated plus added GFA for the 49 renovations, which reproduces the dataset's own normalization for all 292 projects. The enclosure includes windows, doors and roofs, and the unit is per m$^2$ of floor area rather than the proposal's 1~m$^2$ of wall, because wall area is missing for most projects.
 
-\textbf{Distribution.} The reference values have a median of 78.0~\coe{}, a mean of 95.6 and a range of 0.49--513.9 (5th--95th percentile 10.5--255.7). The enclosure is a median 19\% of whole-building A--C carbon.
+\textbf{Distribution.} Values have a median of 78.0~\coe{}, a mean of 95.6 and a range of 0.49--513.9. The enclosure is a median 19\% of whole-building A--C carbon.
+
+\textbf{Composition.} Insulation (26.4\%) and aluminum (22.0\%) dominate (Fig.~\ref{fig:composition}). XPS alone is 15.5\%, at 43.6~kgCO$_2$e/kg, against 1.2 for mineral wool and 3.1 for polyiso. That is the HFC-blown product modelled by Tally and One Click LCA in the assessment years. 149 projects contain XPS.
+
+\textbf{Data quality.} Ten new-construction projects have no fenestration GWP at all, although several report a WWR of 0.5--0.7. We report results with and without them.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.62\linewidth]{\figdir/fig_composition.pdf}
-\caption{Share of enclosure A1--A3 GWP by material group across the 292 projects. XPS alone is 15.5\%, at 43.6~kgCO$_2$e/kg, against 1.2 for mineral wool and 3.1 for polyiso. This is consistent with the HFC-blown XPS modelled by Tally and One Click LCA in the assessment years. 149 projects contain XPS.}
+\includegraphics[width=\columnwidth]{\figdir/fig_composition.pdf}
+\caption{Share of enclosure A1--A3 GWP by material group, 292 projects. XPS alone is 15.5\%.}
 \label{fig:composition}
 \end{figure}
 
-\textbf{Composition.} Insulation (26.4\%) and aluminum (22.0\%) dominate the enclosure total (Fig.~\ref{fig:composition}).
-
-\textbf{Data quality.} Ten new-construction projects have no window, glazing, curtain-wall or storefront GWP at all, although several report a window-to-wall ratio of 0.5--0.7. Project 74, for example, has WWR 0.65 and a reference value of 0.64~\coe{}. We keep these projects in every headline metric and also report results without them (``excl.\ incomplete'').
-
 \section{Methods}
-\textbf{Model and isolation.} Each estimate is produced by a Claude Code subagent (Claude Opus~5.5, reasoning effort medium) that may read only its task file and write only its answer files. It has no web access, no code execution and no access to the ground truth. A task file contains the system prompt, a shared context (the feature glossary) and 48--49 building blocks, each with the building's non-empty features followed by the task text. Appendix~\ref{app:prompts} gives the exact text. The model is told to treat every building as an independent request.
+\textbf{Model and isolation.} Each estimate comes from a Claude Code subagent (Claude Opus~5.5, medium effort). The subagent may read only its task file and write only its answers; it has no web access, no code execution and no access to the ground truth. A task file holds the system prompt, the feature glossary and 48--49 building blocks, each with the building's features and the task text (Appendix~\ref{app:prompts}). The model is told to treat every building independently.
 
-\textbf{Protocol.} Each prompt version is run 3 times on all 292 buildings (876 estimates). For every run, the buildings are shuffled with a fixed seed ($1000 + $ run index) and split into six chunks. The chunks are identical across prompt versions, so results can be paired building by building. The estimate for a building is the mean of the midpoints of its returned ranges. In one v3 run a container restart interrupted the subagents after 130 answers; the remaining 162 buildings were answered by continuation tasks with the same prompt.
+\textbf{Protocol.} Each prompt version is run 3 times on all 292 buildings (876 estimates). Buildings are shuffled with a fixed seed per run and split into six chunks. The chunks are identical across prompt versions, so results can be paired building by building. The estimate is the mean of the midpoints of the returned ranges. In one v3 run a container restart interrupted the subagents; the missing 162 buildings were answered by continuation tasks with the same prompt.
 
-\textbf{Parsing.} We use the course parser (the last line \texttt{RANGE\_kgCO2e\_per\_m2: low - high}) with one change: a lower bound of 0 is accepted. Renovations that leave the envelope untouched have reference values near zero, and the original parser would have discarded exactly those answers.
+\textbf{Parsing.} We use the course parser (the last line \texttt{RANGE\_kgCO2e\_per\_m2: low - high}) but accept a lower bound of 0. Renovations that leave the envelope untouched have reference values near zero, and the original parser would have discarded exactly those answers.
 
 \textbf{Metrics.}
 \begin{itemize}
-\item Accuracy: the share of buildings whose reference value lies within the estimate $\pm$20\% (coverage, with Wilson 95\% CI), RMSE, median absolute percentage error (APE), and the median $|\log(\text{estimate}/\text{reference})|$.
-\item Bias: the geometric mean of estimate/reference.
-\item Consistency: the mean coefficient of variation (CV) across runs.
-\item Paired comparisons between prompt versions: McNemar's test on coverage and the Wilcoxon signed-rank test on $|\log(\text{estimate}/\text{reference})|$.
+\item Coverage: the share of buildings whose reference lies within the estimate $\pm$20\% (Wilson CI).
+\item RMSE, median absolute percentage error (APE), and the median $|\log(\text{est}/\text{ref})|$.
+\item Bias: the geometric mean of est/ref.
+\item Consistency: the coefficient of variation (CV) across runs.
+\item Paired tests between prompts: McNemar on coverage, Wilcoxon signed-rank on $|\log|$ error.
 \end{itemize}
-
-\textbf{Held-out split.} No independent dataset with the same structure exists (Section~\ref{sec:heldout}). We therefore split the 292 projects into a dev set of 204 and a test set of 88 (seed 226), stratified on input features only: new construction vs.\ renovation $\times$ climate group.
+A test set of 88 buildings is held out, stratified on project type and climate group (seed 226).
 
 \section{Baseline and Error Analysis}
 \label{sec:error}
-With prompt v1 (Appendix~\ref{app:prompts}), all 876 answers parsed.
-\begin{itemize}
-\item Coverage is 19.5\% (CI 15.4--24.5\%), RMSE 79.7~\coe{}, median APE 37.9\%, bias 0.75 and CV 19.0\% (Table~\ref{tab:main}).
-\item 63\% of buildings are underestimated beyond the $\pm$20\% band, and 17.5\% overestimated.
-\end{itemize}
+\textbf{Baseline results.} With prompt v1, coverage is 19.5\% (CI 15.4--24.5\%), RMSE 79.7~\coe{}, median APE 37.9\%, bias 0.75 and CV 19.0\% (Table~\ref{tab:main}). 63\% of buildings are underestimated beyond the band, and 17.5\% overestimated.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.49\linewidth]{\figdir/fig_bins.pdf}\hfill
-\includegraphics[width=0.49\linewidth]{\figdir/fig_diagnostics.pdf}
-\caption{Left: median estimate/reference by reference-value bin. All prompts compress toward a typical value; v3 shifts the curve up. Right: median estimate/reference for the subgroups behind each failure mode.}
-\label{fig:diag}
-\end{figure}
+\textbf{Compression.} The log--log slope of estimate on reference is 0.46. Buildings below 25~\coe{} are overestimated 1.58$\times$, and buildings above 200 are estimated at 0.28$\times$ (Fig.~\ref{fig:diag}). The 20 largest errors, all underestimates, carry 68\% of the squared error.
 
-\textbf{Compression, not uniform underestimation.}
-\begin{itemize}
-\item The log--log slope of estimate on reference is 0.46: buildings below 25~\coe{} are overestimated 1.58$\times$, and buildings above 200 are estimated at 0.28$\times$ (Fig.~\ref{fig:diag}).
-\item The estimates span 1.7--168~\coe{}, against 0.5--514 for the reference.
-\item The 20 largest errors, all underestimates, contribute 68\% of the squared error.
-\item The model leans on geometry. The envelope-to-floor ratio correlates 0.62 with the log estimate but only 0.39 with the log reference. What it cannot predict is the carbon intensity per m$^2$ of envelope, which correlates $-0.79$ with the log error. That intensity is set by assembly and material choices, and \emph{none of the 48 features describes the wall assembly}.
-\end{itemize}
+\textbf{Geometry over material.} The model leans on geometry: the envelope-to-floor ratio correlates 0.62 with the log estimate but only 0.39 with the log reference. What it misses is the carbon intensity per m$^2$ of envelope, which correlates $-0.79$ with the log error. That intensity is set by assembly and material choices, and \emph{no feature describes the wall assembly}.
 
 \textbf{Why the model underestimates.}
 \begin{enumerate}
-\item \emph{HFC-blown XPS is never considered.} XPS appears in 149 projects, yet only 0.6\% of answers mention it and none mention blowing agents. Median estimate/reference is 0.67 with XPS and 0.80 without. Removing XPS from the reference raises the median ratio from 0.72 to 0.84, so XPS explains about half of the bias.
-\item \emph{Climate is an insulation effect.} The ratio is 0.65 in cold zones (5--8) and 0.77 in warm zones (1--3). XPS is present in 65--68\% of zone 5A/5B projects but only 26--33\% of zone 3B/3C projects.
-\item \emph{Missing envelope area.} The ratio is 0.81 when \texttt{bldg\_therm\_env\_area} is given and 0.65 when it is not; the model's own take-off is too small.
-\item \emph{Curtain-wall tail.} Single projects reach 300~\coe{} from aluminum curtain wall alone.
-\item \emph{Renovations scoped too narrowly.} 60\% of major renovations are underestimated, and tenant improvements reach 0.24.
-\item \emph{Scope wording.} The v1 scope text was narrower than the dataset's enclosure. For example, 11\% of enclosure GWP was tagged ``Superstructure'' in the source tool, mostly roof insulation and membranes.
+\item \emph{HFC-blown XPS is never considered.} Only 0.6\% of answers mention XPS, and none mention blowing agents. Projects with XPS sit at 0.67, projects without at 0.80. Removing XPS from the reference raises the median ratio from 0.72 to 0.84, so XPS explains about half of the bias.
+\item \emph{The climate gap is an insulation effect.} Cold zones sit at 0.65 and warm zones at 0.77. XPS occurs in 65--68\% of zone 5A/5B projects but only 26--33\% of zone 3B/3C projects.
+\item \emph{Missing envelope area.} The ratio is 0.81 when the envelope area is given and 0.65 when the model must estimate it.
+\item \emph{Curtain-wall tail and renovations.} Single projects reach 300~\coe{} from curtain wall alone. 60\% of major renovations are underestimated.
+\item \emph{Scope wording.} The v1 scope was narrower than the dataset's enclosure; for example, 11\% of enclosure GWP was tagged ``Superstructure'' in the source tool.
 \end{enumerate}
 
-\textbf{Why the model overestimates.} The ten flagged incomplete references have a median ratio of 3.09; here the model's estimate is a plausible building and the reference is not. The remaining overestimates are mostly tenant improvements and minor renovations, where the features do not reveal how much envelope was replaced.
+\textbf{Why the model overestimates.} The ten incomplete references have a median ratio of 3.09. The other overestimates are mostly fit-outs and minor renovations whose extent of envelope work is unknown.
 
-\textbf{Ruled out.} R-values, WWR, size, completion year and the embodied-carbon-reduction flag each correlate weakly with the error ($|r| \le 0.26$).
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.46\textwidth]{\figdir/fig_bins.pdf}\hfill
+\includegraphics[width=0.50\textwidth]{\figdir/fig_diagnostics.pdf}
+\caption{Left: median estimate/reference by reference bin. All prompts compress; v3 shifts the curve up. Right: subgroups behind each failure mode, by prompt.}
+\label{fig:diag}
+\end{figure*}
 
 \section{Prompt Iterations}
-\subsection{Prompt v2: qualitative knowledge and a step-by-step method}
-Prompt v2 addressed each finding:
+\subsection{Prompt v2: qualitative knowledge and method}
+Prompt v2 changed six things:
 \begin{itemize}
-\item a scope written to match the dataset's enclosure;
-\item a required component take-off (areas $\rightarrow$ assemblies $\rightarrow$ intensities $\rightarrow$ total);
-\item named high-impact materials: HFC-blown XPS at ``roughly ten times or more'' the GWP of other insulation per unit of thermal resistance~\cite{alberta,vermont}, and aluminum curtain wall at 100--200~\coe{} of facade~\cite{oneclick,arup};
-\item an instruction not to anchor on a typical building;
-\item guidance for renovations;
-\item a \texttt{BEST} line in addition to the range.
+\item the scope was written to match the dataset;
+\item a component take-off was required (areas $\rightarrow$ assemblies $\rightarrow$ intensities $\rightarrow$ total);
+\item high-impact materials were named: HFC-blown XPS ``ten times or more'' the GWP of other insulation per unit of thermal resistance~\cite{alberta,vermont}, and aluminum curtain wall at 100--200~\coe{}~\cite{oneclick,arup};
+\item anchoring on a typical building was ruled out;
+\item renovations got their own rule;
+\item a \texttt{BEST} value was requested alongside the range.
 \end{itemize}
 
-\begin{table}[t]
+It made the model more consistent (CV 13.8\%) but \emph{less} accurate: coverage 15.1\% and bias 0.67, with significantly larger errors (Wilcoxon $p<0.0001$). Three reasons:
+\begin{enumerate}
+\item \emph{The facts were repeated, not applied.} XPS was named 50$\times$ more often, but 89\% of answers still assumed polyiso roof insulation, and the median roof intensity stayed at 35~\coe{}.
+\item \emph{The take-offs were too light.} Bottom-up intensities came out at 66.8 per m$^2$ of envelope against 86.7 in the reference.
+\item \emph{A subtracting rule hurt.} ``Count only new materials'' dropped minor renovations from 0.85 to 0.56.
+\end{enumerate}
+
+\subsection{Prompt v3: quantitative anchors}
+v3 keeps the v2 scope and method. A separate research subagent compiled a reference table of A1--A3 intensities per m$^2$ of component from external sources~\cite{clf2025,pci,kawneer,rdh}, excluding the ground-truth dataset. v3 inserts this table at the step where numbers are chosen, and adds:
+\begin{itemize}
+\item the modelling convention that LCA tools of the period often used HFC-blown XPS for roofs;
+\item a check against roughly 50~\coe{} per m$^2$ of envelope;
+\item a renovation rule that no longer subtracts.
+\end{itemize}
+The full text is in Appendix~\ref{app:v3}.
+
+\textbf{Results.} v3 is best on coverage (25.0\%), RMSE (76.0), $|\log|$ error (0.426), bias (0.86) and CV (12.5\%) (Table~\ref{tab:main}, Fig.~\ref{fig:prompts}).
+\begin{itemize}
+\item The gain over v2 is significant ($p=0.002$). The gain over v1 is consistent but borderline (McNemar $p=0.085$, Wilcoxon $p=0.053$).
+\item HFC-XPS is now considered in 96\% of answers for projects that contain XPS.
+\item The non-XPS part of the enclosure (0.99), buildings with a given envelope area (0.99) and warm zones (0.98) are now unbiased.
+\item Remaining problems: compression at the top (0.38 above 200~\coe{}), more overestimation of light enclosures (1.31 in the 25--50 bin), and renovations.
+\end{itemize}
+
+\begin{table*}[t]
 \centering\small
-\caption{Accuracy and consistency by prompt version (3 runs each). Coverage: reference within estimate $\pm$20\%. Bias: geometric mean of estimate/reference.}
+\caption{Accuracy and consistency by prompt (3 runs each). Coverage: reference within estimate $\pm$20\%. Bias: geometric mean of estimate/reference.}
 \label{tab:main}
 \begin{tabular}{llcccccc}
 \toprule
-Buildings & Prompt & Coverage (95\% CI) & RMSE & Median APE & Med.\ $|\log|$ & Bias & CV \\
+Buildings & Prompt & Coverage (95\% CI) & RMSE & Median APE & Median $|\log|$ & Bias & CV \\
 \midrule
 \multirow{3}{*}{All (292)} & v1 & 19.5\% (15.4--24.5) & 79.7 & \textbf{37.9\%} & 0.456 & 0.75 & 19.0\% \\
  & v2 & 15.1\% (11.4--19.6) & 81.0 & 44.3\% & 0.563 & 0.67 & 13.8\% \\
  & v3 & \textbf{25.0\%} (20.4--30.3) & \textbf{76.0} & 40.0\% & \textbf{0.426} & \textbf{0.86} & \textbf{12.5\%} \\
 \midrule
-\multirow{2}{*}{New constr.\ (243)} & v1 & 18.9\% & 77.4 & 37.5\% & -- & 0.76 & 17.3\% \\
- & v3 & \textbf{26.3\%} & \textbf{74.1} & 38.0\% & -- & \textbf{0.91} & \textbf{10.9\%} \\
-\midrule
-\multirow{3}{*}{Test (88)} & v1 & 20.5\% (13.3--30.0) & 74.1 & \textbf{36.4\%} & \textbf{0.393} & 0.75 & 19.2\% \\
+\multirow{3}{*}{Held-out test (88)} & v1 & 20.5\% (13.3--30.0) & 74.1 & \textbf{36.4\%} & \textbf{0.393} & 0.75 & 19.2\% \\
  & v2 & 18.2\% (11.5--27.5) & 75.7 & 43.4\% & 0.511 & 0.66 & 15.2\% \\
  & v3 & \textbf{26.1\%} (18.1--36.2) & \textbf{69.2} & 37.0\% & 0.400 & \textbf{0.86} & \textbf{11.2\%} \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\textbf{Result: more consistent, less accurate.}
-\begin{itemize}
-\item v2 lowered the CV from 19.0\% to 13.8\% and raised the log--log slope to 0.55.
-\item But coverage fell to 15.1\% and the bias to 0.67 (Table~\ref{tab:main}). The errors were larger (Wilcoxon $p<0.0001$), and v2 was closer to the reference for only 34\% of buildings.
-\end{itemize}
-Three mechanisms explain this:
-\begin{enumerate}
-\item \emph{Knowing is not applying.} v2 answers mention XPS 50 times more often, but 89\% still assume polyiso roof insulation and place XPS below grade. The median roof intensity stays at 35~\coe{}, and projects with XPS fall from 0.67 to 0.58.
-\item \emph{Low bottom-up intensities.} Opaque walls were taken at 80, roofs at 35 and curtain wall at 145~\coe{}, giving 66.8 per m$^2$ of envelope against 86.7 in the reference. The prompt's curtain-wall range became the default value.
-\item \emph{A rule that subtracts.} ``Count only new materials'' pushed minor renovations from 0.85 to 0.56.
-\end{enumerate}
-The self-reported \texttt{BEST} value sat below the range midpoint and was less accurate.
-
-\subsection{Prompt v3: quantitative anchors at the decision step}
-v3 keeps the v2 scope, method and anti-anchoring rule and changes four things (Appendix~\ref{app:v3}):
-\begin{enumerate}
-\item A reference table of A1--A3 intensities per m$^2$ of component, compiled by a separate research subagent from external sources, explicitly excluding the ground-truth dataset and the CLF WBLCA benchmark. The sources are CLF North American Material Baselines 2023/2025, PCI precast EPDs, Kawneer fenestration EPDs, RDH wall studies and others~\cite{clf2025,pci,kawneer,rdh}. The table covers wall types, fenestration, roof assemblies by insulation type (HFC XPS: 85--110 counting the product stage only, up to 335--410 when blowing-agent emissions are booked with the product), insulation per m$^2\cdot$RSI and aluminum per kg.
-\item The tool modelling convention: LCA models of this period often model roof and below-grade insulation as HFC XPS, so the range must include that case when the insulation type is unknown.
-\item A per-envelope sanity check, with a threshold of about 50~\coe{} of envelope derived from the component ranges.
-\item A renovation rule that no longer subtracts, and a single \texttt{RANGE} output.
-\end{enumerate}
-
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=0.78\linewidth]{\figdir/fig_scatter_v1_v3.pdf}\\[4pt]
-\includegraphics[width=0.85\linewidth]{\figdir/fig_prompts.pdf}
-\caption{Top: estimate vs.\ reference for v1 and v3 (line 1:1, band $\pm$20\%). Bottom: coverage with 95\% CI and median $|\log(\text{estimate}/\text{reference})|$ for all 292 buildings and the held-out 88.}
+\includegraphics[width=0.49\textwidth]{\figdir/fig_scatter_v1_v3.pdf}\hfill
+\includegraphics[width=0.49\textwidth]{\figdir/fig_prompts.pdf}
+\caption{Left: estimate vs.\ reference for v1 and v3 (1:1 line, $\pm$20\% band). Right: coverage (95\% CI) and median $|\log(\text{est}/\text{ref})|$ for all 292 and the 88 held-out buildings.}
 \label{fig:prompts}
-\end{figure}
-
-\textbf{Result.}
-\begin{itemize}
-\item v3 is the best prompt on coverage (25.0\%), RMSE (76.0), log error (0.426), bias (0.86) and consistency (CV 12.5\%) (Table~\ref{tab:main}, Fig.~\ref{fig:prompts}).
-\item Against v2 the gain is significant (McNemar $p=0.002$; Wilcoxon $p<0.0001$). Against v1 it is consistent but borderline (McNemar $p=0.085$; Wilcoxon $p=0.053$; v3 closer for 57\% of buildings).
-\item 96\% of answers for XPS projects now consider HFC XPS.
-\item The non-XPS part of the enclosure is unbiased: estimate/(reference $-$ XPS) went from 0.84 to 0.99. Buildings with a given envelope area are also unbiased (0.99), and warm zones reach 0.98.
-\item What remains: compression at the top (0.38 above 200~\coe{}); more overestimation of light enclosures (1.31 in the 25--50 bin); 0.73 when the envelope area is missing; and renovations (0.71--0.74).
-\item The median APE is slightly above v1 (40.0\% vs.\ 37.9\%), because v3 shifts estimates up and APE penalizes overestimates more than underestimates.
-\end{itemize}
+\end{figure*}
 
 \section{Held-out Evaluation}
-\label{sec:heldout}
-\textbf{No external dataset.} The CLF WBLCA Benchmark v2 probably shares source models with the ground truth. The open CarbEnMats database~\cite{carbenmats} reports envelope A1--A3 for only 172 European buildings, uses a different element definition, and has no geometry fields for them. We therefore hold out 88 test buildings.
+\textbf{No external test set.} No independent dataset with the same structure exists. The CLF WBLCA benchmark probably shares source models with the ground truth. CarbEnMats~\cite{carbenmats} has envelope A1--A3 values for only 172 European buildings, defines the element differently, and has no geometry fields.
 
-\textbf{Post hoc split.} The split was assigned after the runs, and the error analysis had seen aggregate patterns across all 292 buildings. To check that this did not drive the prompt design, we re-ran every diagnostic on the 204 dev buildings alone. Every finding replicates, including:
+\textbf{Dev-only replication.} The split was assigned after the runs. To check that the prompt design did not depend on the test buildings, we re-ran every diagnostic on the 204 dev buildings alone. Every finding behind the prompt revisions replicates:
 \begin{itemize}
-\item the log--log slope (0.44 vs.\ 0.46);
-\item the XPS share (14.7\% vs.\ 15.5\%) and the XPS effect (0.66 vs.\ 0.77 with and without XPS);
-\item the envelope-area effect (0.79 vs.\ 0.65 with and without it);
-\item v2's polyiso assumption (89\%) and its renovation drop (0.79 $\rightarrow$ 0.40).
+\item compression slope 0.44;
+\item XPS share 14.7\%, with XPS effect 0.66 vs.\ 0.77;
+\item envelope-area effect 0.79 vs.\ 0.65;
+\item v2's polyiso assumption 89\%.
 \end{itemize}
-The same prompt revisions would have followed from the dev set alone.
 
-\textbf{Test results.}
-\begin{itemize}
-\item On the 88 test buildings, v3 improves on v1 in coverage (26.1\% vs.\ 20.5\%), RMSE (69.2 vs.\ 74.1), bias (0.86 vs.\ 0.75) and CV (11.2\% vs.\ 19.2\%), but its median log error is unchanged (0.400 vs.\ 0.393).
-\item None of the v1--v3 differences is significant at this size (McNemar $p=0.41$; Wilcoxon $p=0.38$).
-\item v3 is significantly better than v2 (Wilcoxon $p=0.002$), and v2's regression against v1 replicates ($p=0.0002$).
-\end{itemize}
+\textbf{Test results.} On the 88 test buildings, v3 improves on v1 in coverage (26.1\% vs.\ 20.5\%), RMSE (69.2 vs.\ 74.1), bias and CV. Its median $|\log|$ error is unchanged (0.400 vs.\ 0.393), and no v1--v3 difference is significant at this size ($p=0.41$).
 
 \section{Feature Study}
-\label{sec:features}
-With v3 fixed, we varied the input features and ran each condition once (run~0), pairing it with run~0 of v3 on all 48 features. The conditions were:
+With v3 fixed, each feature set was run once and paired with run~0 of v3 on all 48 features (Table~\ref{tab:features}). The sets were:
 \begin{itemize}
-\item \emph{early}: 39 features; no LCA-derived fields and no \texttt{mass\_total}, which is the reference LCA's own inventory mass and therefore unknown at design time;
-\item \emph{env}: 15 envelope-relevant features;
-\item \emph{min}: 10 features (climate zone, use, project type, floor area, storeys, WWR, R-values);
-\item \emph{no-lca}: all features except the 8 LCA-derived fields;
-\item \emph{no-mass}: all features except \texttt{mass\_total}.
+\item \emph{early} (39): no LCA-derived fields and no \texttt{mass\_total}, the reference LCA's own inventory mass;
+\item \emph{env} (15): envelope-relevant features;
+\item \emph{min} (10): climate, use, type, area, storeys, WWR and R-values;
+\item \emph{no-lca} (40) and \emph{no-mass} (47): one group removed each.
 \end{itemize}
 
+\textbf{Results.} No set differs significantly from the full set, and every difference lies within v3's own run-to-run spread (0.025 in $|\log|$). Ten early-design inputs are as good as 48, and the model does not depend on \texttt{mass\_total}. Prompt content moved the $|\log|$ error by 0.137 from v2 to v3; no feature set moved it by more than 0.020.
+
 \begin{table}[t]
-\centering\small
-\caption{Feature study (prompt v3, run 0, 292 buildings, paired with all 48 features). Run-to-run spread of v3 itself: 2.0 points of coverage and 0.025 in median $|\log|$.}
+\centering\footnotesize
+\caption{Feature study (v3, run 0, 292 buildings). $\Delta$ and $p$ (Wilcoxon) are paired against all 48 features.}
 \label{tab:features}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccccc}
 \toprule
-Condition & Features & Coverage & Med.\ $|\log|$ & $\Delta$ Med.\ $|\log|$ & Wilcoxon $p$ & Bias \\
+Set & $n_f$ & Cov. & Med.\ $|\log|$ & $\Delta$ & $p$ & Bias \\
 \midrule
 all & 48 & 24.3\% & 0.461 & -- & -- & 0.86 \\
 early & 39 & 21.6\% & 0.462 & $+0.001$ & 0.13 & 0.88 \\
@@ -249,83 +242,97 @@ no-mass & 47 & 22.6\% & 0.452 & $-0.009$ & 0.92 & 0.85 \\
 \end{tabular}
 \end{table}
 
-\textbf{Results} (Table~\ref{tab:features}).
+\begin{figure*}[t]
+\centering
+\resizebox{0.97\textwidth}{!}{\input{fig_leed.tex}}
+\caption{Building-envelope LCA and LEED~v5 goals. The study boundary is the product stage (A1--A3); later stages are outside scope. A reference LCA and the LLM estimate (prompt v3) both produce enclosure A1--A3 results. Those results feed the LEED~v5 workflow: MRp2 (quantify and assess embodied carbon, top hotspots) and MRc2 (reduce embodied carbon against a baseline). The LLM serves for screening and comparing alternatives, and its results are verified by an LCA before documentation.}
+\label{fig:leed}
+\end{figure*}
+
+\section{Implications for LEED v5}
+\label{sec:leed}
+LEED~v5 makes embodied carbon part of the rating system. Prerequisite MRp2 (\emph{Quantify and Assess Embodied Carbon}) asks projects to quantify the embodied carbon of their main building elements, including the enclosure, and to identify the largest hotspots. Credit MRc2 (\emph{Reduce Embodied Carbon}) rewards reductions: either a whole-building LCA compared with a baseline (Option~1), or product-level reductions documented with EPDs (Option~2). Fig.~\ref{fig:leed} shows where the enclosure LCA and the LLM estimate sit in that workflow, from project inputs and the A1--A3 system boundary to a recommended envelope design with its estimated LEED contribution and remaining data gaps.
+
+\textbf{MRp2: hotspot screening.} At schematic design, no material inventory exists yet, and the prerequisite's purpose is to direct attention to the largest sources. The v3 estimates suit that purpose.
 \begin{itemize}
-\item No feature set differs significantly from the full set, and every difference lies within the run-to-run spread of v3 itself.
-\item Ten early-design inputs are as good as 48.
-\item The model does not depend on \texttt{mass\_total} or the other LCA-derived fields.
+\item The bias is small, $-14\%$ overall and close to zero for buildings without XPS.
+\item The reasoning names the components that drive enclosure carbon in the data: aluminum curtain wall and framing, insulation type (HFC-XPS), metal panels and glazing.
+\item A quantitative test of agreement with the reference's top-3 materials is future work, since the answers give hotspots in prose rather than in a structured form.
 \end{itemize}
-Prompt content moved the median $|\log|$ error by 0.137 from v2 to v3; no feature set moved it by more than 0.020. The missing information is the assembly type, which none of the features provides.
 
-\section{Discussion}
-\textbf{Prompt design.} Three lessons transfer beyond this dataset.
+\textbf{MRc2: reductions need precision the LLM does not have.} Credit points scale with the percentage reduction against a baseline. The relevant errors are:
+\begin{itemize}
+\item the run-to-run CV of v3 (12.5\%);
+\item its median absolute error (about 35--40\%);
+\item coverage of only one building in four within $\pm$20\%.
+\end{itemize}
+These are as large as, or larger than, the reductions a project typically documents, so an absolute LLM estimate cannot demonstrate a credit-level reduction for an individual building. The more promising use is a \emph{paired} comparison of envelope alternatives for the same building with the same prompt, where shared biases partly cancel. That comparison was not tested here and needs an LCA for documentation.
+
+\textbf{Option~1: enclosure gains are diluted.} In this dataset the enclosure is a median 19\% of whole-building A--C carbon. A 30\% enclosure reduction is therefore only about 6\% at the whole-building level. Envelope decisions alone rarely carry a whole-building reduction target; they are most valuable in combination with structure and in Option~2's product-level pathway. There, high-impact products such as HFC-blown XPS, aluminum extrusions and insulated metal panels have the largest EPD-to-EPD spreads (Appendix~\ref{app:v3}).
+
+\textbf{Making early estimates more predictable.} Three changes would make early estimates and LEED baselines more predictable:
 \begin{enumerate}
-\item A structured, step-by-step method improves consistency, but it also passes the model's component-level priors straight into the total.
-\item Qualitative knowledge in a prompt is repeated in the reasoning but does not move the numbers. Quantitative, sourced anchors placed at the step where a number is chosen, with the condition under which they apply, do move them.
-\item Rules that subtract (exclusions, ``only new materials'') amplify an existing low bias unless they are paired with what to include.
+\item report assembly type at schematic design;
+\item state which insulation and aluminum datasets the LCA tool assumes, since the HFC-XPS convention alone moved our estimates by about half of the bias;
+\item flag inventories with missing element groups. The 10 incomplete references in this dataset would distort any baseline built from it.
 \end{enumerate}
-
-\textbf{Early design and LEED v5.} An enclosure estimate within $\pm$20\% of a full LCA is reached for about a quarter of buildings, with a bias of $-14\%$. That is useful for comparing assemblies and spotting hotspots (curtain wall, HFC XPS, insulated metal panels) at schematic design. It is not reliable enough to predict a credit outcome for an individual building. The largest gains in accuracy would come from adding the assembly type to the inputs, which the proposal anticipated, rather than from further prompt engineering.
 
 \section{Limitations}
 \begin{itemize}
-\item Answers within a task file share a context, so they are less independent than separate API calls.
-\item The held-out split was assigned after the runs; the dev-only replication mitigates but does not replace an external test.
-\item With 3 runs, the v3--v1 gain is borderline significant on all 292 buildings and not significant on the test set.
-\item The feature study used one run per condition, and 7 of 9 planned leave-one-group-out ablations were stopped to limit cost, so it is a null result, not proof of irrelevance.
-\item The unit is per m$^2$ of floor area, and the enclosure includes windows, doors and roofs.
-\item Reference quality is uneven: there are incomplete inventories, and the tools' data vintages differ (HFC XPS).
-\item Results are specific to Claude Opus~5.5 at medium effort.
+\item Answers in one task file share a context, so they are less independent than separate API calls.
+\item The held-out split was assigned after the runs.
+\item The v3--v1 gain is borderline with 3 runs.
+\item The feature study used one run per condition, and 7 of 9 planned ablations were stopped to limit cost.
+\item The unit is per m$^2$ of floor area.
+\item Reference quality is uneven.
+\item The LEED analysis is qualitative: no credit thresholds or hotspot agreement were computed.
+\item Results are specific to Claude Opus~5.5.
 \end{itemize}
 
 \section{Conclusion}
-A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its main error is compression toward a typical value, together with blind spots for specific high-carbon materials. Error analysis on the model's own reasoning texts located those blind spots. Placing sourced quantitative anchors at the decision step reduced the bias from 0.75 to 0.86 and the run-to-run variation by a third, and raised coverage from 19.5\% to 25.0\%. Further progress depends on giving the model the assembly information that early-stage feature sets currently lack.
+A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%.
+
+For LEED~v5, this supports early hotspot screening and the comparison of alternatives, not credit documentation. Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
 \begin{thebibliography}{99}\small\sloppy
-\bibitem{benke2025} B.~Benke, M.~Chafart, Y.~Shen, M.~Ashtiani, S.~Carlisle, K.~Simonen. A harmonized dataset of high-resolution embodied life cycle assessment results for buildings in North America. \emph{Scientific Data} 12 (2025). \url{https://doi.org/10.1038/s41597-025-05216-0}
-\bibitem{jung2026} E.~H.~Jung et al. Large language models based in-context learning for early stage building life cycle assessment. \emph{Proc.\ 59th Hawaii Int.\ Conf.\ on System Sciences (HICSS-59)}, 2026.
-\bibitem{clf2025} Carbon Leadership Forum. \emph{2025 CLF North American Material Baselines} (and 2023 edition). \url{https://carbonleadershipforum.org/clf-north-american-material-baselines/}
-\bibitem{alberta} Government of Alberta. \emph{PERSIST: Insulation} technical series, 2016. \url{https://www.alberta.ca/system/files/custom_downloaded_images/tr-dtseries06insul2016.pdf}
-\bibitem{vermont} Vermont Public Service Department. Section R408 Insulation Embodied Carbon Calculation (draft). \url{https://publicservice.vermont.gov/}
-\bibitem{oneclick} One Click LCA EPD library: aluminium-framed curtain wall systems. \url{https://materials.oneclicklca.com/}
-\bibitem{arup} Arup and Saint-Gobain. \emph{The carbon footprint of facades: significance of glass}. \url{https://www.arup.com/}
-\bibitem{kawneer} Kawneer (Arconic). Environmental Product Declarations for curtain wall, storefront and window systems, UL Environment, 2021.
+\bibitem{benke2025} B.~Benke, M.~Chafart, Y.~Shen, M.~Ashtiani, S.~Carlisle, K.~Simonen. A harmonized dataset of high-resolution embodied life cycle assessment results for buildings in North America. \emph{Scientific Data} 12, 2025. \url{https://doi.org/10.1038/s41597-025-05216-0}
+\bibitem{jung2026} E.~H.~Jung et al. Large language models based in-context learning for early stage building life cycle assessment. \emph{HICSS-59}, 2026.
+\bibitem{clf2025} Carbon Leadership Forum. \emph{2025 CLF North American Material Baselines} (and 2023 edition).
+\bibitem{alberta} Government of Alberta. \emph{PERSIST: Insulation} technical series, 2016.
+\bibitem{vermont} Vermont Public Service Department. Section R408 Insulation Embodied Carbon Calculation (draft).
+\bibitem{oneclick} One Click LCA EPD library: aluminium-framed curtain wall systems.
+\bibitem{arup} Arup and Saint-Gobain. \emph{The carbon footprint of facades: significance of glass}.
+\bibitem{kawneer} Kawneer (Arconic). EPDs for curtain wall, storefront and window systems, UL Environment, 2021.
 \bibitem{pci} Precast/Prestressed Concrete Institute. Industry-average EPDs for architectural and insulated precast, 2025.
 \bibitem{rdh} RDH Building Science. \emph{Embodied Carbon Analysis: Spray Foam Assemblies}, 2025; RDH \& Toronto Metropolitan University, \emph{Embodied Carbon Resource Guide}.
-\bibitem{carbenmats} M.~R\"ock et al. CarbEnMats-Buildings: a global database on whole life carbon, energy and material intensity of buildings. Zenodo, 2023. \url{https://zenodo.org/records/8363895}
+\bibitem{carbenmats} M.~R\"ock et al. CarbEnMats-Buildings: a global database on whole life carbon, energy and material intensity of buildings. Zenodo, 2023.
+\bibitem{leedv5} U.S. Green Building Council. \emph{LEED v5 Building Design and Construction}: MRp2 Quantify and Assess Embodied Carbon; MRc2 Reduce Embodied Carbon. 2025.
 \end{thebibliography}
 
+\onecolumn
 \appendix
 \section{Prompts}
 \label{app:prompts}
-The prompts below are exported verbatim from \texttt{experiment\_config.py} by \path{report/latex/make_prompts.py}. Six non-ASCII characters in the glossary are shown as ASCII (e.g.\ CO2 for CO$_2$). Each request consists of the system prompt, the shared context, and a building block (the building's features followed by the task text).
+Exported verbatim from \texttt{experiment\_config.py} by \path{report/latex/make_prompts.py}. Six non-ASCII glossary characters are shown as ASCII (e.g.\ CO2). Each request consists of the system prompt, the shared context, and a building block (features followed by the task text).
 
 \subsection{System prompt}
 \lstinputlisting{prompts/system.txt}
-
 \subsection{Shared context (identical in v1, v2 and v3)}
 \lstinputlisting{prompts/shared_context.txt}
-
 \subsection{Example building features (project 225, all 48 features)}
 \lstinputlisting{prompts/building_225.txt}
-
 \subsection{Task text v1 (baseline)}
 \lstinputlisting{prompts/task_v1.txt}
-
 \subsection{Task text v2}
 \lstinputlisting{prompts/task_v2.txt}
-
 \subsection{Task text v3 (final prompt)}
 \label{app:v3}
-The reference values are documented with sources, system boundaries and unit conversions in \path{references/envelope_intensities_sources.md}.
+Reference values are documented with sources, system boundaries and unit conversions in \path{references/envelope_intensities_sources.md}.
 \lstinputlisting{prompts/task_v3.txt}
-
 \subsection{Subagent instructions (template)}
-Placeholders in braces are filled per task file by \texttt{subagent\_runs.py prepare}.
 \lstinputlisting{prompts/subagent_instructions.txt}
 
 \section{Reproduction}
-All steps are scripted in the repository:
 \begin{lstlisting}
 python GWP-calculation/sum_gwp.py                  # ground truth (enclosure, A1-A3)
 python GWP-calculation/enclosure_breakdown.py      # material breakdown + data-quality flags
@@ -333,12 +340,10 @@ python subagent_runs.py prepare --run-name 20261104_prompt-v3 --runs 3 --effort 
 #   one Claude Code subagent (Opus, effort medium) per results/<run>/subagent/tasks/*.instructions.txt
 python subagent_runs.py resume  --run-name 20261104_prompt-v3   # only if interrupted
 python subagent_runs.py collect --run-name 20261104_prompt-v3
-python summarize_run.py 20261104_prompt-v3
 python analysis/make_split.py
 python analysis/compare_runs.py 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
 python analysis/error_analysis.py --split dev 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
 python analysis/feature_study.py
 python report/make_figures.py
 \end{lstlisting}
-
 \end{document}

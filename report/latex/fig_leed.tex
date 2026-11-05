@@ -1,0 +1,68 @@
+% Building envelope LCA and LEED v5 goals (revised from the team's draft diagram).
+% Included by main.tex inside a figure* environment.
+\begin{tikzpicture}[
+  font=\sffamily\scriptsize, >=Stealth, node distance=2.2mm,
+  box/.style={draw=black!55, fill=white, align=center, minimum height=6.2mm, text width=#1, inner sep=2pt},
+  box/.default=44mm,
+  hdr/.style={fill=cardinal, text=white, font=\sffamily\bfseries\small, align=center, minimum height=7mm, text width=#1},
+  hdr/.default=42mm,
+  side/.style={draw=black!45, fill=black!4, align=center, text width=31mm, inner sep=3pt},
+  lbl/.style={font=\sffamily\bfseries\scriptsize, align=left},
+  note/.style={font=\sffamily\itshape\tiny, text=black!60, align=left},
+  scope/.style={draw=cardinal, very thick, fill=cardinal!6},
+  outscope/.style={draw=black!35, dashed, fill=black!2, text=black!60}]
+
+% ---------------- centre: envelope life cycle ----------------
+\node[hdr] (env) {ENVELOPE LIFE CYCLE};
+\node[note, below=0.6mm of env.south west, anchor=north west] (sbl) {System boundary (EN~15978 modules)};
+\node[box, scope, below=5mm of env] (a1) {\textbf{A1--A3} Raw material extraction\\ and product manufacturing};
+\node[box, outscope, below=of a1] (a4) {A4--A5 Transport \& installation};
+\node[box, outscope, below=of a4] (b) {B1--B5 Use, maintenance \& replacement};
+\node[box, outscope, below=of b] (c) {C1--C4 End of life \quad D Beyond};
+\draw[->, black!50] (a1) -- (a4); \draw[->, black!50] (a4) -- (b); \draw[->, black!50] (b) -- (c);
+\node[note, right=1.5mm of a1, text width=16mm] (n1) {\textcolor{cardinal}{this study}};
+\node[note, right=1.5mm of b, text width=16mm] (n2) {outside scope\\(sensitivity)};
+\begin{scope}[on background layer]
+  \node[draw=black!40, dashed, rounded corners=2pt, fit=(sbl)(a1)(c)(n1)(n2), inner sep=2.2mm] (lc) {};
+\end{scope}
+
+% ---------------- left: inputs / outputs ----------------
+\node[lbl, anchor=north east] (inl) at ($(lc.north west)+(-8mm,-4mm)$) {MAJOR INPUTS};
+\node[side, below=0.8mm of inl.south east, anchor=north east] (in) {Raw materials\\Energy \& water\\Transport fuels\\Replacement materials};
+\node[lbl, below=6mm of in.south east, anchor=north east] (outl) {MAJOR OUTPUTS};
+\node[side, below=0.8mm of outl.south east, anchor=north east] (outp) {Air / water emissions\\Construction \& disposal waste\\Recovered materials};
+\draw[->] (in.east) -- (a1.west);
+\draw[->] (b.west) -- (outp.east);
+
+% ---------------- bottom: two estimation routes ----------------
+\node[box=40mm, below=11mm of c, xshift=-23mm, fill=black!4] (ref) {\textbf{Reference LCA} (WBLCA tool)\\full material inventory};
+\node[box=40mm, below=11mm of c, xshift=23mm, fill=cardinal!6, draw=cardinal] (llm) {\textbf{LLM estimate} (prompt v3)\\10--48 early-stage features};
+\node[box=90mm, below=6mm of $(ref.south)!0.5!(llm.south)$, fill=black!4] (res)
+  {\textbf{Enclosure A1--A3 results:} kgCO$_2$e/m$^2$ floor area; hotspots\\
+   (curtain wall, HFC-blown XPS, metal panels); baseline vs.\ envelope alternatives\\
+   \textit{LLM (v3): within $\pm$20\% for 25\% of buildings, bias $-$14\%}};
+\coordinate (lcs) at (c.south |- lc.south);
+\draw[->] (lcs) -- ++(0,-5mm) -| (ref.north);
+\draw[->] (lcs) -- ++(0,-5mm) -| (llm.north);
+\draw[->] (ref.south) -- (ref.south |- res.north);
+\draw[->] (llm.south) -- (llm.south |- res.north);
+\node[note, anchor=west] at ($(lcs)+(1mm,-2.3mm)$) {life-cycle inventory};
+
+% ---------------- right: LEED goals ----------------
+\node[lbl, anchor=north west] (pil) at ($(lc.north east)+(16mm,4mm)$) {PROJECT / ASSESSMENT INPUTS};
+\node[side, text width=44mm, below=0.8mm of pil.south west, anchor=north west] (pin)
+  {LEED v5 BD+C target credits\\Budget / performance constraints\\Whole-building baseline\\Scope \& data-source requirements};
+\node[hdr=48mm, below=4mm of pin] (lg) {LEED v5 GOALS};
+\node[box=44mm, below=5mm of lg] (p2) {\textbf{MRp2} Quantify \& assess:\\A1--A3 total, top-3 hotspots};
+\node[box=44mm, below=of p2] (c2) {\textbf{MRc2} Reduce embodied carbon:\\compare alternatives vs.\ baseline};
+\node[box=44mm, below=of c2] (gap) {Check contribution \& evidence gaps\\(LLM = screening; verify with LCA)};
+\draw[->] (pin) -- (lg); \draw[->] (lg) -- (p2); \draw[->] (p2) -- (c2); \draw[->] (c2) -- (gap);
+\begin{scope}[on background layer]
+  \node[draw=black!40, dashed, rounded corners=2pt, fit=(p2)(gap), inner sep=2mm] (lw) {};
+\end{scope}
+\node[hdr=48mm, below=8mm of gap, font=\sffamily\bfseries\scriptsize] (rec) {RECOMMENDED ENVELOPE DESIGN\\[-1pt]
+  {\sffamily\mdseries estimated LEED contribution;\\ documentation / data gaps}};
+\draw[->] (lw.south) -- (rec);
+\coordinate (ch) at ($(lw.west)+(-5mm,0)$);
+\draw[->, dashed] (res.east) -- (res.east -| ch) -- node[note, sloped, above, pos=0.5] {LCA results \& design alternatives} (ch) -- (lw.west);
+\end{tikzpicture}
