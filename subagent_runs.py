@@ -108,6 +108,8 @@ def cmd_prepare(args):
         raise SystemExit(f"{sd / 'manifest.json'} exists. Use a new --run-name or --force.")
     (sd / "tasks").mkdir(parents=True, exist_ok=True)
     (sd / "answers").mkdir(parents=True, exist_ok=True)
+    if args.feature_set:
+        cfg.use_feature_set(args.feature_set)
 
     meta = cfg.load_metadata()
     projects = parse_project_selection(args.projects, [int(x) for x in meta["project_index"]])
@@ -155,6 +157,8 @@ def cmd_prepare(args):
 def cmd_resume(args):
     sd = sub_dir(args.run_name)
     manifest = json.loads((sd / "manifest.json").read_text())
+    if manifest["settings"].get("feature_set", "all") not in ("all", "custom"):
+        cfg.use_feature_set(manifest["settings"]["feature_set"])
     if manifest["settings"]["task_text"] != cfg.TASK_TEXT:
         raise SystemExit("experiment_config.py no longer matches this run's prompt; set PROMPT_VERSION back.")
     meta = cfg.load_metadata().set_index("project_index")
@@ -258,6 +262,7 @@ def main():
     p.add_argument("--chunk-size", type=int, default=49, help="max buildings per subagent")
     p.add_argument("--model-label", default="claude-sonnet-5-5 (Claude Code subagent)")
     p.add_argument("--effort", default="medium")
+    p.add_argument("--feature-set", default=None, help="name in experiment_config.FEATURE_SETS")
     p.add_argument("--force", action="store_true")
     c = sp.add_parser("collect")
     c.add_argument("--run-name", required=True)

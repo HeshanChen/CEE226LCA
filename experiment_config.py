@@ -39,6 +39,46 @@ FEATURES = "all"
 #             "bldg_therm_env_area", "bldg_wwr", "bldg_rval_walls", "bldg_rval_roofs",
 #             "str_prim_vert_sys", "lca_phys_scope"]
 
+# Named feature sets for the feature study (report section 11). "all" = every column.
+# The floor-area fields are in every set because the task defines the unit with them.
+FLOOR_AREA = ["bldg_cfa", "bldg_added_gfa", "bldg_renovated_gfa"]
+FEATURE_GROUPS = {
+    "site": ["site_country", "site_region", "site_state_province", "site_clim_zone"],
+    "code_year": ["bldg_code_year", "bldg_energy_code_year", "bldg_compl_year"],
+    "use_type": ["bldg_proj_type", "bldg_ibc_type", "bldg_park_type", "bldg_prim_use", "bldg_sec_use"],
+    "size": ["bldg_gfa", "bldg_park_gfa", "bldg_occupants", "bldg_res_units"],
+    "geometry": ["bldg_stories_above", "bldg_stories_below", "bldg_height", "bldg_therm_env_area", "bldg_wwr"],
+    "thermal": ["bldg_rval_walls", "bldg_rval_roofs"],
+    "structure": ["str_seis_site_cls", "str_sdc", "str_wind_speed", "str_prim_horiz_sys", "str_prim_vert_sys",
+                  "str_lat_sys", "str_podium", "str_sec_horiz_sys", "str_sec_vert_sys", "str_grid_long",
+                  "str_grid_short", "str_fdn_type", "str_sys_summary"],
+    "lca": ["lca_assessment_year", "lca_design_phase", "lca_rsp", "lca_software", "lca_purp_of_assessment",
+            "lca_phys_scope", "lca_ec_reductions", "lca_ec_reduction_percent"],
+    "mass": ["mass_total"],   # sum of the reference LCA's inventory mass (A-C): not known at early design
+}
+ALL_FEATURES = FLOOR_AREA + [c for g in FEATURE_GROUPS.values() for c in g]
+FEATURE_SETS = {
+    "all": "all",
+    # design-stage information only: no LCA-derived fields and no total mass
+    "early": [c for c in ALL_FEATURES if c not in FEATURE_GROUPS["lca"] + FEATURE_GROUPS["mass"]],
+    # envelope-relevant subset
+    "env": ["site_clim_zone", "site_state_province", "bldg_prim_use", "bldg_proj_type", *FLOOR_AREA,
+            "bldg_stories_above", "bldg_height", "bldg_therm_env_area", "bldg_wwr", "bldg_rval_walls",
+            "bldg_rval_roofs", "str_sys_summary", "bldg_ibc_type"],
+    # proposal 6.1: climate, use, U-factor (R-values), WWR, plus size and storeys
+    "min": ["site_clim_zone", "bldg_prim_use", "bldg_proj_type", *FLOOR_AREA, "bldg_stories_above",
+            "bldg_wwr", "bldg_rval_walls", "bldg_rval_roofs"],
+    # leave-one-group-out ablations
+    **{f"no-{g}": [c for c in ALL_FEATURES if c not in cols] for g, cols in FEATURE_GROUPS.items()},
+}
+
+
+def use_feature_set(name: str):
+    """Switch FEATURES to a named set (used by subagent_runs.py prepare/resume)."""
+    global FEATURES
+    FEATURES = FEATURE_SETS[name]
+
+
 # --------------------------------------------------------------------------------------
 # Prompt text - edit here
 # --------------------------------------------------------------------------------------
@@ -264,6 +304,7 @@ def settings() -> dict:
         "include_practice_guide": INCLUDE_PRACTICE_GUIDE,
         "extra_context": [p.name for p in EXTRA_CONTEXT_PATHS],
         "features": FEATURES,
+        "feature_set": next((k for k, v in FEATURE_SETS.items() if v == FEATURES), "custom"),
         "system_prompt": SYSTEM_PROMPT,
         "task_text": TASK_TEXT,
         "subagent_instructions": SUBAGENT_INSTRUCTIONS,
