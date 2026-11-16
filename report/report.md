@@ -576,6 +576,8 @@ It also tells the model to leave out the seismic, wind, grid, foundation, occupa
 
 One card was left out: it describes a real building that may be among the 292.
 
+The 22 external sources are technical reports, regulations, LCA-tool data cards and trade articles, not peer-reviewed papers; the prompt draws on nine of them. One statement in the prompt, that offices above about 10 storeys usually have unitized curtain wall, was seen only in search snippets and is marked unverified in that file.
+
 ### 13.2 Choosing the weights
 
 The weights were searched offline, with v3's estimates standing in for the take-off (`analysis/weight_search.py`). Every weight was scored by repeated 5-fold cross-validation inside the cleaned development set.
