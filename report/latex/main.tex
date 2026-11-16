@@ -574,7 +574,7 @@ Bias (geometric mean est./ref.) & 1.04 & 1.00 \\
 \item The typical range costs a few buildings whose inventory mass is incomplete: two major renovations with reference values near 400~\coe{} are held at the lowest range end, 126.
 \end{itemize}
 
-\textbf{The enclosure does not follow.} Stretching v5's estimates, or giving more weight to its calibrated take-off, steepens the curve but lowers coverage from 35.6\% to 29--34\%; finer calibration tables add at most 3 points and barely change the slope (0.39 to 0.41). The enclosure has no feature that, like the inventory mass, fixes the scale of the result: the rank correlation of v5 with the reference is 0.60, against 0.79 for wb5.
+\textbf{The enclosure does not follow.} Stretching v5's estimates, or giving more weight to its calibrated take-off, steepens the curve but lowers coverage from 35.6\% to 29--34\%; finer calibration tables add at most 3 points and barely change the slope (0.39 to 0.41). The enclosure has no feature that, like the inventory mass, fixes the scale of the result: the rank correlation of v5 with the reference is 0.60, against 0.79 for wb5. A feasibility check (\path{analysis/enclosure_v6_feasibility.md}) shows why. v5's misses sit inside every use, structure and storey group. The top 20\% are high mainly because of HFC-blown XPS insulation (38\% of their excess) and aluminium curtain wall (18\%), which no feature predicts (AUC at most 0.73, against 0.86--0.88 for the inventory mass of the whole building). Every simulated typical-range design stays within 2 points of v5, so an enclosure V6 was not run.
 
 \section{Limitations}
 \begin{itemize}
