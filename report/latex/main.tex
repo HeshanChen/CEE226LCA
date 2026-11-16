@@ -15,8 +15,6 @@
 \usepackage{enumitem}
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
-\usepackage{tikz}
-\usetikzlibrary{positioning,fit,calc,arrows.meta,backgrounds}
 \usepackage{titlesec}
 
 \definecolor{cardinal}{HTML}{8C1515}
@@ -42,7 +40,7 @@
 \vspace*{-0.15in}
 \rule{\textwidth}{3pt}\\[7pt]
 \mbox{\fontsize{15}{18}\selectfont\bfseries Can an LLM Estimate the Embodied Carbon of a Building Enclosure?}\\[4pt]
-\mbox{\fontsize{11}{13}\selectfont Error Analysis, Prompt Design, and Implications for LEED v5 Embodied Carbon Credits}\\[6pt]
+\mbox{\fontsize{11}{13}\selectfont Error Analysis, Prompt Design, and Evidence Weights Calibrated on Reference Data}\\[6pt]
 \rule{\textwidth}{1pt}\\[10pt]
 \au{George Zheng}{jhzheng}\hspace{2.2em}\au{Zixuan Zhao}{zalex467}\hspace{2.2em}\au{Heshan Chen}{heshan}\\[6pt]
 \au{Fei Cheng}{feicheng}\hspace{2.2em}\au{Jamie Liu}{jamiexyl}\\[8pt]
@@ -59,19 +57,17 @@ We test whether a large language model (Claude Opus~5.5, run as a Claude Code su
 With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the reference LCA. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. It also underestimates envelope area and misjudges renovations; its largest overestimates trace back to incomplete reference LCAs.
 
 Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Placing envelope-focused documents in context instead made the estimates worse (bias 0.61): the documents describe current low-carbon products rather than the data the reference LCAs used. Ten early-design inputs are as informative as all 48, and building use shapes enclosure carbon more than climate.
-
-For LEED~v5, the answers name the reference's top hotspot 95\% of the time and support screening and the comparison of envelope alternatives at schematic design (MRp2, MRc2). They cannot document a credit-level reduction for an individual building.
 \end{quote}
 
 \section{Introduction}
 Early design decisions fix most of a building's embodied carbon. The exterior enclosure is among the most consequential and variable of them. Early-stage LCA is hard because design information is sparse and the hand-off to an LCA practitioner is slow. LLM in-context learning has been shown to support early-stage whole-building LCA, with domain knowledge improving on innate knowledge~\cite{jung2026}.
 
-We narrow that question to the enclosure and to the product stage (A1--A3), where material choices dominate and where LEED~v5 embodied-carbon requirements start. We ask:
+We narrow that question to the enclosure and to the product stage (A1--A3), where material choices dominate. We ask:
 \begin{enumerate}[label=\textbf{Q\arabic*}]
 \item How accurately and consistently does an LLM estimate enclosure A1--A3 carbon from early-stage features, and why does it fail?
 \item Which prompt changes help, and which do not?
 \item Which input features does the model need?
-\item What do the answers imply for the LEED~v5 embodied-carbon prerequisite and credit?
+\item How far can the estimate be calibrated on reference data, and what limits it?
 \end{enumerate}
 
 \textbf{Scope relative to the proposal.} The proposal planned a reference LCA of three modelled wall assemblies in two to three climates and two uses, per m$^2$ of wall and in six TRACI categories. It also planned three knowledge conditions with 10 runs each, and an evaluation of LEED credit outcomes. After the course check-in we adopted the course's dataset-based design, which changed four things:
@@ -79,7 +75,7 @@ We narrow that question to the enclosure and to the product stage (A1--A3), wher
 \item \emph{Ground truth.} Reported enclosure A1--A3 GWP of 292 real projects replaces modelled assemblies. Only GWP is evaluated, and the unit is per m$^2$ of floor area.
 \item \emph{Climate and use (proposal RQ1).} These are analysed from the data (Section~\ref{sec:data}), not from modelled assemblies.
 \item \emph{Knowledge conditions.} We test the innate baseline, a domain-knowledge condition with envelope-focused documents (Section~\ref{sec:domain}) and two prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the domain and feature conditions) instead of 10.
-\item \emph{LEED.} MRp2 hotspot agreement is measured with a mention-based proxy (Section~\ref{sec:leed}). MRc2 point-band agreement, the LEED-aligned ontology and the cost/regulation/performance drivers are discussed only qualitatively or left out.
+\item \emph{LEED.} The LEED~v5 credit-outcome evaluation was dropped. Hotspot agreement, the proposal's metric for it, is still reported (Section~\ref{sec:hotspot}). The cost, regulation and performance drivers are left out.
 \end{itemize}
 
 \section{Data and Ground Truth}
@@ -294,45 +290,14 @@ no-mass & 47 & 22.6\% & 0.452 & $-0.009$ & 0.92 & 0.85 \\
 \end{tabular}
 \end{table}
 
-\begin{figure*}[t]
-\centering
-\resizebox{0.97\textwidth}{!}{\input{fig_leed.tex}}
-\caption{Building-envelope LCA and LEED~v5 goals. The study boundary is the product stage (A1--A3); later stages are outside scope. A reference LCA and the LLM estimate (prompt v3) both produce enclosure A1--A3 results. Those results feed the LEED~v5 workflow: MRp2 (quantify and assess embodied carbon, top hotspots) and MRc2 (reduce embodied carbon against a baseline). The LLM serves for screening and comparing alternatives, and its results are verified by an LCA before documentation.}
-\label{fig:leed}
-\end{figure*}
-
-\section{Implications for LEED v5}
-\label{sec:leed}
-LEED~v5 makes embodied carbon part of the rating system. Prerequisite MRp2 (\emph{Quantify and Assess Embodied Carbon}) asks projects to quantify the embodied carbon of their main building elements, including the enclosure, and to identify the largest hotspots. Credit MRc2 (\emph{Reduce Embodied Carbon}) rewards reductions: either a whole-building LCA compared with a baseline (Option~1), or product-level reductions documented with EPDs (Option~2). Fig.~\ref{fig:leed} shows where the enclosure LCA and the LLM estimate sit in that workflow, from project inputs and the A1--A3 system boundary to a recommended envelope design with its estimated LEED contribution and remaining data gaps.
-
-\textbf{MRp2: hotspot screening.} At schematic design, no material inventory exists yet, and the prerequisite's purpose is to direct attention to the largest sources. The v3 estimates suit that purpose.
-\begin{itemize}
-\item The bias is small, $-14\%$ overall and close to zero for buildings without XPS.
-\item The reasoning names the components that drive enclosure carbon in the data: aluminum curtain wall and framing, insulation type (HFC-XPS), metal panels and glazing.
-\end{itemize}
-We tested hotspot agreement with a proxy. Each building's top-3 hotspots are the three largest of 11 design-level material categories in the reference; an answer counts as naming a category when it mentions the category (keyword match, \path{analysis/hotspot_agreement.py}). Excluding the 10 incomplete references:
+\section{Hotspot Agreement}
+\label{sec:hotspot}
+Does the model name the materials that dominate a building's enclosure carbon? The answers are prose, so we use a proxy. Each building's top-3 hotspots are the three largest of 11 design-level material categories in the reference; an answer counts as naming a category when it mentions the category (keyword match, \path{analysis/hotspot_agreement.py}). Excluding the 10 incomplete references:
 \begin{itemize}
 \item v3 answers name the reference top-1 hotspot in 94.6\% of cases and recall 89.7\% of the top-3. Naming the same number of categories at random would give 60.5\%; v1 reaches 81.4\% and 77.1\%.
 \item The answers are building-specific. For the 80 buildings whose top-1 hotspot is not one of the three most common categories (insulation, glass, aluminum), v3 names the top-1 in 82.1\% of cases, where a constant typical-building guess scores 0\%.
-\item The answers are not a ranked shortlist: they name 6.7 categories on average, and their precision (41\%) is below that of the typical-building guess (60\%). For MRp2 the prompt should ask for a ranked top-3 explicitly.
+\item The answers are not a ranked shortlist: they name 6.7 categories on average, and their precision (41\%) is below that of the typical-building guess (60\%). A prompt meant for hotspot screening should ask for a ranked top-3 explicitly.
 \end{itemize}
-
-\textbf{MRc2: reductions need precision the LLM does not have.} Credit points scale with the percentage reduction against a baseline. The relevant errors are:
-\begin{itemize}
-\item the run-to-run CV of v3 (12.5\%);
-\item its median absolute error (about 35--40\%);
-\item coverage of only one building in four within $\pm$20\%.
-\end{itemize}
-These are as large as, or larger than, the reductions a project typically documents, so an absolute LLM estimate cannot demonstrate a credit-level reduction for an individual building. The more promising use is a \emph{paired} comparison of envelope alternatives for the same building with the same prompt, where shared biases partly cancel. That comparison was not tested here and needs an LCA for documentation.
-
-\textbf{Option~1: enclosure gains are diluted.} In this dataset the enclosure is a median 19\% of whole-building A--C carbon. A 30\% enclosure reduction is therefore only about 6\% at the whole-building level. Envelope decisions alone rarely carry a whole-building reduction target; they are most valuable in combination with structure and in Option~2's product-level pathway. There, high-impact products such as HFC-blown XPS, aluminum extrusions and insulated metal panels have the largest EPD-to-EPD spreads (Appendix~\ref{app:v3}).
-
-\textbf{Making early estimates more predictable.} Three changes would make early estimates and LEED baselines more predictable:
-\begin{enumerate}
-\item report assembly type at schematic design;
-\item state which insulation and aluminum datasets the LCA tool assumes, since the HFC-XPS convention alone moved our estimates by about half of the bias;
-\item flag inventories with missing element groups. The 10 incomplete references in this dataset would distort any baseline built from it.
-\end{enumerate}
 
 \section{Limitations}
 \begin{itemize}
@@ -343,14 +308,14 @@ These are as large as, or larger than, the reductions a project typically docume
 \item The feature study used one run per condition, and 7 of 9 planned ablations were stopped to limit cost.
 \item The unit is per m$^2$ of floor area.
 \item Reference quality is uneven.
-\item Hotspot agreement uses a mention-based proxy, and MRc2 point-band agreement was not computed.
+\item Hotspot agreement uses a mention-based proxy.
 \item Results are specific to Claude Opus~5.5.
 \end{itemize}
 
 \section{Conclusion}
 A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%. Qualitative instructions (v2) and envelope documents in context both made the estimates worse.
 
-For LEED~v5, this supports early hotspot screening and the comparison of alternatives, not credit documentation. Further progress depends on giving the model the assembly information that early-stage feature sets lack.
+Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
 \begin{thebibliography}{99}\small\sloppy
 \bibitem{benke2025} B.~Benke, M.~Chafart, Y.~Shen, M.~Ashtiani, S.~Carlisle, K.~Simonen. A harmonized dataset of high-resolution embodied life cycle assessment results for buildings in North America. \emph{Scientific Data} 12, 2025. \url{https://doi.org/10.1038/s41597-025-05216-0}
@@ -365,7 +330,6 @@ For LEED~v5, this supports early hotspot screening and the comparison of alterna
 \bibitem{rdh} RDH Building Science. \emph{Embodied Carbon Analysis: Spray Foam Assemblies}, 2025; RDH \& Toronto Metropolitan University, \emph{Embodied Carbon Resource Guide}.
 \bibitem{ubc} S.~Zargar. \emph{Impacts of Fenestration Materials on the Embodied Carbon of Buildings}. UBC Sustainability Scholars, 2022.
 \bibitem{carbenmats} M.~R\"ock et al. CarbEnMats-Buildings: a global database on whole life carbon, energy and material intensity of buildings. Zenodo, 2023.
-\bibitem{leedv5} U.S. Green Building Council. \emph{LEED v5 Building Design and Construction}: MRp2 Quantify and Assess Embodied Carbon; MRc2 Reduce Embodied Carbon. 2025.
 \end{thebibliography}
 
 \onecolumn

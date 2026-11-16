@@ -39,19 +39,18 @@ Prompt v3 does exactly that (Section 8):
 
 **Feature study** (Section 10). With prompt v3, a 10-feature early-design input set is as accurate as all 48 features, and removing `mass_total` or the LCA-derived fields does not hurt. Every difference between feature sets lies within the run-to-run spread. The limiting information is the assembly type, which no feature provides.
 
-**Implications for LEED v5** (Section 11). The v3 estimates support MRp2 hotspot screening and the comparison of envelope alternatives at schematic design, but they are not precise enough to document an MRc2 reduction for an individual building. The enclosure is a median 19% of whole-building A–C carbon, so a 30% enclosure cut is about 6% of the building.
 
 **Envelope documents in context** (Section 8.2). Following the TA's suggestion, we replaced the general whole-building papers with four envelope-focused documents, kept the v1 prompt, and ran once. The estimates got **worse**: the median log error rose by 0.090 (Wilcoxon p < 0.001) and the bias moved from 0.72 to 0.61. The documents describe current low-carbon products, while the reference LCAs used the tool data of their assessment years. v3 beats this condition on every metric.
 
 **Climate and use** (Section 2, proposal RQ1). Building use matters (p < 10⁻⁶): medians of 53.6 for multifamily, 87.2 for offices and 157.2 kgCO2e/m² for transport hubs. Climate does not reach significance (p = 0.26): 80.6 warm, 85.9 zone 4, 95.1 cold.
 
-**Hotspot agreement** (Section 11, MRp2). v3 answers name the reference's top-1 hotspot in 94.6% of cases, against 60.5% when the same number of categories is named at random. They name 6.7 categories on average, though, not a ranked top 3.
+**Hotspot agreement** (Section 11). v3 answers name the reference's top-1 hotspot in 94.6% of cases, against 60.5% when the same number of categories is named at random. They name 6.7 categories on average, though, not a ranked top 3.
 
 **Scope relative to the proposal.** After the Nov 3 check-in we adopted the course's dataset-based design:
 - The ground truth is the reported enclosure A1–A3 GWP of 292 real projects, not three modelled wall assemblies. The unit is per m² of floor area, and only GWP is evaluated.
 - RQ1 (climate and use) is analysed from the data.
 - Knowledge conditions: the innate baseline, the envelope-document domain condition and two prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the document condition and the feature study) instead of 10.
-- LEED: hotspot agreement uses a mention-based proxy. MRc2 point-band agreement, the LEED-aligned ontology and the cost, regulation and performance drivers are discussed only qualitatively or left out.
+- LEED: the LEED v5 credit-outcome evaluation was dropped. Hotspot agreement, the proposal's metric for it, is still reported (Section 11). The cost, regulation and performance drivers are left out.
 
 ## 2. Data and ground truth
 
@@ -469,27 +468,11 @@ On the test split (88 buildings), the same picture holds: min has 30.7% coverage
 
 ![Figure 10.1: Feature sets vs all 48 features; grey band is run-to-run noise](figures/feature_study.png)
 
-## 11. Implications for LEED v5
+## 11. Hotspot agreement
 
-LEED v5 brings embodied carbon into the rating system:
+Does the model name the materials that dominate a building's enclosure carbon?
 
-- **Prerequisite MRp2 (Quantify and Assess Embodied Carbon)**: quantify the embodied carbon of the main building elements, including the enclosure, and identify the largest hotspots.
-- **Credit MRc2 (Reduce Embodied Carbon)**: reward reductions, either through a whole-building LCA compared with a baseline (Option 1) or through product-level reductions documented with EPDs (Option 2).
-
-Figure 11.1 is the team's diagram, revised from the draft "Building Envelope LCA and LEED Goals". The main changes:
-
-- the study boundary is marked in the life cycle: A1–A3 is in scope; A4–A5, B1–B5 and C1–C4/D are outside;
-- two estimation routes are added, the reference LCA and the LLM estimate (prompt v3), both producing enclosure A1–A3 results;
-- the "LEED goals" column is made specific to LEED v5: MRp2 → MRc2 → check contribution and evidence gaps, leading to a recommended envelope design with its estimated LEED contribution and remaining documentation/data gaps.
-
-![Figure 11.1: Building-envelope LCA and LEED v5 goals (revised from the draft)](figures/fig_leed.png)
-
-**MRp2: hotspot screening.** At schematic design no material inventory exists, and the prerequisite's purpose is to direct attention to the largest sources. The v3 estimates suit that purpose:
-
-- the bias is small, −14% overall and close to zero for buildings without XPS;
-- the reasoning names the components that drive enclosure carbon in the data: aluminum curtain wall and framing, insulation type (HFC-XPS), metal panels and glazing.
-
-**Hotspot agreement test** (`analysis/hotspot_agreement.py`). The answers are prose with no structured hotspot list, so we use a proxy:
+Method: `analysis/hotspot_agreement.py`. The answers are prose with no structured hotspot list, so we use a proxy:
 - reference hotspots: the 3 largest of 11 design-level material categories in each building's enclosure A1–A3;
 - LLM hotspots: the categories an answer mentions (keyword match).
 
@@ -503,23 +486,7 @@ Excluding the 10 incomplete references:
 | v3 | 94.6% | 89.7% | 60.5% | 6.7 | 41.1% |
 
 - The answers are **building-specific**: for the 80 buildings whose top-1 hotspot is not one of the three common categories, v3 names it in 82.1% of cases, where the typical-building guess scores 0%.
-- The answers are **not a ranked top 3**: they name 6.7 categories on average, and their precision (41%) is below that of the typical guess (60%). For MRp2 the prompt should ask for a ranked top-3 explicitly.
-
-**MRc2: reductions need precision the LLM does not have.** Credit points scale with the percentage reduction against a baseline. The v3 errors are:
-
-- a run-to-run CV of 12.5%;
-- a median absolute error of about 35–40%;
-- coverage of only one building in four within ±20%.
-
-These are as large as, or larger than, the reductions a project typically documents, so an absolute LLM estimate cannot demonstrate a credit-level reduction for an individual building. The more promising use is a **paired** comparison of envelope alternatives for the same building with the same prompt, where shared biases partly cancel. That comparison was not tested here and needs an LCA for documentation.
-
-**Option 1: enclosure gains are diluted.** The enclosure is a median 19% of whole-building A–C carbon in this dataset. A 30% enclosure reduction is therefore only about 6% at the whole-building level. Envelope decisions alone rarely carry a whole-building target; they are most valuable together with structure. In Option 2's product-level pathway, high-impact products such as HFC-blown XPS, aluminum extrusions and insulated metal panels have the largest EPD-to-EPD spreads (v3 reference table, Appendix A).
-
-**Three changes would make early estimates and LEED baselines more predictable:**
-
-1. report assembly type at schematic design;
-2. state which insulation and aluminum datasets the LCA tool assumes. The HFC-XPS convention alone accounts for about half of our estimates' bias;
-3. flag inventories with missing element groups. The 10 incomplete references in this dataset would distort any baseline built from them.
+- The answers are **not a ranked top 3**: they name 6.7 categories on average, and their precision (41%) is below that of the typical guess (60%). A prompt meant for hotspot screening should ask for a ranked top-3 explicitly.
 
 ## 12. Limitations and next steps
 
@@ -530,7 +497,7 @@ These are as large as, or larger than, the reductions a project typically docume
 - **Feature study with one run.** Each feature condition was run once, and 7 of the 9 leave-one-group-out ablations were stopped to limit token use. The conclusion "no feature set matters" rests on differences that lie within the run-to-run spread; it is a null result, not proof that the features are irrelevant.
 - **Functional unit.** Results are per m² of floor area, not per m² of wall, and the enclosure includes windows, doors and roofs.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
-- **The LEED analysis is incomplete.** Hotspot agreement uses a mention-based proxy, and MRc2 point-band agreement was not computed.
+- **Hotspot agreement is a proxy.** It is based on whether an answer mentions a material category, not on a ranked top 3.
 - **The document condition was run once,** with four documents truncated to 30k characters; other documents could behave differently.
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
 - **Next steps:**
