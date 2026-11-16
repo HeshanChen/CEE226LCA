@@ -1,0 +1,38 @@
+{
+  "fitted_on": "181 cleaned development buildings",
+  "overall_median": 85,
+  "use_median": {
+    "Education": 91,
+    "Office": 79,
+    "Residential: Multifamily (5 or more units)": 54,
+    "Public Assembly": 94,
+    "Laboratory": 95,
+    "Warehouse and Storage": 62,
+    "Healthcare": 79,
+    "Public Order and Safety": 161,
+    "Transportation Hub": 153
+  },
+  "use_n": {
+    "Education": 38,
+    "Healthcare": 9,
+    "Laboratory": 17,
+    "Office": 32,
+    "Public Assembly": 20,
+    "Public Order and Safety": 8,
+    "Residential: Multifamily (5 or more units)": 27,
+    "Transportation Hub": 6,
+    "Warehouse and Storage": 15
+  },
+  "minor_renovation_factor": 0.54,
+  "out_of_scope_median": 7.6,
+  "out_of_scope_n": 9,
+  "env_ratio_by_storeys": {
+    "1": 2.09,
+    "11 to 15": 0.48,
+    "16 to 20": 0.37,
+    "2 to 5": 1.13,
+    "21 or more": 0.4,
+    "6 to 10": 0.7
+  },
+  "c_env_kgCO2e_per_m2_envelope": 87
+}
