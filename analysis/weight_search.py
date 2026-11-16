@@ -110,6 +110,44 @@ def main(run):
     (Path(__file__).resolve().parent / "weight_search.md").write_text("\n".join(out) + "\n")
     R.to_csv(Path(__file__).resolve().parent / "weight_search.csv", index=False)
 
+    # Round 4: richer fits (do they beat the simple blend out of sample?)
+    from sklearn.linear_model import Ridge
+    F = pd.DataFrame(index=t.index)
+    F["use"] = m.bldg_prim_use.where(m.bldg_prim_use.map(m.bldg_prim_use.value_counts()) >= 12, "Other")
+    F["ptype"] = m.bldg_proj_type.replace({"Tenant Improvement": "Minor/TI", "Minor Renovation": "Minor/TI"})
+    F["storeys"] = m.bldg_stories_above.astype(str)
+    F["struct"] = m.str_prim_vert_sys.astype(str).str.split(":").str[0]
+    z = m.site_clim_zone.str.extract(r"Zone (\d)")[0].astype(float)
+    F["clim"] = np.select([z <= 3, z == 4, z >= 5], ["warm", "mixed", "cold"], "mixed")
+    F["sw"] = m.lca_software
+    F["env"] = m.bldg_therm_env_area.notna().map({True: "given", False: "missing"})
+    F["park"] = np.where(m.bldg_park_type.astype(str).str.contains("Below"), "below", "other")
+    F["wwr"] = pd.cut(m.bldg_wwr, [-1, .2, .35, .5, 1.01]).astype(str)
+    F["area"] = pd.cut(area, [0, 5000, 15000, 1e9]).astype(str)
+    F["mass"] = pd.qcut(m.mass_total / area, 3).astype(str)
+    D = pd.get_dummies(F, dtype=float)
+    lt, lA = np.log(t), np.log(A_all.reindex(t.index))
+
+    def cv_model(kind):
+        p = pd.Series(0.0, index=dev)
+        for r in range(REPS):
+            for tr, te in KFold(5, shuffle=True, random_state=r).split(dev):
+                tr_i, te_i = dev[tr], dev[te]
+                if kind == "ridge benchmark":      # 0.5 A + 0.5 x (ridge on 11 feature groups)
+                    mdl = Ridge(alpha=3.0).fit(D.loc[tr_i], lt.loc[tr_i])
+                    p.loc[te_i] += (0.5 * A_all.loc[te_i] + 0.5 * np.exp(mdl.predict(D.loc[te_i]))) / REPS
+                else:                              # A x correction factors (ridge on the log residual)
+                    mdl = Ridge(alpha=3.0).fit(D.loc[tr_i], (lt - lA).loc[tr_i])
+                    p.loc[te_i] += np.exp(lA.loc[te_i] + mdl.predict(D.loc[te_i])) / REPS
+        return 100 * cov(p, t.loc[dev]), float(np.log(p / t.loc[dev]).abs().median())
+
+    extra = {k: cv_model(k) for k in ("ridge benchmark", "correction factors")}
+    out += ["", "## Round 4: richer fits (dev CV)", "", "| Model | dev CV coverage % | dev CV median abs log err |", "|---|---|---|",
+            f"| 0.5 A + 0.5 x ridge benchmark on 11 feature groups | {extra['ridge benchmark'][0]:.1f} | {extra['ridge benchmark'][1]:.3f} |",
+            f"| A x per-feature correction factors (ridge on the residual) | {extra['correction factors'][0]:.1f} | {extra['correction factors'][1]:.3f} |",
+            "", "Neither beats the plain blend with the use benchmark."]
+    (Path(__file__).resolve().parent / "weight_search.md").write_text("\n".join(out) + "\n")
+
     parts = fit_parts(t, m, area, dev)
     n_use = m.bldg_prim_use.loc[dev].value_counts()
     all_dev = t.index[split == "dev"]

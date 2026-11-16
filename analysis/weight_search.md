@@ -40,3 +40,12 @@ Cleaned development set: 181 buildings; cleaned test set: 81. Score used to rank
 | 0.5 | 0.5 | 0.0 | 1.00 | 35.4 | 0.328 | 35.8 |
 
 Equal weights on the bottom-up estimate and the use benchmark, no extra factor. Coverage is flat for bottom-up weights between 0.3 and 0.6, so the choice within that range is not critical; the geometry benchmark adds nothing.
+
+## Round 4: richer fits (dev CV)
+
+| Model | dev CV coverage % | dev CV median abs log err |
+|---|---|---|
+| 0.5 A + 0.5 x ridge benchmark on 11 feature groups | 30.4 | 0.371 |
+| A x per-feature correction factors (ridge on the residual) | 26.5 | 0.438 |
+
+Neither beats the plain blend with the use benchmark.

@@ -340,7 +340,59 @@ Prompt v3 & 25.0\% & 26.7\% \\
 \end{tabular}
 \end{table}
 
-%V4SECTION
+\section{Prompt v4: Weighted Evidence}
+\label{sec:v4}
+v4 gives the model a second source of evidence and tells it how to weigh the two. It was designed on the cleaned development set only; the test buildings were not used.
+
+\subsection{Design}
+\textbf{Two sources, equal weight.}
+\begin{itemize}
+\item \emph{A, bottom-up (50\%).} The v3 take-off: areas, likely assemblies, sourced component intensities.
+\item \emph{B, benchmark (50\%).} The median enclosure value of reference LCAs with the same primary use, fitted on the 181 cleaned development buildings (Table~\ref{tab:bench}).
+\end{itemize}
+The model reports A and B, and a range centred on $0.5A+0.5B$.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Benchmarks in prompt v4: median enclosure A1--A3 by primary use on the cleaned development set (\coe{} floor area). Uses with fewer than 5 buildings get the overall median, 85.}
+\label{tab:bench}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrr@{\hskip 10pt}lrr}
+\toprule
+Use & $n$ & B & Use & $n$ & B \\
+\midrule
+Education & 38 & 91 & Warehouse & 15 & 62 \\
+Office & 32 & 79 & Healthcare & 9 & 79 \\
+Multifamily & 27 & 54 & Public safety & 8 & 161 \\
+Public assembly & 20 & 94 & Transport hub & 6 & 153 \\
+Laboratory & 17 & 95 & Other uses & 9 & 85 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{An attention order for the features.} Inside the take-off the prompt ranks the features: envelope quantity first (envelope area or storeys, height and floor area; WWR), then assembly class (use, IBC type, structural system), then the insulation convention (climate, R-values, LCA software, assessment year, state). It tells the model to leave out the seismic, wind, grid, foundation, occupancy and code-year fields. In the random forest of Section~\ref{sec:ceiling}, use and structure are the most informative single groups, and no group changes the error by more than 0.02 when dropped.
+
+\textbf{A rule for out-of-scope LCAs.} If \texttt{lca\_phys\_scope} has no enclosure, the model reports 8~\coe{} (the development median of such buildings is 7.6).
+
+\textbf{Feature-keyed literature facts.} A research subagent compiled 25 fact cards, each tied to a feature the model sees, from sources independent of the ground-truth dataset (\path{references/feature_keyed_facts.md}). The prompt uses the ones that give a number at a decision step:
+\begin{itemize}
+\item \emph{Geometry.} A reported thermal envelope area includes the ground slab. Typical envelope-to-floor ratios are 2.1 for one storey, 1.1 for 2--5, 0.7 for 6--10 and 0.4--0.5 above (medians of the features themselves); wall area per m$^2$ of floor is 0.2--0.5 by archetype~\cite{pnnl}.
+\item \emph{Assembly priors by use.} Schools, hospitals and hotels are mostly masonry veneer; large offices precast or curtain wall; warehouses metal panel or tilt-up; typical WWR by use~\cite{pnnl}.
+\item \emph{Insulation convention.} HFC-blown XPS was banned from 2021 in Canada and five US states and US-wide only from 2025; at R-30 legacy XPS is about 195 kgCO$_2$e per m$^2$ of roof against about 18 for low-GWP XPS~\cite{oneclickxps}.
+\item \emph{Facade type.} Punched windows in panel cladding have about half the intensity of an all-curtain-wall facade (74 vs.\ 138 per m$^2$ in one same-tool comparison~\cite{csa}).
+\end{itemize}
+One card was left out because it describes a real building that may be among the 292. Unlike the full documents of Section~\ref{sec:domain}, these facts did not pull the take-off down: v4's bottom-up value is statistically the same as v3's (Section~\ref{sec:v4results}).
+
+\subsection{Choosing the weights}
+We searched the weights offline, with v3's estimates standing in for the take-off (\path{analysis/weight_search.py}). Every weight was scored by repeated 5-fold cross-validation inside the cleaned development set.
+\begin{itemize}
+\item \emph{Round 1, one source at a time.} Take-off alone 27.1\%, use benchmark alone 33.1\%, a geometry benchmark (one intensity per m$^2$ of envelope) 25.4\%.
+\item \emph{Round 2, take-off plus use benchmark.} 33--36\% for any take-off weight between 0.3 and 0.7. The surface is flat, so the exact weight is not critical.
+\item \emph{Round 3, adding the geometry benchmark.} No gain at any weight.
+\end{itemize}
+We chose equal weights and no extra scaling factor (35.4\% in development cross-validation). More elaborate fits did worse in the same cross-validation: a ridge benchmark on 11 feature groups reached 30.4\%, and per-feature correction factors on top of the take-off 26.5\%.
+
+%V4RESULTS
 \section{Limitations}
 \begin{itemize}
 \item Answers in one task file share a context, so they are less independent than separate API calls.
@@ -371,6 +423,9 @@ Further progress depends on giving the model the assembly information that early
 \bibitem{pci} Precast/Prestressed Concrete Institute. Industry-average EPDs for architectural and insulated precast, 2025.
 \bibitem{rdh} RDH Building Science. \emph{Embodied Carbon Analysis: Spray Foam Assemblies}, 2025; RDH \& Toronto Metropolitan University, \emph{Embodied Carbon Resource Guide}.
 \bibitem{ubc} S.~Zargar. \emph{Impacts of Fenestration Materials on the Embodied Carbon of Buildings}. UBC Sustainability Scholars, 2022.
+\bibitem{pnnl} D.~Winiarski et al. \emph{Analysis of Building Envelope Construction in 2012 CBECS Buildings}. PNNL-26949, 2018; DOE Commercial Reference Buildings.
+\bibitem{oneclickxps} One Click LCA materials library: XPS insulation data cards (UL-verified EPDs, 2021); US state and Canadian HFC regulations for foam blowing agents.
+\bibitem{csa} CSA Group. \emph{Exploring Circular Strategies to Extend the Life of Existing Buildings}. 2023.
 \bibitem{carbenmats} M.~R\"ock et al. CarbEnMats-Buildings: a global database on whole life carbon, energy and material intensity of buildings. Zenodo, 2023.
 \end{thebibliography}
 
