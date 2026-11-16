@@ -126,10 +126,12 @@ def main():
         "| Target | Prompt | Within +/-20% of the reference LCA |",
         "|---|---|---|",
         "| Enclosure A1-A3 per m2 floor | v5 (this file) | 35.6% of 292 buildings; 38.5% after 30 outliers are removed |",
-        "| Whole building A-C per m2 floor | wb5 (below) | 53.4% of 292 buildings (course reference results: 34-46%) |",
+        "| Whole building A-C per m2 floor | wb6 (section D) | 60.3% of 292 buildings (earlier wb5: 53.4%; course reference results: 34-46%) |",
         "",
         "Both prompts are fitted to the reference data, as the course instructed, so these numbers are in-sample. "
-        "With its benchmark fitted on a development set only, the same structure (v4) covers 35.2% of 88 held-out buildings. "
+        "With its benchmark fitted on a development set only, the same structure (v4) covers 35.2% of 88 held-out buildings; "
+        "with wb6's tables fitted on the development set only, the same arithmetic on the run's evidence lines covers 52.3% "
+        "of those 88 buildings for the whole building. "
         "Model: Claude Opus 5.5, medium reasoning effort. The estimate is the midpoint of the returned range, averaged over 3 runs (whole building: 1 run).",
         "",
         "## How to assemble a request",
@@ -151,9 +153,13 @@ def main():
         "",
         fence(example),
         "",
-        "## D. Whole-building variant (wb5, stages A-C)",
+        "## D. Whole-building variant (wb6, stages A-C)",
         "",
-        fence(cfg.TASK_TEXTS["wb5"]),
+        "wb6 keeps the highest and lowest buildings on the curve (log-log slope of estimate on reference 0.81, "
+        "against 0.59 for the earlier wb5): the mass route carries 90% of the estimate, and the final value is kept "
+        "inside the typical range for the building's mass intensity. Use the same system prompt and glossary.",
+        "",
+        fence(cfg.TASK_TEXTS["wb6"]),
         "",
     ]
     out2 = ROOT / "report" / "final_prompt.md"

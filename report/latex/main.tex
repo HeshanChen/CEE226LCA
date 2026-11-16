@@ -54,7 +54,7 @@
 \begin{quote}\small
 We test whether a large language model (Claude Opus~5.5, run as a Claude Code subagent with medium reasoning effort) can estimate the cradle-to-gate (A1--A3) embodied carbon of the building enclosure from early-stage design features. Reference values come from the 292 buildings of the harmonized North American WBLCA dataset of Benke et al.~\cite{benke2025}.
 
-Our final prompt (v5) has the model build a component take-off, calibrate it by building use, and average it with a benchmark by use and storey count. Following the course instruction, its tables are fitted to the reference data. It places 35.6\% of all buildings within $\pm$20\% of the reference LCA, and 38.5\% after 30 rule-based outliers are removed, without bias and with 5\% run-to-run variation. The same approach applied to the course's whole-building A--C target reaches 53.4\%, against 34--46\% in the course reference results. Both numbers are in-sample; with its benchmark fitted on a development set only (v4), the same structure covers 35.2\% of 88 held-out buildings.
+Our final prompt (v5) has the model build a component take-off, calibrate it by building use, and average it with a benchmark by use and storey count. Following the course instruction, its tables are fitted to the reference data. It places 35.6\% of all buildings within $\pm$20\% of the reference LCA, and 38.5\% after 30 rule-based outliers are removed, without bias and with 5\% run-to-run variation. On the course's whole-building A--C target, a variant that rests on the inventory mass and gives the model the typical range for the building's mass reaches 60.3\%, against 34--46\% in the course reference results, and follows high- and low-carbon buildings far more closely than our first whole-building prompt (log--log slope 0.81 against 0.59). Both numbers are in-sample; with its benchmark fitted on a development set only (v4), the same structure covers 35.2\% of 88 held-out buildings.
 
 With a plain prompt only 19.5\% of estimates fall within $\pm$20\%. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. Qualitative instructions and envelope-focused documents made the estimates worse; sourced numbers at the step where each number is chosen raised coverage to 25.0\%; weighing the take-off against a benchmark by building use raised it to 32.2\%.
 
@@ -484,6 +484,13 @@ Fig.~\ref{fig:bands} shows every building in the course's band format.
 \label{fig:bandswb}
 \end{figure*}
 
+\begin{figure*}[p]
+\centering
+\includegraphics[width=0.92\textwidth]{\figdir/fig_bands_wholebuilding_wb6.pdf}
+\caption{Whole building A--C: wb5 (left, 53.4\%) against wb6 (right, 60.3\%), both in-sample. wb5 pulls every building toward the average: the highest values are underestimated and the lowest overestimated (slope 0.59). wb6 rests on the mass route and keeps the estimate inside the typical range for the building's mass, so the bands follow the reference curve at both ends (slope 0.81).}
+\label{fig:bandswb6}
+\end{figure*}
+
 \subsection{The whole building}
 \label{sec:wb}
 The course reference results (34--46\% coverage) are for the whole-building A--C intensity. To compare, we applied the same approach to that target (prompt wb5; \path{analysis/fit_wb_tables.py}, \path{analysis/wb_study.py}). It combines three sources:
@@ -496,7 +503,7 @@ The weights were chosen with a simulated take-off, because no whole-building est
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{Whole building A--C: coverage of the reference within estimate $\pm$20\% (one run, 292 buildings). wb5 and its parts are in-sample; the course results (Gemini, 10 runs) are not.}
+\caption{Whole building A--C: coverage of the reference within estimate $\pm$20\% (one run each, 292 buildings). wb5, wb6 and their parts are in-sample; the course results (Gemini, 10 runs) are not. $M'$ is wb6's calibrated mass route (Section~\ref{sec:wb6}).}
 \label{tab:wb}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lc}
@@ -511,7 +518,8 @@ Course reference: domain + ontology & 45.9\% \\
 Model's own estimate only ($A$) & 44.5\% \\
 Mass route only ($M$) & 50.3\% \\
 Benchmark only ($B$) & 45.5\% \\
-wb5: $0.2A+0.5M+0.3B$ & \textbf{53.4\%} \\
+wb5: $0.2A+0.5M+0.3B$ & 53.4\% \\
+wb6: $0.9M'+0.1A$, within typical range & \textbf{60.3\%} \\
 \midrule
 Random forest, 48 features, CV & 57.2\% \\
 \bottomrule
@@ -525,14 +533,55 @@ Random forest, 48 features, CV & 57.2\% \\
 \item The model's own estimate was written in the same answer as $M$ and $B$, so its 44.5\% may be anchored by them.
 \end{itemize}
 
-\textbf{Why the whole building is easier.} Its values are less spread out (standard deviation of the log value 0.66, against 0.98 for the enclosure). Moreover, \texttt{mass\_total} nearly fixes the whole-building result: carbon per kg varies with a log standard deviation of only 0.46. For the enclosure, the inventory mass of the whole building says little, which is why the same approach reaches 35.6\% there and 53.4\% for the whole building.
+\textbf{Why the whole building is easier.} Its values are less spread out (standard deviation of the log value 0.66, against 0.98 for the enclosure). Moreover, \texttt{mass\_total} nearly fixes the whole-building result: carbon per kg varies with a log standard deviation of only 0.46. For the enclosure, the inventory mass of the whole building says little, which is why the same approach reaches 35.6\% there and 53.4--60.3\% for the whole building.
+
+\subsection{wb6: keeping the extremes on the curve}
+\label{sec:wb6}
+In wb5's band figure (Fig.~\ref{fig:bandswb}) the highest values are underestimated and the lowest overestimated: the log--log slope of estimate on reference is 0.59. Splitting wb5 into its sources shows why. For the 15\% of buildings with the highest reference values, the model's own estimate is 0.57 times the reference and the benchmark 0.61 times, while the mass route is 0.86 times; for the lowest 15\%, the benchmark overestimates 1.7 times. The benchmark and the own estimate pull every building toward the average; only the mass route keeps the spread. wb6 (\path{analysis/fit_wb6_tables.py}, \path{analysis/wb6_study.py}) therefore:
+\begin{itemize}
+\item drops the benchmark by use and structure;
+\item calibrates the mass route with two tables, a carbon factor per kg by structural system (\texttt{str\_sys\_summary}) and use (0.24--0.59~kgCO$_2$e/kg) and a regional factor (0.84--1.08): $M'=$ mass intensity $\times F\times K$;
+\item tells the model the typical result and the 5th--95th percentile range for the building's mass intensity band (eight bands, e.g.\ 1{,}600--2{,}000~kg/m$^2$: typical 656, range 315--896~\coe{}), and states that heavy buildings should not be pulled down toward the average nor light ones up;
+\item takes FINAL $=0.9M'+0.1A$ and moves it to the nearest end of the typical range if it falls outside.
+\end{itemize}
+The design was chosen offline with wb5's evidence lines, then run once (Table~\ref{tab:wb6}, Fig.~\ref{fig:bandswb6}).
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{wb5 against wb6, whole building A--C (one run each, 292 buildings, both in-sample). Slope: least-squares slope of log estimate on log reference (1 = no pull toward the average).}
+\label{tab:wb6}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+ & wb5 & wb6 \\
+\midrule
+Coverage, all 292 & 53.4\% & \textbf{60.3\%} \\
+Coverage without the 13 extremes & 55.9\% & 62.7\% \\
+Log--log slope & 0.59 & 0.81 \\
+Lowest 15\% of references inside & 29.5\% & 47.7\% \\
+Highest 15\% of references inside & 31.8\% & 61.4\% \\
+Median est./ref., reference $<250$ & 1.49 & 1.12 \\
+Median est./ref., reference $\geq700$ & 0.76 & 0.93 \\
+Median $|\log|$ error & 0.182 & 0.152 \\
+Bias (geometric mean est./ref.) & 1.04 & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Results.} wb6 covers 60.3\% of all buildings (176 of 292; CI 54.6--65.7\%), 6.9 points more than wb5: 66 buildings move into the band and 46 out (McNemar $p=0.07$). The slope rises from 0.59 to 0.81, and the share of the highest 15\% inside the band from 31.8\% to 61.4\%. The model applied the tables in 100\% of answers: $M'$ within 5\% of the table value, the range centred on the combination, and the typical-range rule applied to all 27 buildings that needed it. Its own estimate alone remains compressed (slope 0.65; none of the highest 15\% inside), which is why it gets only 10\%. Two caveats apply:
+\begin{itemize}
+\item The gain is mostly fitting. With the tables fitted on the development set only, the same arithmetic on the run's evidence lines covers 52.3\% of the 88 test buildings, against 63.6\% in-sample (wb5: 61.4\%).
+\item The typical range costs a few buildings whose inventory mass is incomplete: two major renovations with reference values near 400~\coe{} are held at the lowest range end, 126.
+\end{itemize}
+
+\textbf{The enclosure does not follow.} Stretching v5's estimates, or giving more weight to its calibrated take-off, steepens the curve but lowers coverage from 35.6\% to 29--34\%; finer calibration tables add at most 3 points and barely change the slope (0.39 to 0.41). The enclosure has no feature that, like the inventory mass, fixes the scale of the result: the rank correlation of v5 with the reference is 0.60, against 0.79 for wb5.
 
 \section{Limitations}
 \begin{itemize}
 \item Answers in one task file share a context, so they are less independent than separate API calls.
 \item The held-out split was assigned after the v1--v3 runs. v4 was designed after it, on the development set only.
 \item Half of a v4 estimate is a group median from the same dataset. Its development-set numbers are partly in-sample, the test-set numbers are the fair ones, and on another building stock the benchmark table would have to be refitted.
-\item v5 and wb5 are in-sample: their tables and their literature passages were chosen with the reference values they are scored on. wb5 was run once, and it relies on \texttt{mass\_total}, which is not known at early design.
+\item v5, wb5 and wb6 are in-sample: their tables and their literature passages were chosen with the reference values they are scored on. wb5 and wb6 were run once each, and they rely on \texttt{mass\_total}, which is not known at early design. With its tables fitted on the development set only, wb6 covers 52.3\% of the 88 test buildings, against 63.6\% in-sample.
 \item Coverage rewards estimates near the centre of the distribution: one constant already covers a quarter of the buildings, so coverage should be read against that constant.
 \item The v3--v1 gain is borderline with 3 runs.
 \item The document condition used one run and four documents truncated to 30k characters; other documents could behave differently.
@@ -544,7 +593,7 @@ Random forest, 48 features, CV & 57.2\% \\
 \end{itemize}
 
 \section{Conclusion}
-Our final prompt, fitted to the reference data as the course asked, places 35.6\% of the enclosure estimates (38.5\% of the cleaned set) and 53.4\% of the whole-building estimates within $\pm$20\% of the reference LCA. A plain prompt reaches 19.5\% on the enclosure, and the course reference results on the whole building are 34--46\%. These numbers are in-sample. Fitted on a development set only, the same structure (v4) covers 35.2\% of held-out buildings, so most of the gain carries over to unseen buildings.
+Our final prompt, fitted to the reference data as the course asked, places 35.6\% of the enclosure estimates (38.5\% of the cleaned set) and 60.3\% of the whole-building estimates within $\pm$20\% of the reference LCA. A plain prompt reaches 19.5\% on the enclosure, and the course reference results on the whole building are 34--46\%. These numbers are in-sample. Fitted on a development set only, the same structure (v4) covers 35.2\% of held-out buildings, so most of the gain carries over to unseen buildings.
 
 Three lessons led there:
 \begin{itemize}
@@ -552,7 +601,7 @@ Three lessons led there:
 \item Sourced numbers at the decision step help. Qualitative instructions and whole documents in context made the estimates worse.
 \item The features cap what any estimator can reach at roughly 30--35\% coverage for the enclosure. Weighing the model's take-off against a benchmark by building use is what reaches that cap; fitting the tables to the data adds a few points more.
 \end{itemize}
-The price is compression: the final prompts are better for typical buildings and worse for unusual ones. Further progress depends on giving the model the assembly information that early-stage feature sets lack.
+The price is compression: the final enclosure prompt is better for typical buildings and worse for unusual ones. For the whole building, the inventory mass carries enough information to remove most of that compression (wb6, slope 0.81); for the enclosure, steepening the estimates without new information lowers coverage. Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
 \begin{thebibliography}{99}\small\sloppy
 \bibitem{benke2025} B.~Benke, M.~Chafart, Y.~Shen, M.~Ashtiani, S.~Carlisle, K.~Simonen. A harmonized dataset of high-resolution embodied life cycle assessment results for buildings in North America. \emph{Scientific Data} 12, 2025. \url{https://doi.org/10.1038/s41597-025-05216-0}
@@ -606,8 +655,11 @@ Benchmarks come from \path{results/benchmarks_dev.json}; the literature facts ar
 \label{app:v5}
 Tables from \path{results/v5_tables.json}; passages documented in \path{references/answer_guided_passages.md}.
 \lstinputlisting{prompts/task_v5.txt}
-\subsection{Task text wb5 (final whole-building prompt; fitted, in-sample)}
+\subsection{Task text wb5 (first whole-building prompt; fitted, in-sample)}
 \lstinputlisting{prompts/task_wb5.txt}
+\subsection{Task text wb6 (final whole-building prompt; fitted, in-sample)}
+Tables from \path{results/wb6_tables.json} (\path{analysis/fit_wb6_tables.py}).
+\lstinputlisting{prompts/task_wb6.txt}
 \subsection{Subagent instructions (template)}
 \lstinputlisting{prompts/subagent_instructions.txt}
 
@@ -629,6 +681,7 @@ python analysis/weight_search.py                 # benchmarks and evidence weigh
 python analysis/v4_study.py 20261116_prompt-v4
 python analysis/fit_v5_tables.py; python analysis/v5_study.py 20261116_prompt-v5     # PROMPT_VERSION = "v5"
 python analysis/fit_wb_tables.py; python analysis/wb_study.py 20261116_wholebuilding-wb5   # PROMPT_VERSION = "wb5"
+python analysis/fit_wb6_tables.py; python analysis/wb6_study.py 20261116_wholebuilding-wb6 # PROMPT_VERSION = "wb6"
 python report/make_figures.py
 \end{lstlisting}
 \end{document}

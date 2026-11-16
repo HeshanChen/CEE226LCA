@@ -192,9 +192,9 @@ para(c, "**Feature study:** 10 early-design inputs are as good as all 48, and re
 // ---- column 4 ------------------------------------------------------------------------
 c = cols[3];
 h2(c, "Final results");
-stats(c, [["35.6%", "enclosure, v5 (38.5% cleaned)"], ["53.4%", "whole building (course 34–46%)"], ["35.2%", "held-out 88 (v4)"]], 2.3);
+stats(c, [["35.6%", "enclosure, v5 (38.5% cleaned)"], ["60.3%", "whole building, V6 (course 34–46%)"], ["35.2%", "held-out 88 (v4)"]], 2.3);
 para(c, "v5 and the whole-building prompt are fitted to the reference data, as the course asked, so their numbers are in-sample. v4, with its benchmark fitted on a development set only, gives the held-out number.", 22, C.text2);
-bullets(c, ["**How:** the model's take-off × a calibration factor (by use, envelope area given), averaged with a **benchmark by use × storeys**. Whole building: own estimate 20% + **mass_total × carbon per kg** 50% + benchmark 30%.",
+bullets(c, ["**How:** the model's take-off × a calibration factor (by use, envelope area given), averaged with a **benchmark by use × storeys**. Whole building (V6): **mass_total × carbon per kg** 90% + own estimate 10%, kept inside the typical range for its mass.",
   "**The cap:** one constant covers 27%; a model trained on this dataset 26–34% (cross-validated). v1 and v3 were below the constant."]);
 image(c, "fig_v4.png", null, "Coverage of v1, v3, v4 and v5 against the constant and the ML ceiling; weight sensitivity", 0.86);
 h2(c, "Takeaways");

@@ -21,8 +21,8 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "wb6"        # "v1" baseline, "v2" error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted enclosure, "wb5"/"wb6" answer-fitted whole building (A-C)
-CONDITION = "wholebuilding-wb6"   # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "v5"         # "v1" baseline, "v2" error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted enclosure, "wb5"/"wb6" answer-fitted whole building (A-C)
+CONDITION = "prompt-v5"       # label written to the ontology_mode column of the runs CSVs
 
 # v4 only: write the task text once per task file (shared context) instead of repeating it under every
 # building. The text each building gets is the same; the task files shrink from about 130k to 20k tokens.

@@ -1,0 +1,42 @@
+Scope. Estimate the whole-building embodied carbon of the building below as its reference whole-building LCA reports it: life cycle stages A to C, for the element groups listed in lca_phys_scope (B substructure, S superstructure, E enclosure, C interior construction, F finishes), in kgCO2e per m2 of floor area.
+
+Aim. The estimate should follow this building, not the average building. Buildings with a lot of material per m2 of floor area have high results and buildings with little material have low results. Do not pull a heavy building down toward the average, and do not pull a light building up. The mass route (Step M) therefore carries 90% of the estimate, and the typical range (Step R) keeps the estimate from being far too low or far too high.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+Step R. Typical range. Compute the mass intensity, mass_total / floor area, in kg per m2 (mass_total is the total mass of materials in the reference LCA). If lca_phys_scope starts with BSE (substructure, structure and enclosure all modelled), look up the typical whole-building A-C result of reference LCAs with that mass intensity, in kgCO2e per m2 of floor area (typical = median; range = 5th to 95th percentile of 268 North American buildings assessed 2019-2024 with Tally or One Click LCA):
+     - below 400 kg/m2: typical 229, range 126 to 504
+     - 400 to 700 kg/m2: typical 310, range 207 to 494
+     - 700 to 900 kg/m2: typical 375, range 235 to 609
+     - 900 to 1,100 kg/m2: typical 452, range 288 to 662
+     - 1,100 to 1,300 kg/m2: typical 552, range 259 to 821
+     - 1,300 to 1,600 kg/m2: typical 484, range 359 to 958
+     - 1,600 to 2,000 kg/m2: typical 656, range 315 to 896
+     - 2,000 kg/m2 or more: typical 719, range 425 to 1349
+If lca_phys_scope does not start with BSE, there is no typical range.
+
+Step A. Your own estimate. Estimate each element group in lca_phys_scope from the building's use, structural system, size, storeys, region and construction type, in kgCO2e per m2 of floor area for stages A-C, and add them up. Compare the total with the typical range from Step R. A is your estimate.
+
+Step M. Mass route. M = mass intensity x F x K.
+   F is the embodied carbon per kg of material in reference LCAs of North American buildings (stages A-C, kgCO2e per kg).
+   - lca_phys_scope starts with BSE: by str_sys_summary and primary use (bldg_prim_use):
+     - Concrete: Education 0.41; Laboratory 0.45; Office 0.33; Residential: Multifamily (5 or more units) 0.33; any other use 0.37
+     - Other: any use 0.59
+     - Steel: Education 0.56; Healthcare 0.48; Laboratory 0.54; Office 0.59; Public Assembly 0.52; Transportation Hub 0.54; any other use 0.53
+     - Steel/Concrete: Healthcare 0.39; Office 0.33; Warehouse and Storage 0.24; any other use 0.35
+     - Steel/Masonry: any use 0.44
+     - Wood: Light-frame: Office 0.49; Residential: Multifamily (5 or more units) 0.46; any other use 0.46
+     - Wood: Mass Timber: Education 0.50; Office 0.48; Public Assembly 0.56; any other use 0.50
+     - str_sys_summary missing or not listed: 0.44
+   - lca_phys_scope contains S but does not start with BSE: F = 0.68 and K = 1.
+   - lca_phys_scope does not contain S: F = 1.49 and K = 1.
+   K is a regional factor by site_region, used when lca_phys_scope starts with BSE:
+     - Canada 1.00; Eastern 1.01; Great Lakes Midwest 0.84; North Central 1.00; Pacific Northwest 1.08; Pacific Southwest 0.91; Rocky Mountains 0.99; South Central 1.01; South Eastern 0.94; any other region 1.00
+
+Step C. Combine and check. FINAL = 0.9 x M + 0.1 x A. If lca_phys_scope starts with BSE and FINAL is below the low end of the range from Step R, set FINAL to that low end; if FINAL is above the high end, set FINAL to that high end. Do not move FINAL in any other way. Report the range from 0.8 x FINAL to 1.2 x FINAL. The midpoint of your reported range is taken as your estimate, so keep it centred on FINAL.
+
+End your answer with exactly three final lines in this format and nothing after them:
+BOTTOM_UP_kgCO2e_per_m2: <A>
+MASS_ROUTE_kgCO2e_per_m2: <M>
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on these lines)

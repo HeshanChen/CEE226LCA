@@ -10,7 +10,7 @@ It started from the course reference code, [eunicehjung/CEE226-BuildingLCA-LLM](
 
 | Deliverable | File |
 |---|---|
-| **Final prompt** (v5, enclosure A1–A3; plus wb5, whole building A–C) | [`report/final_prompt.md`](report/final_prompt.md) |
+| **Final prompt** (v5, enclosure A1–A3; plus wb6, whole building A–C) | [`report/final_prompt.md`](report/final_prompt.md) |
 | Paper (ICML-style, all prompts in the appendix) | [`report/latex/main.pdf`](report/latex/main.pdf) |
 | Reports | [`report/report.md`](report/report.md) (English), [`report/report_zh.md`](report/report_zh.md) / [`report/report_zh.pdf`](report/report_zh.pdf) (中文) |
 | Poster | [`report/poster/poster.pptx`](report/poster/poster.pptx) / [`poster.pdf`](report/poster/poster.pdf) |
@@ -21,7 +21,7 @@ It started from the course reference code, [eunicehjung/CEE226-BuildingLCA-LLM](
 | Target | Final prompt | Coverage |
 |---|---|---|
 | Enclosure A1–A3 | v5 | **35.6%** (38.5% after removing 30 rule-based outliers) |
-| Whole building A–C (course target) | wb5 (1 run) | **53.4%** (course reference results: 34–46%) |
+| Whole building A–C (course target) | wb6 (1 run) | **60.3%** (first version wb5: 53.4%; course reference results: 34–46%) |
 
 Following the course instruction, both final prompts are fitted to the reference data, so these numbers are in-sample. With its benchmark fitted on a development set only, the same structure (v4) covers 35.2% of 88 held-out buildings.
 
@@ -119,6 +119,7 @@ python summarize_run.py 20261104_baseline-innate
 | 5 | `20261116_prompt-v4` | **Prompt v4 (final)**: equal weight on the v3 take-off and on a benchmark by primary use fitted on the cleaned development set; attention order for the features; out-of-scope rule; feature-keyed literature facts | 292 × 3 | **32.2%** (27.1–37.8%) | **73.0** | 33.9% | **5.3%** |
 | 6 | `20261116_prompt-v5` | **Prompt v5 (fitted to the reference data, in-sample)**: v4's take-off × a calibration factor by use and envelope-area-given, plus a benchmark by use × storeys, both fitted on all 262 cleaned buildings; answer-guided literature passages | 292 × 3 | **35.6%** (30.3–41.3%) | 71.3 | 31.3% | 5.0% |
 | 7 | `20261116_wholebuilding-wb5` | Whole building A–C (the course target), fitted: own estimate 20% + mass route (`mass_total` × carbon per kg) 50% + benchmark by use × structure 30% | 292 × 1 | **53.4%** (47.7–59.1%) | – | – | – |
+| 8 | `20261116_wholebuilding-wb6` | **Whole building, wb6 (V6, final)**: no benchmark; mass route calibrated by structural system × use and by region (90%) + own estimate (10%); final value kept inside the typical range (5th–95th percentile) for the building's mass intensity band. Log–log slope 0.81 (wb5: 0.59) | 292 × 1 | **60.3%** (54.6–65.7%) | – | – | – |
 
 ### Outliers, the data ceiling and prompt v4
 
@@ -128,7 +129,7 @@ python summarize_run.py 20261104_baseline-innate
 
 ### Fitting the reference data (prompt v5, whole building)
 
-The course instruction for the last iteration was to fit the reference data. Prompt v5 (`analysis/fit_v5_tables.py`, `analysis/v5_study.py`) reaches 35.6% on all 292 buildings and 38.5% on the cleaned set; the whole-building prompt wb5 (`analysis/fit_wb_tables.py`, `analysis/wb_study.py`) reaches 53.4% against 34–46% in the course reference results. Both are **in-sample**: their tables were fitted on the reference values they are scored on, and wb5 relies on `mass_total`, the inventory mass of the reference LCA itself. v4 remains the held-out result (35.2% on the 88 test buildings). Band figures: `report/figures/fig_bands_enclosure.png`, `report/figures/fig_bands_wholebuilding.png`. See report Section 14.
+The course instruction for the last iteration was to fit the reference data. Prompt v5 (`analysis/fit_v5_tables.py`, `analysis/v5_study.py`) reaches 35.6% on all 292 buildings and 38.5% on the cleaned set. For the whole building, wb5 (`analysis/fit_wb_tables.py`, `analysis/wb_study.py`) reaches 53.4%, and wb6 (`analysis/fit_wb6_tables.py`, `analysis/wb6_study.py`) reaches **60.3%**, against 34–46% in the course reference results. wb6 drops the benchmark that pulled every building toward the average and tells the model the typical range for the building's mass, so the highest and lowest buildings stay on the curve (slope 0.81 vs 0.59; highest 15% inside the band 61.4% vs 31.8%). All of these are **in-sample**: their tables were fitted on the reference values they are scored on, and wb5/wb6 rely on `mass_total`, the inventory mass of the reference LCA itself. With its tables fitted on the development set only, wb6 covers 52.3% of the 88 test buildings; v4 remains the held-out enclosure result (35.2%). Band figures: `report/figures/fig_bands_enclosure.png`, `report/figures/fig_bands_wholebuilding.png`, `report/figures/fig_bands_wholebuilding_wb6.png`. See report Section 14.
 
 ### Feature study
 
