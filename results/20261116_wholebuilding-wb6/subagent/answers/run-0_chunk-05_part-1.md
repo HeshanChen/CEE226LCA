@@ -97,3 +97,33 @@ Step C: FINAL = 0.9 x 256.3 + 0.1 x 295 = 260.2, inside 235-609. Range 0.8-1.2 x
 BOTTOM_UP_kgCO2e_per_m2: 295
 MASS_ROUTE_kgCO2e_per_m2: 256.3
 RANGE_kgCO2e_per_m2: 208.2 - 312.2
+
+===== KEY: project-17__run0 =====
+Floor area: bldg_cfa = 10,500 m2. Mass intensity = 12,457,627 / 10,500 = 1,186.4 kg/m2.
+Step R: BSECF; 1,100-1,300 kg/m2 -> typical 552, range 259 to 821.
+Step A: 2-5 storey steel braced-frame education building in the South East, concrete on metal deck, SDC D, high wind, shallow foundation, 12.5% EC reduction. Substructure 70, structure 180, enclosure 100, interior 35, finishes 25 = 410 kgCO2e/m2, within range.
+Step M: Steel, Education F = 0.56; South Eastern K = 0.94. M = 1,186.4 x 0.56 x 0.94 = 624.5.
+Step C: FINAL = 0.9 x 624.5 + 0.1 x 410 = 603.1, inside 259-821. Range 0.8-1.2 x 603.1.
+BOTTOM_UP_kgCO2e_per_m2: 410
+MASS_ROUTE_kgCO2e_per_m2: 624.5
+RANGE_kgCO2e_per_m2: 482.5 - 723.7
+
+===== KEY: project-193__run0 =====
+Floor area: bldg_cfa = 4,000 m2. Mass intensity = 2,319,756 / 4,000 = 579.9 kg/m2.
+Step R: BSECF; 400-700 kg/m2 -> typical 310, range 207 to 494.
+Step A: 2-5 storey mass-timber office (CLT panels, timber columns, wood shear panels) in Washington with a small parking area, high insulation, 64% reported EC reduction. Substructure 40, structure 70, enclosure 70, interior 25, finishes 20 = 225 kgCO2e/m2, within range.
+Step M: Wood mass timber, Office F = 0.48; Pacific Northwest K = 1.08. M = 579.9 x 0.48 x 1.08 = 300.6.
+Step C: FINAL = 0.9 x 300.6 + 0.1 x 225 = 293.0, inside 207-494. Range 0.8-1.2 x 293.0.
+BOTTOM_UP_kgCO2e_per_m2: 225
+MASS_ROUTE_kgCO2e_per_m2: 300.6
+RANGE_kgCO2e_per_m2: 234.4 - 351.6
+
+===== KEY: project-165__run0 =====
+Floor area: bldg_cfa = 23,500 m2. Mass intensity = 23,071,651 / 23,500 = 981.8 kg/m2.
+Step R: BSECF; 900-1,100 kg/m2 -> typical 452, range 288 to 662.
+Step A: single-storey warehouse, steel joists on bare metal deck with concrete (tilt-up) walls, slab on grade, soft soil (site class E). Substructure 80, structure 70, enclosure 80, interior 10, finishes 5 = 245 kgCO2e/m2, slightly below the range.
+Step M: Steel/Concrete, Warehouse and Storage F = 0.24; Pacific Northwest K = 1.08. M = 981.8 x 0.24 x 1.08 = 254.5.
+Step C: FINAL = 0.9 x 254.5 + 0.1 x 245 = 253.6, below low end 288, so FINAL = 288. Range 0.8-1.2 x 288.
+BOTTOM_UP_kgCO2e_per_m2: 245
+MASS_ROUTE_kgCO2e_per_m2: 254.5
+RANGE_kgCO2e_per_m2: 230.4 - 345.6
