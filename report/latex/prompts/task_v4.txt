@@ -1,0 +1,63 @@
+Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
+- exterior walls as complete assemblies: cladding, backup framing or studs, sheathing, cavity and continuous insulation, air and vapor barriers, and the interior gypsum layer of exterior walls; structural exterior walls (concrete, CMU, tilt-up) when they form the wall;
+- fenestration: windows, curtain wall, storefront and skylights (frames and glass), and exterior doors;
+- the roof assembly above the structural deck: insulation, cover board, membrane or roofing;
+- insulation at slab edges, below grade and under slabs that belongs to the thermal envelope.
+It excludes foundations, the structural frame, floor and roof decks or slabs, interior partitions and interior finishes.
+
+How to weigh the evidence. No feature describes the wall, glazing or roof assembly, so an estimate built only from assumed assemblies is uncertain. Reference LCAs of buildings with the same use are an equally strong source. Build both estimates and give them equal weight:
+- Step A, bottom-up (weight 50%): this building's own areas, likely assemblies and component intensities.
+- Step B, benchmark (weight 50%): the median enclosure result of reference LCAs with the same primary use.
+Inside Step A, spend your attention in this order:
+1. Envelope quantity (about half): bldg_therm_env_area, or storeys, height and floor area when it is missing, and bldg_wwr.
+2. Assembly class (about a third): bldg_prim_use, bldg_ibc_type and the structural system indicate wood-frame, steel-stud, masonry, precast or curtain-wall construction.
+3. Insulation convention (the rest): climate zone, R-values, lca_software, lca_assessment_year and the state or province decide whether HFC-blown XPS is plausible.
+Leave out the seismic, wind, structural-grid, foundation, occupancy and code-year fields. In reference LCAs they do not move the enclosure value.
+
+Special case, check it first. lca_phys_scope lists the element groups the LCA modelled: B substructure, S superstructure, E enclosure, C interior construction, F finishes. If it does not contain E, the enclosure was not modelled and only incidental items are booked under it. In that case skip Steps A to C and report BOTTOM_UP 8, BENCHMARK 8 and the range 6 - 10.
+
+Step A. Bottom-up estimate. Work through these steps and show the key numbers:
+1. Areas. If bldg_therm_env_area is given, use it as the total envelope area; it covers the roof, the above-grade walls and the ground-floor slab. Otherwise estimate the roof area (footprint = floor area / stories above grade), the above-grade wall area (perimeter x height) and the glazed area (bldg_wwr x wall area), plus any insulated ground-floor or below-grade area. Buildings that report an envelope area have these typical envelope-to-floor ratios: 1 storey 2.1; 2-5 storeys 1.1; 6-10 storeys 0.7; 11-15 storeys 0.5; 16 or more 0.4. Roof and ground slab are each about floor area / storeys, and the rest is wall. Typical gross wall area per m2 of floor is 0.2 for one- and two-storey schools, 0.4-0.5 for 3-6 storey offices, hotels and apartments, about 0.3 for large offices and hospitals, and 0.4 for warehouses. When bldg_wwr is missing, typical values are 0.4-0.5 for large offices, 0.2-0.3 for small offices, 0.3-0.35 for education and laboratories, 0.3 for multifamily and healthcare, 0.15-0.2 for public assembly and public safety, and 0.05 for warehouses.
+2. Assemblies. From the climate zone, R-values, building use, structure, region and construction type, choose the most likely wall, glazing and roof assemblies, and name the insulation type and thickness. Facts about the North American stock:
+   - Schools, hospitals and hotels are mostly brick, stone or stucco veneer (55-64% of wall area). Large offices are mostly precast or curtain wall, and offices above about 10 storeys usually have unitized curtain wall. Warehouses are metal panel or tilt-up concrete. High-rise residential is mostly aluminum window wall.
+   - Roofs are low-slope membrane over rigid board insulation for offices, schools, hospitals and retail, and metal roofs for warehouses.
+   - Whole-building LCA models from this period (Tally, One Click LCA) often model roof and below-grade insulation as XPS made with HFC blowing agents. HFC-blown XPS was banned from January 2021 in Canada and in WA, CA, CO, NY and VT, and US-wide only from 2025, and tool datasets lag behind the market. When the insulation type is not known, include that case in your range, especially in colder climates where the insulation is thick.
+3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component. Use these reference values from EPDs and industry baselines (A1-A3, per m2 of component):
+   Opaque walls (per m2 of wall, complete assembly):
+   - steel stud + metal panel or ACM rainscreen: 70-110
+   - steel stud + brick veneer: 90-120; brick veneer on CMU backup: 135-165
+   - steel stud + EIFS: about 50; steel stud + fiber cement or stucco: 45-80
+   - wood stud + vinyl or wood siding: 25-45; wood stud + brick or stone veneer: 60-100
+   - insulated metal panel: newer products 27-72; legacy polyurethane (HFC) panels about 107 (2 in) to 274 (6 in)
+   - precast concrete sandwich panel: 90-165; architectural precast with backup wall: 80-130
+   - tilt-up concrete with interior insulation and gypsum: 80-125
+   - curtain-wall spandrel: 75-140
+   Fenestration (per m2 of unit, frame and glass):
+   - aluminum stick curtain wall: 120-150; aluminum unitized curtain wall: 150-210
+   - aluminum storefront: 140-155; aluminum window wall: 170-180; aluminum windows: 95-140
+   - vinyl windows: 40-90; fiberglass windows: 75-145
+   Roof above the deck (per m2 of roof, about R-25 to R-30, with membrane and cover board):
+   - polyiso: 20-28; mineral wool board: 35-55; low-GWP XPS: 28-40; metal standing seam over polyiso: 27-40
+   - XPS with HFC blowing agent: 85-110 when only product-stage emissions are counted, and up to 335-410 when the blowing-agent emissions are booked with the product, as some LCA tools do
+   - insulated metal roof panel: 27-72 for newer products, about 190 for a legacy 4 in panel
+   Insulation per m2 at RSI 1 (R-5.7): polyiso 2-4; EPS 2.5; mineral wool board 7-8; fiberglass batt about 1; closed-cell spray foam 3-5 (HFO) or 20-36 (HFC); XPS 4-11 (low-GWP), about 18 (HFC, product stage only) or 58-99 (HFC, with blowing-agent emissions)
+   Aluminum: about 6-13 kgCO2e per kg for North American extrusions; generic global aluminum data in LCA tools is about 16
+   - A facade of punched windows in panel or masonry cladding has roughly half the per-m2 intensity of an all-curtain-wall facade (74 against 138 in one same-tool comparison). At R-30, legacy HFC XPS is about 195 kgCO2e per m2 of roof against about 18 for low-GWP XPS.
+Complete assemblies include framing, attachments, sheathing, barriers, sealants, flashing and trim, which early-stage take-offs tend to leave out; do not go below the low end of these ranges unless the assembly is clearly minimal.
+4. Check. Convert your total to kgCO2e per m2 of envelope area and check that it is consistent with the reference values above. For new construction with conventional walls and 30-40% glazing, a blended value below about 50 kgCO2e per m2 of envelope usually means that a component, the aluminum and glazing content, or a high-carbon insulation option is missing; revisit those before you finalize.
+5. Bottom-up result. Divide the enclosure total by the floor area and give a bottom-up range that reflects your uncertainty about the assemblies, including the higher-carbon alternatives that are plausible for this building. A is the midpoint of that range.
+6. Renovations. For renovations and tenant improvements the LCA covers only the new work, but that work often includes substantial new envelope elements (re-cladding, new curtain wall or windows, re-roofing); a renovation that re-clads has about the enclosure of a new building. Do not assume the existing envelope is kept unless the data indicates it. Use bldg_proj_type, lca_phys_scope and mass_total per floor area as evidence of how much new material was installed.
+
+Step B. Benchmark. Median enclosure A1-A3 in reference LCAs of North American buildings with the same primary use, in kgCO2e per m2 of floor area (181 buildings assessed 2019-2024 with Tally or One Click LCA):
+Education 91; Office 79; Residential: Multifamily 54; Public Assembly 94; Laboratory 95; Warehouse and Storage 62; Healthcare 79; Public Order and Safety 161; Transportation Hub 153; any other use 85.
+Take B from bldg_prim_use alone and do not adjust it.
+
+Step C. Combine. FINAL = 0.5 x A + 0.5 x B. Report the range from 0.8 x FINAL to 1.2 x FINAL. The midpoint of your reported range is taken as your estimate, so keep it centred on FINAL.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+End your answer with exactly three final lines in this format and nothing after them:
+BOTTOM_UP_kgCO2e_per_m2: <A>
+BENCHMARK_kgCO2e_per_m2: <B>
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on these lines)

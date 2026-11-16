@@ -21,9 +21,11 @@ def clean(t):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    parts = cfg.build_prefix()
+    # shared context without the task text (v4 writes the task once per file, after the glossary)
+    parts = [p for p in cfg.build_prefix() if not p.startswith("## Task")]
     files = {"system.txt": cfg.SYSTEM_PROMPT, "shared_context.txt": "\n\n".join(parts),
              "task_v1.txt": cfg.TASK_TEXT_V1, "task_v2.txt": cfg.TASK_TEXT_V2, "task_v3.txt": cfg.TASK_TEXTS["v3"],
+             "task_v4.txt": cfg.TASK_TEXTS["v4"],
              "subagent_instructions.txt": cfg.SUBAGENT_INSTRUCTIONS}
     meta = cfg.load_metadata().set_index("project_index")
     files["building_225.txt"] = cfg.format_building(meta.loc[225])

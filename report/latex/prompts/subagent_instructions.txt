@@ -1,7 +1,7 @@
-You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only your own knowledge.
+You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only {knowledge}.
 
 Input file: {task_file}
-It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context (a glossary of the feature names), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by the building's features and the question.
+It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context ({context_desc}), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by {block_desc}.
 
 Rules. Breaking any of these invalidates the experiment:
 - Read only that one task file. Do not open, list or search any other file or folder (especially nothing under results/, GWP-calculation/ or references/). Do not use web search or web fetch, and do not run code or shell commands. The only tools you may use are Read (on the task file) and Write (for your answer files).
