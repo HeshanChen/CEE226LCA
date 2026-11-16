@@ -1,0 +1,3 @@
+project,run_idx,low,high,mid,parse_ok,failure_type,ontology_mode,geometry_mode,finish_reason,output_tokens,thought_tokens,cached_tokens,prompt_tokens,latency_s,model,temperature,thinking_setting,timestamp,best,bottom_up,benchmark,calibrated
+project-195,0,62.8,94.1,78.44999999999999,True,,prompt-v5,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T13:17:16,,69.0,72.0,84.9
+project-195,1,61.0,91.0,76.0,True,,prompt-v5,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T13:17:16,,65.0,72.0,80.0
