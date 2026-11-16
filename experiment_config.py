@@ -21,12 +21,12 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v5"         # "v1" baseline, "v2" error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted enclosure, "wb5" answer-fitted whole building (A-C)
-CONDITION = "prompt-v5"       # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "wb6"        # "v1" baseline, "v2" error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted enclosure, "wb5"/"wb6" answer-fitted whole building (A-C)
+CONDITION = "wholebuilding-wb6"   # label written to the ontology_mode column of the runs CSVs
 
 # v4 only: write the task text once per task file (shared context) instead of repeating it under every
 # building. The text each building gets is the same; the task files shrink from about 130k to 20k tokens.
-TASK_TEXT_ONCE = PROMPT_VERSION in ("v4", "v5", "wb5")
+TASK_TEXT_ONCE = PROMPT_VERSION in ("v4", "v5", "wb5", "wb6")
 
 INCLUDE_PAPERS = False        # background papers (text extracted from the PDFs)
 PAPER_PATHS = [REF / f"{i}.pdf" for i in range(1, 5)]
@@ -394,12 +394,69 @@ BENCHMARK_kgCO2e_per_m2: <B>
 RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on these lines)"""
 
+
+# wb6: whole building again, built to keep the head and tail of the band figure on the curve. wb5 pulled
+# every building toward the average (log-log slope 0.59): its use x structure benchmark and the model's own
+# estimate are compressed. wb6 drops the benchmark, calibrates the mass route with two tables (F by structural
+# system x use, K by region), gives the typical range for the building's mass intensity band and keeps the
+# estimate inside it. IN-SAMPLE by design: tables from analysis/fit_wb6_tables.py (results/wb6_tables.json).
+WB6_F_TABLE = """\
+     - Concrete: Education 0.41; Laboratory 0.45; Office 0.33; Residential: Multifamily (5 or more units) 0.33; any other use 0.37
+     - Other: any use 0.59
+     - Steel: Education 0.56; Healthcare 0.48; Laboratory 0.54; Office 0.59; Public Assembly 0.52; Transportation Hub 0.54; any other use 0.53
+     - Steel/Concrete: Healthcare 0.39; Office 0.33; Warehouse and Storage 0.24; any other use 0.35
+     - Steel/Masonry: any use 0.44
+     - Wood: Light-frame: Office 0.49; Residential: Multifamily (5 or more units) 0.46; any other use 0.46
+     - Wood: Mass Timber: Education 0.50; Office 0.48; Public Assembly 0.56; any other use 0.50
+     - str_sys_summary missing or not listed: 0.44"""
+WB6_K_TABLE = """\
+     - Canada 1.00; Eastern 1.01; Great Lakes Midwest 0.84; North Central 1.00; Pacific Northwest 1.08; Pacific Southwest 0.91; Rocky Mountains 0.99; South Central 1.01; South Eastern 0.94; any other region 1.00"""
+WB6_RANGES = """\
+     - below 400 kg/m2: typical 229, range 126 to 504
+     - 400 to 700 kg/m2: typical 310, range 207 to 494
+     - 700 to 900 kg/m2: typical 375, range 235 to 609
+     - 900 to 1,100 kg/m2: typical 452, range 288 to 662
+     - 1,100 to 1,300 kg/m2: typical 552, range 259 to 821
+     - 1,300 to 1,600 kg/m2: typical 484, range 359 to 958
+     - 1,600 to 2,000 kg/m2: typical 656, range 315 to 896
+     - 2,000 kg/m2 or more: typical 719, range 425 to 1349"""
+TASK_TEXT_WB6 = """\
+Scope. Estimate the whole-building embodied carbon of the building below as its reference whole-building LCA reports it: life cycle stages A to C, for the element groups listed in lca_phys_scope (B substructure, S superstructure, E enclosure, C interior construction, F finishes), in kgCO2e per m2 of floor area.
+
+Aim. The estimate should follow this building, not the average building. Buildings with a lot of material per m2 of floor area have high results and buildings with little material have low results. Do not pull a heavy building down toward the average, and do not pull a light building up. The mass route (Step M) therefore carries 90% of the estimate, and the typical range (Step R) keeps the estimate from being far too low or far too high.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+Step R. Typical range. Compute the mass intensity, mass_total / floor area, in kg per m2 (mass_total is the total mass of materials in the reference LCA). If lca_phys_scope starts with BSE (substructure, structure and enclosure all modelled), look up the typical whole-building A-C result of reference LCAs with that mass intensity, in kgCO2e per m2 of floor area (typical = median; range = 5th to 95th percentile of 268 North American buildings assessed 2019-2024 with Tally or One Click LCA):
+{ranges}
+If lca_phys_scope does not start with BSE, there is no typical range.
+
+Step A. Your own estimate. Estimate each element group in lca_phys_scope from the building's use, structural system, size, storeys, region and construction type, in kgCO2e per m2 of floor area for stages A-C, and add them up. Compare the total with the typical range from Step R. A is your estimate.
+
+Step M. Mass route. M = mass intensity x F x K.
+   F is the embodied carbon per kg of material in reference LCAs of North American buildings (stages A-C, kgCO2e per kg).
+   - lca_phys_scope starts with BSE: by str_sys_summary and primary use (bldg_prim_use):
+{f_table}
+   - lca_phys_scope contains S but does not start with BSE: F = 0.68 and K = 1.
+   - lca_phys_scope does not contain S: F = 1.49 and K = 1.
+   K is a regional factor by site_region, used when lca_phys_scope starts with BSE:
+{k_table}
+
+Step C. Combine and check. FINAL = 0.9 x M + 0.1 x A. If lca_phys_scope starts with BSE and FINAL is below the low end of the range from Step R, set FINAL to that low end; if FINAL is above the high end, set FINAL to that high end. Do not move FINAL in any other way. Report the range from 0.8 x FINAL to 1.2 x FINAL. The midpoint of your reported range is taken as your estimate, so keep it centred on FINAL.
+
+End your answer with exactly three final lines in this format and nothing after them:
+BOTTOM_UP_kgCO2e_per_m2: <A>
+MASS_ROUTE_kgCO2e_per_m2: <M>
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on these lines)"""
+
 TASK_TEXTS = {"v1": TASK_TEXT_V1, "v2": TASK_TEXT_V2,
               "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES),
               "v4": TASK_TEXT_V4.format(intensities=V3_INTENSITIES, benchmarks=V4_BENCHMARKS),
               "v5": TASK_TEXT_V5.format(intensities=V3_INTENSITIES, k_table=V5_K_TABLE, b_table=V5_B_TABLE,
                                         k_passages=V5_PASSAGES_K, b_passages=V5_PASSAGES_B),
-              "wb5": TASK_TEXT_WB5.format(wb_b_table=WB5_B_TABLE)}
+              "wb5": TASK_TEXT_WB5.format(wb_b_table=WB5_B_TABLE),
+              "wb6": TASK_TEXT_WB6.format(ranges=WB6_RANGES, f_table=WB6_F_TABLE, k_table=WB6_K_TABLE)}
 TASK_TEXT = TASK_TEXTS[PROMPT_VERSION]
 
 # Instructions given to each Claude Code subagent (the "LLM under test"). {placeholders} are
@@ -409,7 +466,8 @@ ANSWER_LENGTH = {"v1": "briefly state your method and key assumptions (roughly 6
                  "v3": "work through its method steps with the key numbers (roughly 120-250 words)",
                  "v4": "work through Steps A, B and C with the key numbers (roughly 120-250 words)",
                  "v5": "work through Steps A, B and C with the key numbers (roughly 120-250 words)",
-                 "wb5": "work through Steps A, M, B and C with the key numbers (roughly 100-200 words)"}[PROMPT_VERSION]
+                 "wb5": "work through Steps A, M, B and C with the key numbers (roughly 100-200 words)",
+                 "wb6": "work through Steps R, A, M and C with the key numbers (roughly 100-200 words)"}[PROMPT_VERSION]
 FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v2": "the two final lines `BEST_kgCO2e_per_m2: <value>` and "
                      "`RANGE_kgCO2e_per_m2: <low> - <high>`",
@@ -419,7 +477,9 @@ FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v5": "the four final lines `BOTTOM_UP_kgCO2e_per_m2: <A>`, `CALIBRATED_kgCO2e_per_m2: <K x A>`, "
                      "`BENCHMARK_kgCO2e_per_m2: <B>` and `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "wb5": "the four final lines `BOTTOM_UP_kgCO2e_per_m2: <A>`, `MASS_ROUTE_kgCO2e_per_m2: <M>`, "
-                      "`BENCHMARK_kgCO2e_per_m2: <B>` and `RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
+                      "`BENCHMARK_kgCO2e_per_m2: <B>` and `RANGE_kgCO2e_per_m2: <low> - <high>`",
+               "wb6": "the three final lines `BOTTOM_UP_kgCO2e_per_m2: <A>`, `MASS_ROUTE_kgCO2e_per_m2: <M>` and "
+                      "`RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
 CONTEXT_DESC = ("a glossary of the feature names and four reference documents on enclosure embodied carbon"
                 if INCLUDE_ENVELOPE_DOCS else
                 "a glossary of the feature names and the task, which is the question asked for every building"
@@ -427,7 +487,7 @@ CONTEXT_DESC = ("a glossary of the feature names and four reference documents on
 BLOCK_DESC = "the building's features" if TASK_TEXT_ONCE else "the building's features and the question"
 KNOWLEDGE = ("your own knowledge and the reference documents included in the task file"
              if INCLUDE_ENVELOPE_DOCS or INCLUDE_PAPERS else
-             "your own knowledge and the reference values given in the task" if PROMPT_VERSION in ("v4", "v5", "wb5")
+             "your own knowledge and the reference values given in the task" if PROMPT_VERSION in ("v4", "v5", "wb5", "wb6")
              else "your own knowledge")
 SUBAGENT_INSTRUCTIONS = """\
 You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only {knowledge}.
@@ -458,7 +518,8 @@ EXAMPLE_FINAL = {"v1": "RANGE_kgCO2e_per_m2: 40 - 75",
                  "v5": "BOTTOM_UP_kgCO2e_per_m2: 60\nCALIBRATED_kgCO2e_per_m2: 80\nBENCHMARK_kgCO2e_per_m2: 86\n"
                        "RANGE_kgCO2e_per_m2: 66 - 100",
                  "wb5": "BOTTOM_UP_kgCO2e_per_m2: 420\nMASS_ROUTE_kgCO2e_per_m2: 470\nBENCHMARK_kgCO2e_per_m2: 456\n"
-                        "RANGE_kgCO2e_per_m2: 362 - 543"}[PROMPT_VERSION]
+                        "RANGE_kgCO2e_per_m2: 362 - 543",
+                 "wb6": "BOTTOM_UP_kgCO2e_per_m2: 430\nMASS_ROUTE_kgCO2e_per_m2: 512\nRANGE_kgCO2e_per_m2: 403 - 605"}[PROMPT_VERSION]
 
 
 # --------------------------------------------------------------------------------------

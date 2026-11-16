@@ -1,0 +1,104 @@
+{
+  "fitted_on": "279 buildings (all except 13 extreme values): in-sample",
+  "weights": {
+    "own_estimate": 0.1,
+    "mass_route": 0.9
+  },
+  "F_system_use": {
+    "Concrete | Education": 0.41,
+    "Concrete | Laboratory": 0.45,
+    "Concrete | Office": 0.33,
+    "Concrete | Residential: Multifamily (5 or more units)": 0.33,
+    "Steel | Education": 0.56,
+    "Steel | Healthcare": 0.48,
+    "Steel | Laboratory": 0.54,
+    "Steel | Office": 0.59,
+    "Steel | Public Assembly": 0.52,
+    "Steel | Transportation Hub": 0.54,
+    "Steel/Concrete | Healthcare": 0.39,
+    "Steel/Concrete | Office": 0.33,
+    "Steel/Concrete | Warehouse and Storage": 0.24,
+    "Wood: Light-frame | Office": 0.49,
+    "Wood: Light-frame | Residential: Multifamily (5 or more units)": 0.46,
+    "Wood: Mass Timber | Education": 0.5,
+    "Wood: Mass Timber | Office": 0.48,
+    "Wood: Mass Timber | Public Assembly": 0.56
+  },
+  "F_system": {
+    "Concrete": 0.37,
+    "Other": 0.59,
+    "Steel": 0.53,
+    "Steel/Concrete": 0.35,
+    "Steel/Masonry": 0.44,
+    "Wood: Light-frame": 0.46,
+    "Wood: Mass Timber": 0.5
+  },
+  "F_overall": 0.44,
+  "K_region": {
+    "Canada": 1.0,
+    "Eastern": 1.01,
+    "Great Lakes Midwest": 0.84,
+    "North Central": 1.0,
+    "Pacific Northwest": 1.08,
+    "Pacific Southwest": 0.91,
+    "Rocky Mountains": 0.99,
+    "South Central": 1.01,
+    "South Eastern": 0.94
+  },
+  "F_scope": {
+    "no structure": 1.49,
+    "structure without substructure": 0.68
+  },
+  "typical_range_by_mass_band": {
+    "1,100 to 1,300 kg/m2": {
+      "low": 259,
+      "typical": 552,
+      "high": 821
+    },
+    "1,300 to 1,600 kg/m2": {
+      "low": 359,
+      "typical": 484,
+      "high": 958
+    },
+    "1,600 to 2,000 kg/m2": {
+      "low": 315,
+      "typical": 656,
+      "high": 896
+    },
+    "2,000 kg/m2 or more": {
+      "low": 425,
+      "typical": 719,
+      "high": 1349
+    },
+    "400 to 700 kg/m2": {
+      "low": 207,
+      "typical": 310,
+      "high": 494
+    },
+    "700 to 900 kg/m2": {
+      "low": 235,
+      "typical": 375,
+      "high": 609
+    },
+    "900 to 1,100 kg/m2": {
+      "low": 288,
+      "typical": 452,
+      "high": 662
+    },
+    "below 400 kg/m2": {
+      "low": 126,
+      "typical": 229,
+      "high": 504
+    }
+  },
+  "n_band": {
+    "1,100 to 1,300 kg/m2": 45,
+    "1,300 to 1,600 kg/m2": 43,
+    "700 to 900 kg/m2": 43,
+    "900 to 1,100 kg/m2": 39,
+    "400 to 700 kg/m2": 38,
+    "1,600 to 2,000 kg/m2": 28,
+    "2,000 kg/m2 or more": 17,
+    "below 400 kg/m2": 15
+  }
+}
