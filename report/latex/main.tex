@@ -299,6 +299,48 @@ Does the model name the materials that dominate a building's enclosure carbon? T
 \item The answers are not a ranked shortlist: they name 6.7 categories on average, and their precision (41\%) is below that of the typical-building guess (60\%). A prompt meant for hotspot screening should ask for a ranked top-3 explicitly.
 \end{itemize}
 
+\section{Outliers and What the Features Can Support}
+\label{sec:ceiling}
+After v3 the coverage was still 25\%, well below the 34--46\% reported for the course's whole-building task. Before revising the prompt again we asked two questions of the data itself.
+
+\textbf{Outliers.} We flag reference values with three rules that use only the reference LCA and the features, never an LLM estimate (\path{analysis/outliers.py}):
+\begin{itemize}
+\item \emph{Incomplete} (10 buildings): new construction with no fenestration GWP.
+\item \emph{Out of scope} (13): the LCA's physical scope (\texttt{lca\_phys\_scope}) does not include the enclosure, so its enclosure total is incidental. All 13 are renovations or tenant improvements, with values of 3--26~\coe.
+\item \emph{Extreme} (18): the log value lies outside Tukey's fences (below 11.6 or above 472~\coe).
+\end{itemize}
+The rules overlap; together they flag 30 buildings (10.3\%). The cleaned set has 262 buildings (181 dev, 81 test). We report every result on all 292 and on the cleaned set.
+
+\textbf{How much can any estimator get from these features?} Table~\ref{tab:ceiling} gives three reference points (\path{analysis/ceiling.py}).
+\begin{itemize}
+\item \emph{One constant for every building} already covers 27\% of the enclosure values, and 35\% of the whole-building values. The whole-building target is easier because its values are less spread out (standard deviation of the log value 0.66, against 0.98 for the enclosure).
+\item \emph{A machine-learning model trained on this very dataset} with all 48 features, scored by cross-validation, reaches 26--28\% on all buildings and 34\% on the cleaned set. That is only a few points above the constant.
+\item The same model scored on its own training buildings reaches 56--61\%. That number is memorisation, not prediction.
+\end{itemize}
+Two things follow. First, v3 (25.0\%) and v1 (19.5\%) were \emph{below} the constant: the bottom-up take-off adds building-specific information but also noise. Second, the features support roughly 30--35\% coverage on unseen buildings, so a prompt that honestly reaches the low thirties is at the limit of the data, and coverage far above that could only come from fitting the buildings that are scored.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{What the features can support: $\pm$20\% coverage of simple estimators. CV: 5-fold cross-validation, repeated.}
+\label{tab:ceiling}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lcc}
+\toprule
+Estimator & All 292 & Cleaned 262 \\
+\midrule
+Best constant, whole building A--C & 34.6\% & -- \\
+Best constant, enclosure A1--A3 & 27.1\% & 30.2\% \\
+Random forest, 48 features, CV & 26.0\% & 34.0\% \\
+Gradient boosting, 48 features, CV & 28.4\% & 34.0\% \\
+Random forest, in-sample & 55.8\% & 60.7\% \\
+\midrule
+Prompt v1 & 19.5\% & 19.8\% \\
+Prompt v3 & 25.0\% & 26.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%V4SECTION
 \section{Limitations}
 \begin{itemize}
 \item Answers in one task file share a context, so they are less independent than separate API calls.
