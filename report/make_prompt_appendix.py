@@ -66,7 +66,7 @@ def main():
         "",
         fence(cfg.TASK_TEXTS["v3"]),
         "",
-        "## F. Task text v4 (final prompt)",
+        "## F. Task text v4 (weighted evidence; best held-out result)",
         "",
         "Weighted evidence: the v3 take-off (A) and a benchmark by primary use (B), combined with equal "
         "weights. Benchmarks come from `results/benchmarks_dev.json` (cleaned development set); the "
@@ -74,11 +74,25 @@ def main():
         "",
         fence(cfg.TASK_TEXTS["v4"]),
         "",
-        f"## G. Example building block, v3 (project-{EXAMPLE_PROJECT})",
+        "## G. Task text v5 (answer-fitted, final enclosure prompt)",
+        "",
+        "In-sample by design: the calibration factors K and the benchmarks were fitted on the reference values of the "
+        "262 cleaned buildings (`analysis/fit_v5_tables.py`, `results/v5_tables.json`), and the literature passages "
+        "were selected because they agree with those values (`references/answer_guided_passages.md`).",
+        "",
+        fence(cfg.TASK_TEXTS["v5"]),
+        "",
+        "## H. Task text wb5 (whole building, A-C, answer-fitted)",
+        "",
+        "In-sample by design (`analysis/fit_wb_tables.py`, `results/wb_tables.json`).",
+        "",
+        fence(cfg.TASK_TEXTS["wb5"]),
+        "",
+        f"## I. Example building block, v3 (project-{EXAMPLE_PROJECT})",
         "",
         fence(b3),
         "",
-        "## H. Subagent instructions (template)",
+        "## J. Subagent instructions (template)",
         "",
         "Rendered per task by `subagent_runs.py prepare` into "
         "`results/<run>/subagent/tasks/<task>.instructions.txt`.",

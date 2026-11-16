@@ -98,12 +98,18 @@ python summarize_run.py 20261104_baseline-innate
 | 3 | `20261105_feat-*`, `20261105_ablate-no-*` | Feature study with prompt v3 (run 0 only): early (39), env (15), min (10), no-lca (40), no-mass (47) vs all 48 | 292 × 1 each | 19.9–25.3% (all: 24.3%) | 77.3–81.2 | – | – |
 | 4 | `20261105_domain-envelope` | Prompt v1 + four envelope-focused documents in context (30k characters each) | 292 × 1 | 15.8% | 85.3 | 51.1% | – |
 | 5 | `20261116_prompt-v4` | **Prompt v4 (final)**: equal weight on the v3 take-off and on a benchmark by primary use fitted on the cleaned development set; attention order for the features; out-of-scope rule; feature-keyed literature facts | 292 × 3 | **32.2%** (27.1–37.8%) | **73.0** | 33.9% | **5.3%** |
+| 6 | `20261116_prompt-v5` | **Prompt v5 (fitted to the reference data, in-sample)**: v4's take-off × a calibration factor by use and envelope-area-given, plus a benchmark by use × storeys, both fitted on all 262 cleaned buildings; answer-guided literature passages | 292 × 3 | **35.6%** (30.3–41.3%) | 71.3 | 31.3% | 5.0% |
+| 7 | `20261116_wholebuilding-wb5` | Whole building A–C (the course target), fitted: own estimate 20% + mass route (`mass_total` × carbon per kg) 50% + benchmark by use × structure 30% | 292 × 1 | **53.4%** (47.7–59.1%) | – | – | – |
 
 ### Outliers, the data ceiling and prompt v4
 
 - **Outliers** (`analysis/outliers.py`): 30 buildings (10.3%) are flagged by rules that use only the reference LCA and the features: incomplete reference (10), enclosure not in the LCA's physical scope (13), extreme value by Tukey's fences on the log scale (18). The cleaned set has 262 buildings.
 - **Ceiling** (`analysis/ceiling.py`): one constant for every building covers 27% (30% cleaned). A random forest or gradient boosting model trained on the dataset covers 26–28% (34% cleaned) in cross-validation. The whole-building A–C task of the course reference is easier: a constant covers 35% there.
 - **Prompt v4** (`analysis/weight_search.py`, `analysis/v4_study.py`): coverage 32.2% on all 292, 34.7% on the cleaned set, 35.2% on the 88 held-out buildings (37.0% cleaned test); bias 0.98; run-to-run CV 5.3%. It is more compressed than v3 (log–log slope 0.36 vs 0.59), so it is better for typical buildings and worse for unusual ones. See report Sections 12–13.
+
+### Fitting the reference data (prompt v5, whole building)
+
+The course instruction for the last iteration was to fit the reference data. Prompt v5 (`analysis/fit_v5_tables.py`, `analysis/v5_study.py`) reaches 35.6% on all 292 buildings and 38.5% on the cleaned set; the whole-building prompt wb5 (`analysis/fit_wb_tables.py`, `analysis/wb_study.py`) reaches 53.4% against 34–46% in the course reference results. Both are **in-sample**: their tables were fitted on the reference values they are scored on, and wb5 relies on `mass_total`, the inventory mass of the reference LCA itself. v4 remains the held-out result (35.2% on the 88 test buildings). Band figures: `report/figures/fig_bands_enclosure.png`, `report/figures/fig_bands_wholebuilding.png`. See report Section 14.
 
 ### Feature study
 

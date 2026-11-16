@@ -96,17 +96,17 @@ function callout(c, t) {
   c.y += h + 0.3;
 }
 function table(c, rows) {
-  const v = { v1: "2A78D6", v2: "EDA100", v3: "B1040E", v4: "175E54" };
+  const v = { v1: "2A78D6", v2: "EDA100", v3: "B1040E", v4: "175E54", v5: "8C1515" };
   const data = rows.map((r, i) => r.map((cell, j) => ({
     text: (j === 0 && i > 0 ? "● " : "") + cell,
-    options: { fontSize: i === 0 ? 24 : 28, bold: i === 0 || r[0].startsWith("v4"), align: j === 0 ? "left" : "right",
-      color: i === 0 ? C.text2 : (r[0].startsWith("v4") ? C.accent1 : C.text1),
+    options: { fontSize: i === 0 ? 24 : 28, bold: i === 0 || r[0].startsWith("v5"), align: j === 0 ? "left" : "right",
+      color: i === 0 ? C.text2 : (r[0].startsWith("v5") ? C.accent1 : C.text1),
       border: [{ type: "none" }, { type: "none" }, { pt: i === 0 ? 3 : 1.5, color: i === 0 ? "4D4F53" : "D9D6D0" }, { type: "none" }],
       margin: [6, 6, 6, 6] } })));
   // colour the dot only: separate run for the bullet dot
   data.slice(1).forEach((r, i) => {
     const key = rows[i + 1][0].slice(0, 2);
-    r[0].text = [{ text: "● ", options: { color: v[key], fontSize: 28 } }, { text: rows[i + 1][0], options: { fontSize: 28, bold: key === "v4", color: key === "v4" ? C.accent1 : C.text1 } }];
+    r[0].text = [{ text: "● ", options: { color: v[key], fontSize: 28 } }, { text: rows[i + 1][0], options: { fontSize: 28, bold: key === "v5", color: key === "v5" ? C.accent1 : C.text1 } }];
   });
   const cw = [2.9, 1.85, 1.45, 1.85, 1.35, 1.74];
   slide.addTable(data, { x: c.x, y: c.y, w: COLW, colW: cw, rowH: 0.62 });
@@ -171,45 +171,45 @@ bullets(c, ["**HFC-blown XPS is never considered**: it is mentioned in 0.6% of a
 
 // ---- column 3 ------------------------------------------------------------------------
 c = cols[2];
-h2(c, "Four prompts");
+h2(c, "Five prompts");
 table(c, [["Prompt", "Coverage", "RMSE", "|log| med.", "Bias", "CV"],
   ["v1 plain", "19.5%", "79.7", "0.456", "0.75", "19.0%"],
   ["v2 method", "15.1%", "81.0", "0.563", "0.67", "13.8%"],
   ["v3 anchors", "25.0%", "76.0", "0.426", "0.86", "12.5%"],
-  ["v4 weighted", "32.2%", "73.0", "0.370", "0.98", "5.3%"]]);
+  ["v4 weighted", "32.2%", "73.0", "0.370", "0.98", "5.3%"],
+  ["v5 fitted*", "35.6%", "71.3", "0.320", "1.07", "5.0%"]]);
+para(c, "* fitted to the reference data, as the course asked: in-sample.", 22, C.text2);
 h3(c, "v2: scope + step-by-step take-off + named materials");
 para(c, "More consistent, but **less accurate**: 89% of answers still assumed polyiso roofs (roof intensity stayed at 35), bottom-up intensities were low (67 vs. 87 per m² of envelope), and \"count only new materials\" pushed renovations down.");
 h3(c, "v3: quantitative anchors where numbers are chosen");
 bullets(c, ["Component A1–A3 table from EPDs and CLF baselines (walls, glazing, roofs by insulation type, aluminum).",
   "Tool convention: legacy models often use HFC XPS, so include that case.",
   "Per-envelope sanity check, and a renovation rule that no longer subtracts."]);
-image(c, "fig_diagnostics.png", "v3 removes the bias for buildings without XPS (0.97), with a given envelope area (0.99) and in warm zones (0.98).", "Failure modes by prompt");
+image(c, "fig_diagnostics.png", "v3 removes the bias for buildings without XPS (0.97), with a given envelope area (0.99) and in warm zones (0.98).", "Failure modes by prompt", 0.86);
 callout(c, "**Lesson.** Qualitative knowledge in a prompt is repeated but not applied. Sourced numbers at the decision step move the estimate.");
 para(c, "**Feature study:** 10 early-design inputs are as good as all 48, and removing mass_total does not hurt.");
 
 // ---- column 4 ------------------------------------------------------------------------
 c = cols[3];
 h2(c, "The data cap & prompt v4");
-bullets(c, ["**The cap.** One constant for every building covers 27%. A machine-learning model trained on this dataset covers 26–34% in cross-validation. v1 and v3 were below the constant.",
-  "**Prompt v4** gives equal weight to the bottom-up take-off and to a **benchmark by building use** fitted on 181 development buildings, and adds literature facts keyed to the features."]);
-image(c, "fig_v4.png", "v4 reaches the cap: 32.2% of all 292, 34.7% after 30 rule-based outliers are removed, 35.2% on 88 held-out buildings. Bias 0.98, run-to-run CV 5.3%.", "Coverage of v1, v3 and v4 against the constant and the ML ceiling; weight sensitivity", 0.88);
-bullets(c, ["v4 vs. v3 on all 292: McNemar p = 0.035, log error p < 0.001. On the held-out 88 the direction is the same; only the gain over v1 is significant (p = 0.035).",
-  "**Cost:** more compression (log–log slope 0.36 vs. 0.59). Better for typical buildings, worse for unusual ones."]);
+bullets(c, ["**The cap.** One constant covers 27%; a model trained on this dataset covers 26–34% (cross-validated). v1 and v3 were below the constant.",
+  "**Prompt v4** weights the take-off 50/50 with a **benchmark by use** fitted on 181 development buildings."]);
+image(c, "fig_v4.png", "v4: 32.2% of all 292, 34.7% cleaned, 35.2% on 88 held-out buildings; v5 (fitted): 35.6% / 38.5%.", "Coverage of v1, v3, v4 and v5 against the constant and the ML ceiling; weight sensitivity", 0.86);
+bullets(c, ["v4 vs. v3: McNemar p = 0.035, log error p < 0.001.",
+  "**Fitted (course instruction, in-sample):** v5 calibrates the take-off and uses a finer benchmark. On the whole-building target the same method reaches **53.4%** (course reference 34–46%); there mass_total does most of the work."]);
 h2(c, "Takeaways");
 bullets(c, ["The error is structured (compression, material blind spots), so error analysis of the model's reasoning shows which prompt fix to make.",
   "Sourced numbers at the decision step help. Qualitative instructions and whole documents in context made the estimates worse.",
   "The features cap coverage near 30–35%. Weighing the take-off against a benchmark by use reaches that cap; going further needs **assembly type** as an input."], true);
-h2(c, "Final prompt (v4, excerpt)");
+h2(c, "Final prompt (v5, excerpt)");
 code(c, ["Special case: lca_phys_scope without E -> 8.",
-  "A. Bottom-up (50%): areas (envelope/floor by",
-  "   storeys: 1 st 2.1, 2-5 st 1.1, 6-10 st 0.7),",
-  "   assemblies by use, A1-A3 per m2 of component",
-  "   (unitized CW 150-210, roof+polyiso 20-28,",
-  "   roof+HFC XPS 85-110).",
-  "B. Benchmark (50%): median by use, e.g. education",
-  "   91, office 79, multifamily 54, laboratory 95.",
-  "C. FINAL = 0.5 x A + 0.5 x B.",
-  "BOTTOM_UP: <A>   BENCHMARK: <B>",
+  "A. Bottom-up take-off (v4): areas, assemblies,",
+  "   A1-A3 per m2 of component.",
+  "A7. CALIBRATED = K x A; K by use and whether the",
+  "   envelope area is given (e.g. office 1.23/1.49).",
+  "B. Benchmark by use x storeys, e.g. office 1 st",
+  "   131, multifamily 11+ st 71, lab 11+ st 129.",
+  "C. FINAL = 0.5 x CALIBRATED + 0.5 x B.",
   "RANGE_kgCO2e_per_m2: <0.8 FINAL> - <1.2 FINAL>"].join("\n"));
 
 // ---- footer --------------------------------------------------------------------------

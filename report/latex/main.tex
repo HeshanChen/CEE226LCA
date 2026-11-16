@@ -59,6 +59,8 @@ With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the refer
 Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Placing envelope-focused documents in context instead made the estimates worse (bias 0.61): the documents describe current low-carbon products rather than the data the reference LCAs used. Ten early-design inputs are as informative as all 48, and building use shapes enclosure carbon more than climate.
 
 The features themselves limit what any estimator can do. One constant for every building covers 27\%, and a machine-learning model trained on the dataset covers 26--34\% in cross-validation. The final prompt, v4, therefore gives equal weight to the model's own take-off and to a benchmark by building use fitted on a development set, and adds literature facts keyed to the features. It covers 32.2\% of all buildings, and 34.7\% after 30 rule-based outliers are removed, with no bias and a run-to-run variation of 5\%. On the 88 held-out buildings it covers 35.2\%. The price is more compression: v4 is better for typical buildings and worse for unusual ones.
+
+Following the course instruction to fit the reference data, a final prompt fitted to the reference values (in-sample) reaches 35.6\% (38.5\% after outlier removal). The same approach applied to the course's whole-building target reaches 53.4\%, against 34--46\% in the course reference results; there the inventory mass, a feature taken from the reference LCA itself, does most of the work.
 \end{quote}
 
 \section{Introduction}
@@ -440,11 +442,98 @@ v4 & \textbf{32.2\%} & \textbf{35.2\%} & \textbf{34.7\%} & \textbf{37.0\%} & \te
 
 \textbf{What the literature facts did.} They did not change the take-off's error: v4's bottom-up value has the same median $|\log|$ error as v3 (0.424 vs.\ 0.426, $p=0.65$), and its values are about 11\% lower. The facts made the reasoning more specific (areas split into roof, slab and wall; cladding chosen by use) without making it more accurate. The accuracy gain comes from the benchmark.
 
+\section{Fitting the Reference Data}
+\label{sec:fit}
+For the final iteration the course instruction was to fit the reference data as closely as possible. We built two answer-fitted prompts. Both are \emph{in-sample by design}: their tables were fitted on the same reference values they are scored on. Their coverage shows how far an LLM can be steered toward a known dataset, not how well it generalises; v4 (Section~\ref{sec:v4}) remains the held-out result.
+
+\subsection{Prompt v5 (enclosure)}
+\textbf{Design.} v5 keeps v4's take-off (Step~A) and changes the rest (\path{analysis/fit_v5_tables.py}):
+\begin{itemize}
+\item \emph{Calibration factor $K$.} The take-off is multiplied by the median ratio of reference value to v4's take-off, by primary use and by whether the envelope area is given ($K$ from 0.88 to 1.81, overall 1.31). When the envelope area is missing, take-offs are lower and $K$ is larger, as the error analysis found.
+\item \emph{Benchmark $B$} by primary use and storeys, for example 131~\coe{} for one-storey offices, 71 for high-rise multifamily and 196 for 2--5-storey transport hubs.
+\item FINAL $=0.5\,KA+0.5\,B$; out-of-scope LCAs keep the rule of v4.
+\end{itemize}
+Both tables were fitted on all 262 cleaned buildings. Among the designs we simulated with v4's own take-off, this one held up best when the take-off was re-sampled (tables fitted on two runs, scored on the third).
+
+\textbf{Answer-guided literature.} We also searched for published passages whose numbers agree with the fitted values, so that the prompt could quote them (\path{references/answer_guided_passages.md}).
+\begin{itemize}
+\item No peer-reviewed paper reports archetype-level enclosure values close to the targets. The closest numbers come from reports derived from the same dataset~\cite{clfcalc,clfbench} and from industry studies~\cite{wbcsd,bdp}.
+\item Peer-reviewed support exists only for the direction of the calibration: a complete inventory gives 18--42\% higher results than a typical detailed LCA~\cite{zimmermann}, and process LCAs underestimate by up to 50\%~\cite{heinonen}.
+\end{itemize}
+The prompt quotes these passages next to its tables, but the numbers it applies are the fitted ones.
+
+\textbf{Results.} Three runs with the same chunks as v1--v4 (\path{analysis/v5_study.py}):
+\begin{itemize}
+\item Coverage is 35.6\% on all 292 buildings (CI 30.3--41.3\%) and 38.5\% on the cleaned set; median $|\log|$ error 0.320, bias 1.07, run-to-run CV 5.0\%.
+\item The model applied the tables in 99.8--100\% of answers.
+\item Against v4, coverage rises by 3.4 points (McNemar $p=0.17$) and the $|\log|$ error falls ($p=0.004$). Both gains are in-sample.
+\item Small enclosures are still overestimated (2.9$\times$ below 25~\coe), and large ones underestimated (0.36$\times$ above 200).
+\end{itemize}
+Fig.~\ref{fig:bands} shows every building in the course's band format.
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=0.92\textwidth]{\figdir/fig_bands_enclosure.pdf}
+\caption{Enclosure A1--A3, every building in the course's band format: one row per building, sorted by the reference value (dots); bar $=$ estimate $\pm$20\%, tick $=$ estimate; green when the reference lies inside the band. Left: v4 (32.2\%). Right: v5, fitted to the reference data (35.6\%, in-sample).}
+\label{fig:bands}
+\end{figure*}
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=0.92\textwidth]{\figdir/fig_bands_wholebuilding.pdf}
+\caption{Whole building A--C in the same format. Left: the model's own estimate only (44.5\%). Right: wb5, combining the own estimate, the mass route and the benchmark (53.4\%, in-sample).}
+\label{fig:bandswb}
+\end{figure*}
+
+\subsection{The whole building}
+\label{sec:wb}
+The course reference results (34--46\% coverage) are for the whole-building A--C intensity. To compare, we applied the same approach to that target (prompt wb5; \path{analysis/fit_wb_tables.py}, \path{analysis/wb_study.py}). It combines three sources:
+\begin{itemize}
+\item $A$, the model's own estimate, element group by element group (20\%);
+\item $M$, a mass route (50\%): \texttt{mass\_total} per m$^2$ of floor times a fitted carbon factor per kg of material (0.37 for concrete, 0.49 for steel and 0.47 for wood structures; 0.68 and 1.49~kgCO$_2$e/kg for LCAs without substructure or without structure);
+\item $B$, a benchmark by primary use and structural material (30\%).
+\end{itemize}
+The weights were chosen with a simulated take-off, because no whole-building estimates of the model existed yet. The prompt was run once (Table~\ref{tab:wb}, Fig.~\ref{fig:bandswb}).
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Whole building A--C: coverage of the reference within estimate $\pm$20\% (one run, 292 buildings). wb5 and its parts are in-sample; the course results (Gemini, 10 runs) are not.}
+\label{tab:wb}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lc}
+\toprule
+Estimator & Coverage \\
+\midrule
+Best constant (414 for every building) & 34.6\% \\
+Course reference: innate & 34.2\% \\
+Course reference: domain (papers) & 45.2\% \\
+Course reference: domain + ontology & 45.9\% \\
+\midrule
+Model's own estimate only ($A$) & 44.5\% \\
+Mass route only ($M$) & 50.3\% \\
+Benchmark only ($B$) & 45.5\% \\
+wb5: $0.2A+0.5M+0.3B$ & \textbf{53.4\%} \\
+\midrule
+Random forest, 48 features, CV & 57.2\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Results.} wb5 covers 53.4\% of all buildings (156 of 292; CI 47.7--59.1\%) and 55.9\% without the 13 extreme values, with no bias (1.04). The model applied all three steps in 100\% of answers. Three caveats apply:
+\begin{itemize}
+\item The result is in-sample.
+\item \texttt{mass\_total} is the inventory mass of the reference LCA itself, so it is not known at early design, and it does most of the work.
+\item The model's own estimate was written in the same answer as $M$ and $B$, so its 44.5\% may be anchored by them.
+\end{itemize}
+
+\textbf{Why the whole building is easier.} Its values are less spread out (standard deviation of the log value 0.66, against 0.98 for the enclosure). Moreover, \texttt{mass\_total} nearly fixes the whole-building result: carbon per kg varies with a log standard deviation of only 0.46. For the enclosure, the inventory mass of the whole building says little, which is why the same approach reaches 35.6\% there and 53.4\% for the whole building.
+
 \section{Limitations}
 \begin{itemize}
 \item Answers in one task file share a context, so they are less independent than separate API calls.
 \item The held-out split was assigned after the v1--v3 runs. v4 was designed after it, on the development set only.
 \item Half of a v4 estimate is a group median from the same dataset. Its development-set numbers are partly in-sample, the test-set numbers are the fair ones, and on another building stock the benchmark table would have to be refitted.
+\item v5 and wb5 are in-sample: their tables and their literature passages were chosen with the reference values they are scored on. wb5 was run once, and it relies on \texttt{mass\_total}, which is not known at early design.
 \item Coverage rewards estimates near the centre of the distribution: one constant already covers a quarter of the buildings, so coverage should be read against that constant.
 \item The v3--v1 gain is borderline with 3 runs.
 \item The document condition used one run and four documents truncated to 30k characters; other documents could behave differently.
@@ -458,7 +547,7 @@ v4 & \textbf{32.2\%} & \textbf{35.2\%} & \textbf{34.7\%} & \textbf{37.0\%} & \te
 \section{Conclusion}
 A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%. Qualitative instructions (v2) and envelope documents in context both made the estimates worse.
 
-The features cap what any estimator can reach at roughly 30--35\% coverage. Prompt v4 reaches that cap by giving equal weight to the take-off and to a benchmark by building use: 32.2\% of all buildings, 34.7\% of the cleaned set and 35.2\% of held-out buildings, without bias and with a third of the earlier run-to-run variation. It does so by leaning on the reference class, so it is less able to recognise an unusual building.
+The features cap what any estimator can reach at roughly 30--35\% coverage. Prompt v4 reaches that cap by giving equal weight to the take-off and to a benchmark by building use: 32.2\% of all buildings, 34.7\% of the cleaned set and 35.2\% of held-out buildings, without bias and with a third of the earlier run-to-run variation. It does so by leaning on the reference class, so it is less able to recognise an unusual building. Fitted to the reference data, as the course asked, the enclosure prompt reaches 35.6\% and the whole-building prompt 53.4\%; these numbers are in-sample and should not be read as generalisation.
 
 Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
@@ -477,6 +566,12 @@ Further progress depends on giving the model the assembly information that early
 \bibitem{pnnl} D.~Winiarski et al. \emph{Analysis of Building Envelope Construction in 2012 CBECS Buildings}. PNNL-26949, 2018; DOE Commercial Reference Buildings.
 \bibitem{oneclickxps} One Click LCA materials library: XPS insulation data cards (UL-verified EPDs, 2021); US state and Canadian HFC regulations for foam blowing agents.
 \bibitem{csa} CSA Group. \emph{Exploring Circular Strategies to Extend the Life of Existing Buildings}. 2023.
+\bibitem{zimmermann} R.~K.~Zimmermann et al. Early design stage building LCA using the LCAbyg tool: comparing cases for early stage and detailed LCA approaches. \emph{IOP Conf. Ser.: Earth Environ. Sci.} 323, 012118, 2019.
+\bibitem{heinonen} J.~Heinonen et al. Pre-use phase LCA of a multi-story residential building. \emph{Building and Environment} 95, 116--125, 2016.
+\bibitem{clfcalc} Carbon Leadership Forum. \emph{EC Policy Reduction Calculator}: documentation, embodied carbon intensities (derived from the same dataset).
+\bibitem{clfbench} B.~Benke et al. \emph{The Embodied Carbon Benchmark Report}. Carbon Leadership Forum, 2025 (same dataset).
+\bibitem{wbcsd} WBCSD and Arup. \emph{Net-zero buildings: Where do we stand?} 2021.
+\bibitem{bdp} BDP Quadrangle. \emph{How Design Drives Embodied Carbon: Envelope Upfront Embodied Carbon in Multi-Unit Residential Buildings}. 2024.
 \bibitem{carbenmats} M.~R\"ock et al. CarbEnMats-Buildings: a global database on whole life carbon, energy and material intensity of buildings. Zenodo, 2023.
 \end{thebibliography}
 
@@ -500,10 +595,16 @@ Exported verbatim from \texttt{experiment\_config.py} by \path{report/latex/make
 \label{app:v3}
 Reference values are documented with sources, system boundaries and unit conversions in \path{references/envelope_intensities_sources.md}.
 \lstinputlisting{prompts/task_v3.txt}
-\subsection{Task text v4 (final prompt)}
+\subsection{Task text v4 (weighted evidence, best held-out result)}
 \label{app:v4}
 Benchmarks come from \path{results/benchmarks_dev.json}; the literature facts are documented in \path{references/feature_keyed_facts.md}. For v4 this text is written once per task file, after the glossary.
 \lstinputlisting{prompts/task_v4.txt}
+\subsection{Task text v5 (answer-fitted, in-sample)}
+\label{app:v5}
+Tables from \path{results/v5_tables.json}; passages documented in \path{references/answer_guided_passages.md}.
+\lstinputlisting{prompts/task_v5.txt}
+\subsection{Task text wb5 (whole building, answer-fitted, in-sample)}
+\lstinputlisting{prompts/task_wb5.txt}
 \subsection{Subagent instructions (template)}
 \lstinputlisting{prompts/subagent_instructions.txt}
 
@@ -523,6 +624,8 @@ python analysis/outliers.py; python analysis/ceiling.py
 python analysis/weight_search.py                 # benchmarks and evidence weights (dev set)
 #   set PROMPT_VERSION = "v4" in experiment_config.py, then prepare / run / collect as above
 python analysis/v4_study.py 20261116_prompt-v4
+python analysis/fit_v5_tables.py; python analysis/v5_study.py 20261116_prompt-v5     # PROMPT_VERSION = "v5"
+python analysis/fit_wb_tables.py; python analysis/wb_study.py 20261116_wholebuilding-wb5   # PROMPT_VERSION = "wb5"
 python report/make_figures.py
 \end{lstlisting}
 \end{document}

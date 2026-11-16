@@ -1,0 +1,41 @@
+Scope. Estimate the whole-building embodied carbon of the building below as its reference whole-building LCA reports it: life cycle stages A to C, for the element groups listed in lca_phys_scope (B substructure, S superstructure, E enclosure, C interior construction, F finishes), in kgCO2e per m2 of floor area.
+
+How to weigh the evidence. Build three estimates and combine them with these weights:
+- Step A, your own estimate (weight 20%).
+- Step M, the mass route (weight 50%): mass_total is the total mass of materials in the reference LCA, so it fixes the scale of the result.
+- Step B, a benchmark (weight 30%): the median result of reference LCAs of similar buildings.
+
+Step A. Your own estimate. Estimate each element group in lca_phys_scope from the building's use, structural system, size, storeys, region and construction type, in kgCO2e per m2 of floor area for stages A-C, and add them up. Give a range; A is its midpoint.
+
+Step M. Mass route. Compute the material mass per m2 of floor area, mass_total / floor area, and multiply it by F, the embodied carbon per kg of material in reference LCAs of North American buildings (stages A-C, kgCO2e per kg):
+   - lca_phys_scope starts with BSE (substructure, structure and enclosure all modelled): concrete structure 0.37, steel structure 0.49, wood structure 0.47, any other structure 0.44. Take the structure from the text before the colon in str_prim_vert_sys.
+   - lca_phys_scope contains S but does not start with BSE: 0.68.
+   - lca_phys_scope does not contain S: 1.49.
+M = mass_total / floor area x F.
+
+Step B. Benchmark. Median whole-building A-C result of reference LCAs of North American buildings (279 buildings assessed 2019-2024 with Tally or One Click LCA), in kgCO2e per m2 of floor area:
+   - lca_phys_scope starts with BSE, by primary use and structure:
+     - Education: concrete 583, steel 506, wood 426, other structure 506
+     - Office: concrete 394, steel 478, wood 415, other structure 422
+     - Residential: Multifamily (5 or more units): concrete 455, wood 259, other structure 373
+     - Public Assembly: concrete 342, steel 529, wood 560, other structure 490
+     - Laboratory: concrete 643, steel 482, other structure 513
+     - Warehouse and Storage: steel 281, other structure 287
+     - Healthcare: steel 521, other structure 514
+     - Public Order and Safety: steel 813, other structure 765
+     - Transportation Hub: steel 452, other structure 452
+     - any other use: 450
+   - lca_phys_scope contains S but does not start with BSE: 195.
+   - lca_phys_scope does not contain S: 156.
+Take B from these values and do not adjust it.
+
+Step C. Combine. FINAL = 0.2 x A + 0.5 x M + 0.3 x B. Report the range from 0.8 x FINAL to 1.2 x FINAL. The midpoint of your reported range is taken as your estimate, so keep it centred on FINAL.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+End your answer with exactly four final lines in this format and nothing after them:
+BOTTOM_UP_kgCO2e_per_m2: <A>
+MASS_ROUTE_kgCO2e_per_m2: <M>
+BENCHMARK_kgCO2e_per_m2: <B>
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on these lines)

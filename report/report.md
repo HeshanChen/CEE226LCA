@@ -5,7 +5,7 @@ A CEE226 Group 8 course project. Its original title was *Climate- and Use-Specif
 
 > 中文版：[`report_zh.md`](report_zh.md). Both versions have the same content; the final prompt is the English text in Appendix A.
 >
-> Status: complete. Prompts v1–v4 were run 3 times on each of the 292 buildings, with an envelope-document domain condition (Section 8.2), a held-out evaluation on 88 test buildings (Section 9), a feature study (Section 10) and an outlier and ceiling analysis (Section 12). The final prompt is v4 (Appendix A, section F).
+> Status: complete. Prompts v1–v5 were run 3 times on each of the 292 buildings, with an envelope-document domain condition (Section 8.2), a held-out evaluation (Section 9), a feature study (Section 10), an outlier and ceiling analysis (Section 12), and fitted prompts for the enclosure and the whole building (Section 14). v4 is the best held-out prompt and v5 the best fitted (in-sample) prompt (Appendix A).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -51,6 +51,8 @@ Prompt v3 does exactly that (Section 8):
 - It covers **32.2%** of all 292 buildings, **34.7%** after 30 rule-based outliers are removed, and **35.2%** of the 88 test buildings.
 - It has no bias (0.98) and a run-to-run variation of 5.3%.
 - The price is more compression: better for typical buildings, worse for unusual ones.
+
+**Fitting the reference data** (Section 14). Following the course instruction to fit the data, a final prompt fitted to the reference values (v5, in-sample) reaches **35.6%** of all buildings and **38.5%** of the cleaned set. The same approach applied to the course's whole-building A–C target reaches **53.4%** (one run), against 34–46% in the course reference results; there the inventory mass `mass_total`, a feature taken from the reference LCA itself, does most of the work.
 
 **Scope relative to the proposal.** After the Nov 3 check-in we adopted the course's dataset-based design:
 - The ground truth is the reported enclosure A1–A3 GWP of 292 real projects, not three modelled wall assemblies. The unit is per m² of floor area, and only GWP is evaluated.
@@ -625,7 +627,74 @@ The last four columns are for all 292 buildings.
 
 **What the literature facts did.** They did not change the take-off's error: v4's bottom-up value has the same median log error as v3 (0.424 vs 0.426, p = 0.65), and its values are about 11% lower. The facts made the reasoning more specific (areas split into roof, slab and wall; cladding chosen by use) without making it more accurate. The accuracy gain comes from the benchmark.
 
-## 14. Limitations and next steps
+## 14. Fitting the reference data: prompt v5 and the whole building
+
+For the final iteration the course instruction was to fit the reference data as closely as possible. We built two answer-fitted prompts. Both are **in-sample by design**: their tables were fitted on the same reference values they are scored on. Their coverage shows how far an LLM can be steered toward a known dataset, not how well it generalises; v4 (Section 13) remains the held-out result.
+
+### 14.1 Prompt v5 (enclosure)
+
+**Design.** v5 keeps v4's take-off (Step A) and changes the rest (`analysis/fit_v5_tables.py`, `results/v5_tables.json`):
+
+- **Calibration factor K.** The take-off is multiplied by the median ratio of reference value to v4's take-off, by primary use and by whether the envelope area is given (K from 0.88 to 1.81, overall 1.31). When the envelope area is missing, take-offs are lower and K is larger, as the error analysis found.
+- **Benchmark B** by primary use and storeys, for example 131 kgCO2e/m² for one-storey offices, 71 for high-rise multifamily and 196 for 2–5-storey transport hubs.
+- **FINAL = 0.5 × K × A + 0.5 × B**; out-of-scope LCAs keep the rule of v4.
+
+Both tables were fitted on all 262 cleaned buildings. Among the designs we simulated with v4's own take-off, this one held up best when the take-off was re-sampled (tables fitted on two runs, scored on the third).
+
+**Answer-guided literature.** We searched for published passages whose numbers agree with the fitted values, so that the prompt could quote them (`references/answer_guided_passages.md`).
+
+- No peer-reviewed paper reports archetype-level enclosure values close to the targets. The closest numbers come from reports derived from the same dataset (CLF calculator documentation, CLF Embodied Carbon Benchmark Report) and from industry studies (WBCSD & Arup 2021, BDP Quadrangle 2024).
+- Peer-reviewed support exists only for the direction of the calibration: a complete inventory gives 18–42% higher results than a typical detailed LCA (Zimmermann et al. 2019), and process LCAs underestimate by up to 50% (Heinonen et al. 2016, Building and Environment).
+
+The prompt quotes these passages next to its tables, but the numbers it applies are the fitted ones.
+
+**Results** (3 runs, same chunks as v1–v4; `analysis/v5_study.py`):
+
+| Estimator | All 292 | Cleaned 262 | Median abs log | Bias | CV |
+|---|---|---|---|---|---|
+| v4 | 32.2% | 34.7% | 0.370 | 0.98 | 5.3% |
+| **v5 (in-sample)** | **35.6%** | **38.5%** | **0.320** | 1.07 | 5.0% |
+
+- v5 coverage on all buildings: CI 30.3–41.3%.
+- The model applied the tables in 99.8–100% of answers.
+- Against v4, coverage rises by 3.4 points (McNemar p = 0.17) and the log error falls (p = 0.004). Both gains are in-sample.
+- Small enclosures are still overestimated (2.9× below 25), and large ones underestimated (0.36× above 200).
+
+![Figure 14.1: Enclosure A1–A3, every building in the course's band format: one row per building, sorted by the reference value (dots); bar = estimate ±20%; green when the reference lies inside the band. Left: v4 (32.2%). Right: v5, fitted (35.6%, in-sample).](figures/fig_bands_enclosure.png)
+
+### 14.2 The whole building (A–C)
+
+The course reference results (34–46% coverage) are for the whole-building A–C intensity. To compare, we applied the same approach to that target (prompt wb5; `analysis/fit_wb_tables.py`, `analysis/wb_study.py`). It combines three sources:
+
+- **A**, the model's own estimate, element group by element group (20%);
+- **M**, a mass route (50%): `mass_total` per m² of floor times a fitted carbon factor per kg of material (0.37 for concrete, 0.49 for steel and 0.47 for wood structures; 0.68 and 1.49 kgCO2e/kg for LCAs without substructure or without structure);
+- **B**, a benchmark by primary use and structural material (30%).
+
+The weights were chosen with a simulated take-off, because no whole-building estimates of the model existed yet. The prompt was run once.
+
+| Estimator | Coverage, all 292 |
+|---|---|
+| Best constant (414 for every building) | 34.6% |
+| Course reference: innate (Gemini, 10 runs) | 34.2% |
+| Course reference: domain (papers) | 45.2% |
+| Course reference: domain + ontology | 45.9% |
+| Model's own estimate only (A) | 44.5% |
+| Mass route only (M) | 50.3% |
+| Benchmark only (B) | 45.5% |
+| **wb5: 0.2 A + 0.5 M + 0.3 B (in-sample)** | **53.4%** |
+| Random forest on the 48 features, cross-validated | 57.2% |
+
+**Results.** wb5 covers 53.4% of all buildings (156 of 292; CI 47.7–59.1%) and 55.9% without the 13 extreme values, with no bias (1.04). The model applied all three steps in 100% of answers. Three caveats:
+
+- The result is in-sample.
+- `mass_total` is the inventory mass of the reference LCA itself, so it is not known at early design, and it does most of the work.
+- The model's own estimate was written in the same answer as M and B, so its 44.5% may be anchored by them.
+
+**Why the whole building is easier.** Its values are less spread out (standard deviation of the log value 0.66, against 0.98 for the enclosure). Moreover, `mass_total` nearly fixes the whole-building result: carbon per kg varies with a log standard deviation of only 0.46. For the enclosure, the inventory mass of the whole building says little, which is why the same approach reaches 35.6% there and 53.4% for the whole building.
+
+![Figure 14.2: Whole building A–C in the same format. Left: the model's own estimate only (44.5%). Right: wb5, combining the own estimate, the mass route and the benchmark (53.4%, in-sample).](figures/fig_bands_wholebuilding.png)
+
+## 15. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
 - **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls. In v3 run 2, 162 buildings were answered in continuation tasks after a container restart (Section 8.1).
@@ -636,6 +705,7 @@ The last four columns are for all 292 buildings.
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
 - **Hotspot agreement is a proxy.** It is based on whether an answer mentions a material category, not on a ranked top 3.
 - **The document condition was run once,** with four documents truncated to 30k characters; other documents could behave differently.
+- **v5 and wb5 are in-sample.** Their tables and literature passages were chosen with the reference values they are scored on. wb5 was run once and relies on `mass_total`, which is not known at early design.
 - **Half of v4 is a statistical benchmark.** Half of a v4 estimate is a group median from the same dataset. Its development-set numbers are partly in-sample, the test-set numbers are the fair ones, and on another building stock the benchmark table would have to be refitted.
 - **Coverage favours central values.** One constant already covers a quarter of the buildings, so coverage should be read against that constant.
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
@@ -648,7 +718,7 @@ The last four columns are for all 292 buildings.
 
 ## Appendix A. Prompts
 
-See [`appendix_prompts.md`](appendix_prompts.md): system prompt, shared context, task texts v1, v2 and v3, **task text v4 (final)**, an example building block, and the subagent instruction template.
+See [`appendix_prompts.md`](appendix_prompts.md): system prompt, shared context, task texts v1, v2, v3, v4 (best held-out), **v5 (fitted, final)** and wb5 (whole building), an example building block, and the subagent instruction template.
 
 ## Appendix B. Reproduction
 
