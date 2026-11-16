@@ -15,6 +15,13 @@ A CEE226 Group 8 course project. Its original title was *Climate- and Use-Specif
 - **Enclosure A1–A3:** **35.6%** of all 292 buildings fall within ±20% of the reference LCA, and **38.5%** after 30 rule-based outliers are removed; no bias, run-to-run variation 5%.
 - **Whole building A–C** (the course's original target): prompt wb6 reaches **60.3%**, against 34–46% in the course reference results (first version wb5: 53.4%). It rests on the inventory mass and keeps each estimate inside the typical range for the building's mass, so its estimates follow high- and low-carbon buildings far more closely (log–log slope 0.81, against 0.59 for wb5).
 - Both numbers are **in-sample**. With its benchmark fitted on a development set only, the same structure (v4) covers 35.2% of 88 held-out buildings.
+- **30 buildings (10.3%) are removed as outliers** (Section 2.1):
+  - 13 LCAs that never assessed the enclosure;
+  - 11 new buildings whose inventory holds no or almost no glass;
+  - 5 renovations and fit-outs that touched little of the enclosure;
+  - one re-cladding divided by a small renovated floor area.
+
+  Their reference values describe the source study, not the building: every prompt places at most 5 of the 30 within ±20%.
 - Full text of the final prompt: [`final_prompt.md`](final_prompt.md) (also Appendix A).
 
 The LLM in this study is Claude Opus 5.5, run as a Claude Code subagent with medium reasoning effort. Given the 48 early-stage features of each of the 292 buildings in the CLF harmonized WBLCA dataset, it estimated the **cradle-to-gate (A1–A3) embodied carbon of the building enclosure**, in kgCO2e per m² of floor area.
@@ -92,7 +99,7 @@ Prompt v3 does exactly that (Section 8):
 
 XPS in this dataset carries **43.6 kgCO2e/kg**, against 1.2 for high-density mineral wool, 2.4 for fiberglass and 3.1 for polyiso. This is consistent with XPS made with HFC blowing agents, which the LCA tools of the assessment years (Tally, One Click LCA) modelled. 149 of the 292 projects contain XPS.
 
-**Data-quality flag.** 10 new-construction projects (27, 35, 66, 74, 80, 91, 141, 217, 234, 264) have **no window, glazing, curtain wall or storefront GWP at all** in their enclosure inventory. Some of them report a WWR of 0.5–0.7. Project 74, for example, has WWR 0.65 and a true value of 0.64 kgCO2e/m². These look like incomplete source LCA models rather than real buildings with glass-free envelopes. They are kept in every headline metric, for comparability, and also reported separately ("excl. incomplete").
+**Data-quality problems.** 30 of the 292 reference values (10.3%) do not describe a building's enclosure. The source LCA either did not assess the enclosure, left the windows out of its inventory, or divides a small amount of enclosure work by a floor area it does not match. Section 2.1 explains each of them. The 10 buildings without any window data were flagged from the start and are reported separately ("excl. incomplete") in Sections 4–9. The full rules came with Section 12, and from there on every result is given for all 292 buildings and for the cleaned 262.
 
 **Climate and use (proposal RQ1).** New construction with complete references, 233 projects (231 with a climate zone), kgCO2e/m² floor area (`analysis/climate_use.py`):
 
@@ -113,6 +120,96 @@ XPS in this dataset carries **43.6 kgCO2e/kg**, against 1.2 for high-density min
 - Per m² of floor area, use (through glazing share and envelope-to-floor ratio) shapes enclosure carbon more than climate (through insulation).
 
 ![Figure 2.1: Share of enclosure A1–A3 GWP by material group, 292 projects. XPS alone is 15.5%.](figures/fig_composition.png)
+
+### 2.1 The 30 buildings removed as outliers, and what is wrong with their data
+
+Three rules flag a reference value (`analysis/outliers.py`). They look only at the reference LCA and the features, never at an LLM estimate, so the cleaned set does not depend on which buildings a prompt happens to get right. `analysis/outlier_details.py` opens the reference LCA of each flagged building; `analysis/outlier_details.md` lists every inventory item.
+
+| Rule | What it flags | Buildings |
+|---|---|---|
+| R1 Incomplete inventory | new construction whose enclosure inventory has no window, glazing, curtain-wall or storefront GWP at all | 10 |
+| R2 Out of scope | `lca_phys_scope` has no E: the source LCA did not set out to assess the enclosure | 13 |
+| R3 Extreme value | log value outside Tukey's fences: below 11.6 or above 472 kgCO2e/m² | 18 (7 by this rule alone) |
+| Any rule | R1 and R2 do not overlap; 11 of the 18 extreme values are also R1 or R2 | **30** |
+
+**Who they are.**
+
+- 11 new buildings, 9 minor renovations, 7 tenant improvements (interior fit-outs) and 3 major renovations. Renovations and fit-outs are 19 of the 30 but only 49 of all 292: 39% of them are flagged, against 4.5% of new buildings.
+- Their enclosure inventories are sparse: a median of 28 material rows, against 156 for the other 262 buildings.
+- All but two lie in the bottom quarter of the distribution (below 42 kgCO2e/m²). The exceptions are project 264 (141) and project 137 (514).
+
+**Four kinds of problem.** None of them is something the 48 features describe:
+
+| Problem | Buildings | What the value measures instead |
+|---|---|---|
+| The source LCA did not assess the enclosure | 13 (R2) | whatever enclosure-classified items an interior or structural study happened to include |
+| Windows missing from a new building's inventory | 11 (10 R1, plus project 56) | the part of the enclosure that was modelled |
+| Renovation or fit-out that touched little of the enclosure | 5 (R3) | a few new windows or some insulation, divided by the whole floor area |
+| Whole facade divided by a small renovated floor area | 1 (project 137) | a full re-cladding per m² of the renovated floors only |
+
+**R1: incomplete inventory (10 new buildings).** The reference model holds no glass at all. Seven are occupied buildings that would normally have windows, and those with a window-to-wall ratio report a substantial one (0.22–0.65). Their whole-building values are ordinary (229–681), so the structure was modelled and the enclosure was not, or only in part. The other three are open parking garages, where no glass is plausible: they have no thermal envelope and are atypical rather than wrong.
+
+| Project | Building | Scope | Value | Largest items in the enclosure inventory (kgCO2e/m² floor) | What is wrong |
+|---|---|---|---|---|---|
+| 74 | new office, 2–5 storeys, WWR 0.65 | BSE | 0.6 | 2 rows: aluminium panel 0.5, mineral wool 0.1 | no glass despite 65% glazing; enclosure barely modelled (whole building 273) |
+| 66 | new office, 2–5 storeys, WWR 0.46 | BSECF | 7.0 | roofing 1.4, aluminium panel 1.3, XPS 1.2, insulation 1.0 | no glass despite 46% glazing |
+| 80 | new industrial building, 1 storey | BSE | 9.4 | 3 rows: aluminium panel 5.6, XPS 3.3, roofing 0.5 | three items, no openings |
+| 234 | new hospital, 11–15 storeys, 64,500 m² | BSE | 15.5 | 4 rows: concrete 11.3, insulation 4.2 | no glass and no cladding on a high-rise hospital |
+| 35 | new parking garage, 6–10 storeys | BSE | 17.2 | 4 rows: steel 11.1, concrete block 6.0 | open garage: no glass plausible |
+| 27 | new parking garage, 6–10 storeys | BSE | 24.9 | concrete 10.3, rebar 4.5, mortar 2.5, steel sheet 2.0 | open garage |
+| 217 | new school, 2–5 storeys, WWR 0.22 | BSECF | 27.0 | mineral wool 12.1, aluminium extrusions 8.3, terracotta 3.5 | window frames without glass |
+| 91 | new warehouse, 1 storey, 570 m² | BSE | 29.2 | 6 rows: steel studs 16.1, coatings 6.7, aluminium sheet 6.4 | no glass and no insulation |
+| 141 | new parking garage, 1 storey | BSE | 41.7 | 4 rows: concrete 28.8, concrete block 7.5, rebar 5.4 | open garage |
+| 264 | new assembly building, 2–5 storeys, WWR 0.34 | BSECF | 141.4 | aluminium sheet 103.6, mineral wool 8.5, polyiso 6.8 | no glass, yet 104 of aluminium sheet, three times the aluminium of the top fifth |
+
+**R2: the enclosure was not in the LCA's scope (13 renovations and fit-outs).** Their `lca_phys_scope` is interiors (CF) or structure and interiors (SCF): the study did not set out to assess the enclosure. The dataset still classifies a few of their items as Shell – Enclosure, giving values of 2.6–26.1. These items are what an interior or structural study touched: interior glazing and storefronts, steel studs, gypsum board, paint, a single insulation entry, even rebar.
+
+| Project | Building | Scope | Value | Largest items (kgCO2e/m² floor) | What is wrong |
+|---|---|---|---|---|---|
+| 134 | office fit-out | CF | 2.6 | steel studs 1.8, steel 0.3, terracotta 0.2, glass 0.2 | interior study |
+| 135 | laboratory, minor renovation, 43,500 m² | SCF | 2.7 | aluminium sheet 1.4, fiberglass 0.4, steel 0.4 | a few facade items over a large floor area |
+| 163 | office, minor renovation, 1 storey | CF | 3.1 | glazing 1.6, cellulose 0.7, aluminium 0.6 | interior study, a few windows |
+| 136 | assembly fit-out, 250 m² | CF | 4.3 | glass 2.9, fiberglass 0.7 | a 250 m² fit-out |
+| 43 | school, minor renovation | CF | 6.8 | glazing 3.1, fiberglass 1.8, steel studs 0.8 | interior study |
+| 104 | office fit-out, 21+ storeys | CF | 7.6 | mineral wool 5.6, other insulation 1.5, glazing 0.5 | insulation only |
+| 122 | office, major renovation | SCF | 10.0 | mineral wool 2.7, storefront 1.5, steel studs 1.3 | structure and interiors only |
+| 42 | school, minor renovation | CF | 10.4 | glazing 6.0, aluminium 2.1, doors 1.1 | interior study |
+| 101 | office fit-out, 21+ storeys | CF | 11.6 | aluminium extrusions 8.1, glazing 2.3 | interior storefronts |
+| 85 | office fit-out, 430 m² | CF | 12.9 | steel studs 4.3, storefront 2.6, windows 1.5 | a small fit-out |
+| 205 | hotel, minor renovation, 950 m² | SCF | 13.2 | XPS 6.6, air barrier 2.1, rebar 1.9 | rebar classed as enclosure |
+| 10 | office, major renovation | CF | 14.0 | one row: mineral wool 14.0 | a single insulation entry |
+| 228 | office fit-out, 11–15 storeys | CF | 26.1 | glazing 6.8, gypsum board 6.5, steel studs 5.6, paint 1.9 | interior partitions classed as enclosure |
+
+**R3: extreme values flagged by this rule alone (7).** Eight of the other extreme values are R2 buildings and three are R1 buildings.
+
+| Project | Building | Scope | Value | Largest items (kgCO2e/m² floor) | What is wrong |
+|---|---|---|---|---|---|
+| 108 | store, minor renovation | SEC | 0.5 | one row: fiberglass 0.5 | the renovation barely touched the enclosure |
+| 54 | apartments, major renovation and addition, 18,900 m² | BSE | 6.5 | glass 3.7, XPS 2.3, aluminium panel 0.4 | new windows and some insulation over the whole floor area |
+| 99 | store, minor renovation | SEC | 6.5 | fiberglass 4.2, concrete 0.6, polyiso 0.5 | partial insulation upgrade |
+| 103 | laboratory, minor renovation, 24,750 m² | SECF | 10.1 | glass 3.4, aluminium 3.0, polyiso 2.3, bitumen 0.9 | window and roof replacement over a large floor area |
+| 56 | new office tower, 16–20 storeys, 67,500 m² | BSEC | 10.7 | aluminium extrusions 3.6, metal composite panel 2.1, insulation 1.4; glazing only 1.0 | almost no glass on a high-rise office: under-modelled |
+| 146 | office fit-out, 1 storey | ECF | 11.3 | storefront 4.3, aluminium 3.6, glass 1.6 | a storefront replacement: a genuinely tiny enclosure scope |
+| 137 | office tower, minor renovation, 16–20 storeys | BSECF | 513.9 | curtain wall 302, glass 97, aluminium sheet 40, steel 32 | full re-cladding (envelope 7,660 m²) divided by only 3,350 m² of renovated floor |
+
+Project 137 is the only high outlier. Its envelope area is 2.3 times the floor area its value is divided by, against a median of 0.96 for all buildings, so the denominator inflates the value. The low renovation values are real but unrepresentative: the per-m² intensity of a project that touched a small part of the enclosure is not the enclosure carbon of a building.
+
+**Effect on the results.** No prompt can estimate these values from the features. Every prompt places at most 5 of the 30 within ±20%, and v4 and v5 overestimate them a median 2.6 times:
+
+| Prompt | Inside ±20% among the 30 | Coverage, all 292 | Coverage, cleaned 262 |
+|---|---|---|---|
+| v1 | 5 | 19.5% | 19.8% |
+| v3 | 3 | 25.0% | 26.7% |
+| v4 | 3 | 32.2% | 34.7% |
+| v5 | 3 | 35.6% | 38.5% |
+
+From Section 12 on, every result is given for all 292 buildings and for the cleaned 262. The benchmark tables of v4 and v5 were fitted without these 30, and v4 and v5 give buildings whose LCA did not assess the enclosure a fixed 8 kgCO2e/m².
+
+**For anyone using this dataset's enclosure values as targets:**
+
+- check that `lca_phys_scope` contains E;
+- check that the enclosure inventory contains fenestration;
+- treat per-m² values of renovations and fit-outs with care: their floor area is the renovated area, not the building's.
 
 ## 3. LLM experiment setup
 
@@ -518,6 +615,7 @@ We flag reference values with three rules. They use only the reference LCA and t
 | Extreme | log value outside Tukey's fences (below 11.6 or above 472 kgCO2e/m²) | 18 |
 | Any rule | | **30 (10.3%)** |
 
+- Section 2.1 explains, building by building, what is wrong with each of the 30 reference values.
 - All 13 out-of-scope buildings are renovations or tenant improvements, with values of 3–26.
 - The cleaned set has 262 buildings (181 dev, 81 test).
 - Every later result is reported on all 292 and on the cleaned set.

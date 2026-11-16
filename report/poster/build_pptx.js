@@ -139,7 +139,7 @@ para(c, "Exterior-envelope choices lock in much of a building's embodied carbon 
 h2(c, "Data & ground truth");
 bullets(c, ["292 US/Canadian projects, harmonized WBLCA dataset (Benke et al., Sci. Data 2025): 928k material rows, 48 early-stage features.",
   "Ground truth: OmniClass **Shell – Enclosure**, stage **A1–A3**, kgCO2e per m² floor area. Median 78, range 0.5–514.",
-  "10 new buildings have no window/glazing data at all: incomplete reference LCAs, flagged."]);
+  "**30 outliers removed (10.3%)**: 13 LCAs that never assessed the enclosure, 11 new buildings with no glass modelled, 6 renovations with little enclosure work or a mismatched floor area. Every prompt hits ≤ 5 of them."]);
 image(c, "fig_composition.png", "XPS insulation is 15.5% of all enclosure carbon (43.6 kgCO2e/kg: the HFC-blown product in Tally / One Click LCA of the period).", "Enclosure carbon by material group");
 h2(c, "Method");
 // flow boxes
@@ -152,9 +152,9 @@ steps.forEach((s, i) => {
   if (i < 4) slide.addText("→", { x: x + bw, y: c.y, w: 0.35, h: 1.5, fontSize: 30, bold: true, align: "center", valign: "middle", color: C.accent1, margin: 0, isTextBox: true });
 });
 c.y += 1.8;
-bullets(c, ["3 runs × 292 buildings per prompt; seeded shuffles and identical chunks allow paired comparisons.",
+bullets(c, ["3 runs × 292 buildings per prompt, paired by building.",
   "Subagents read only their task file: no web, no code, no ground truth.",
-  "Metrics: ±20% coverage, RMSE, |log(est/ref)|, bias (geometric mean), run-to-run CV.",
+  "Metrics: ±20% coverage, RMSE, |log error|, bias, run-to-run CV.",
   "Held-out test set: 88 buildings (stratified, seed 226)."]);
 
 // ---- column 2 ------------------------------------------------------------------------

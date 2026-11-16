@@ -12,7 +12,7 @@ It started from the course reference code, [eunicehjung/CEE226-BuildingLCA-LLM](
 |---|---|
 | **Final prompt** (v5, enclosure A1–A3; plus wb6, whole building A–C) | [`report/final_prompt.md`](report/final_prompt.md) |
 | Paper (ICML-style, all prompts in the appendix) | [`report/latex/main.pdf`](report/latex/main.pdf) |
-| Reports | [`report/report.md`](report/report.md) (English), [`report/report_zh.md`](report/report_zh.md) / [`report/report_zh.pdf`](report/report_zh.pdf) (中文) |
+| Reports | [`report/report.md`](report/report.md) / [`report/report.pdf`](report/report.pdf) (English), [`report/report_zh.md`](report/report_zh.md) / [`report/report_zh.pdf`](report/report_zh.pdf) (中文) |
 | Poster | [`report/poster/poster.pptx`](report/poster/poster.pptx) / [`poster.pdf`](report/poster/poster.pdf) |
 | Weekly updates | [`report/weekly/`](report/weekly/) |
 
@@ -123,7 +123,7 @@ python summarize_run.py 20261104_baseline-innate
 
 ### Outliers, the data ceiling and prompt v4
 
-- **Outliers** (`analysis/outliers.py`): 30 buildings (10.3%) are flagged by rules that use only the reference LCA and the features: incomplete reference (10), enclosure not in the LCA's physical scope (13), extreme value by Tukey's fences on the log scale (18). The cleaned set has 262 buildings.
+- **Outliers** (`analysis/outliers.py`): 30 buildings (10.3%) are flagged by rules that use only the reference LCA and the features: incomplete reference (10), enclosure not in the LCA's physical scope (13), extreme value by Tukey's fences on the log scale (18). The cleaned set has 262 buildings. What is wrong with each one is in report Section 2.1 and `analysis/outlier_details.md`: 13 LCAs never assessed the enclosure, 11 new buildings have no or almost no glass in their inventory, 5 renovations touched little of the enclosure, and one re-cladding is divided by a small renovated floor area.
 - **Ceiling** (`analysis/ceiling.py`): one constant for every building covers 27% (30% cleaned). A random forest or gradient boosting model trained on the dataset covers 26–28% (34% cleaned) in cross-validation. The whole-building A–C task of the course reference is easier: a constant covers 35% there.
 - **Prompt v4** (`analysis/weight_search.py`, `analysis/v4_study.py`): coverage 32.2% on all 292, 34.7% on the cleaned set, 35.2% on the 88 held-out buildings (37.0% cleaned test); bias 0.98; run-to-run CV 5.3%. It is more compressed than v3 (log–log slope 0.36 vs 0.59), so it is better for typical buildings and worse for unusual ones. See report Sections 12–13.
 

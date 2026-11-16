@@ -92,7 +92,7 @@ We narrow that question to the enclosure and to the product stage (A1--A3), wher
 
 \textbf{Composition.} Insulation (26.4\%) and aluminum (22.0\%) dominate (Fig.~\ref{fig:composition}). XPS alone is 15.5\%, at 43.6~kgCO$_2$e/kg, against 1.2 for mineral wool and 3.1 for polyiso. That is the HFC-blown product modelled by Tally and One Click LCA in the assessment years. 149 projects contain XPS.
 
-\textbf{Data quality.} Ten new-construction projects have no fenestration GWP at all, although several report a WWR of 0.5--0.7. We report results with and without them.
+\textbf{Data quality.} 30 of the 292 reference values (10.3\%) do not describe a building's enclosure. The source LCA either did not assess the enclosure, left the windows out of its inventory, or divides a small amount of enclosure work by a floor area it does not match (Section~\ref{sec:ceiling}, Appendix~\ref{app:outliers}). Ten new-construction projects without any fenestration GWP were flagged from the start; from Section~\ref{sec:ceiling} on, every result is reported on all 292 buildings and on the cleaned 262.
 
 \begin{figure}[t]
 \centering
@@ -312,6 +312,25 @@ After v3 the coverage was still 25\%, well below the 34--46\% reported for the c
 \item \emph{Extreme} (18): the log value lies outside Tukey's fences (below 11.6 or above 472~\coe).
 \end{itemize}
 The rules overlap; together they flag 30 buildings (10.3\%). The cleaned set has 262 buildings (181 dev, 81 test). We report every result on all 292 and on the cleaned set.
+
+\textbf{What is wrong with their data.} We opened the reference LCA of each flagged building (\path{analysis/outlier_details.py}; every building in Appendix~\ref{app:outliers}). Renovations and fit-outs are 19 of the 30 but only 49 of all 292 buildings, and the flagged inventories are sparse: a median of 28 enclosure rows, against 156 for the other 262 buildings. All but two values lie in the bottom quarter of the distribution. The problems fall into four kinds (Table~\ref{tab:outliers}), none of which the features describe. Every prompt places at most 5 of the 30 within $\pm$20\%, and v4 and v5 overestimate them a median 2.6 times.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{The 30 outliers by kind of data problem.}
+\label{tab:outliers}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.36\columnwidth}cp{0.47\columnwidth}}
+\toprule
+Problem & $n$ & What the value measures instead \\
+\midrule
+The source LCA did not assess the enclosure (scope without E) & 13 & items an interior or structural study happened to class as enclosure: interior glazing, steel studs, gypsum board, paint, one insulation entry \\
+Windows missing from a new building's inventory & 11 & only the modelled part of the enclosure (e.g.\ project 74: WWR 0.65, two rows, 0.6~\coe{}); three are open parking garages, where no glass is plausible \\
+Renovation or fit-out that touched little of the enclosure & 5 & a few new windows or some insulation divided by the whole floor area (0.5--11.3) \\
+Whole facade divided by a small renovated floor area & 1 & a full re-cladding of a 16--20 storey office per m$^2$ of 3{,}350~m$^2$ of renovated floor (513.9) \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \textbf{How much can any estimator get from these features?} Table~\ref{tab:ceiling} gives three reference points (\path{analysis/ceiling.py}).
 \begin{itemize}
@@ -662,6 +681,53 @@ Tables from \path{results/wb6_tables.json} (\path{analysis/fit_wb6_tables.py}).
 \lstinputlisting{prompts/task_wb6.txt}
 \subsection{Subagent instructions (template)}
 \lstinputlisting{prompts/subagent_instructions.txt}
+
+\section{The 30 outlier buildings}
+\label{app:outliers}
+Rules: R1 incomplete inventory (new construction without any fenestration GWP), R2 out of scope (\texttt{lca\_phys\_scope} without E), R3 extreme (outside Tukey's fences, 11.6 and 472~\coe). Value: enclosure A1--A3 in \coe{} floor area. Items: the largest enclosure entries of the reference LCA, per m$^2$ of floor (\path{analysis/outlier_details.md} lists all).
+
+\begin{table*}[p]
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{rlp{0.25\textwidth}rp{0.31\textwidth}p{0.22\textwidth}}
+\toprule
+Project & Rule & Building, scope & Value & Largest enclosure items & What is wrong \\
+\midrule
+74 & R1, R3 & new office, 2--5 storeys, WWR 0.65; BSE & 0.6 & 2 rows: aluminium panel 0.5, mineral wool 0.1 & no glass despite 65\% glazing \\
+66 & R1, R3 & new office, 2--5 storeys, WWR 0.46; BSECF & 7.0 & roofing 1.4, aluminium panel 1.3, XPS 1.2, insulation 1.0 & no glass despite 46\% glazing \\
+80 & R1, R3 & new industrial, 1 storey; BSE & 9.4 & 3 rows: aluminium panel 5.6, XPS 3.3, roofing 0.5 & no openings at all \\
+234 & R1 & new hospital, 11--15 storeys; BSE & 15.5 & 4 rows: concrete 11.3, insulation 4.2 & no glass, no cladding \\
+35 & R1 & new parking garage, 6--10 storeys; BSE & 17.2 & 4 rows: steel 11.1, concrete block 6.0 & open garage: no glass plausible \\
+27 & R1 & new parking garage, 6--10 storeys; BSE & 24.9 & concrete 10.3, rebar 4.5, mortar 2.5, steel sheet 2.0 & open garage \\
+217 & R1 & new school, 2--5 storeys, WWR 0.22; BSECF & 27.0 & mineral wool 12.1, aluminium extrusions 8.3, terracotta 3.5 & window frames without glass \\
+91 & R1 & new warehouse, 1 storey; BSE & 29.2 & 6 rows: steel studs 16.1, coatings 6.7, aluminium sheet 6.4 & no glass, no insulation \\
+141 & R1 & new parking garage, 1 storey; BSE & 41.7 & 4 rows: concrete 28.8, concrete block 7.5, rebar 5.4 & open garage \\
+264 & R1 & new assembly building, WWR 0.34; BSECF & 141.4 & aluminium sheet 103.6, mineral wool 8.5, polyiso 6.8 & no glass, but 104 of aluminium sheet \\
+\midrule
+134 & R2, R3 & office fit-out; CF & 2.6 & steel studs 1.8, steel 0.3, terracotta 0.2, glass 0.2 & interior study \\
+135 & R2, R3 & laboratory, minor renovation, 43{,}500 m$^2$; SCF & 2.7 & aluminium sheet 1.4, fiberglass 0.4, steel 0.4 & few facade items, large floor area \\
+163 & R2, R3 & office, minor renovation; CF & 3.1 & glazing 1.6, cellulose 0.7, aluminium 0.6 & interior study \\
+136 & R2, R3 & assembly fit-out, 250 m$^2$; CF & 4.3 & glass 2.9, fiberglass 0.7 & small fit-out \\
+43 & R2, R3 & school, minor renovation; CF & 6.8 & glazing 3.1, fiberglass 1.8, steel studs 0.8 & interior study \\
+104 & R2, R3 & office fit-out, 21+ storeys; CF & 7.6 & mineral wool 5.6, other insulation 1.5, glazing 0.5 & insulation only \\
+122 & R2, R3 & office, major renovation; SCF & 10.0 & mineral wool 2.7, storefront 1.5, steel studs 1.3 & structure and interiors only \\
+42 & R2, R3 & school, minor renovation; CF & 10.4 & glazing 6.0, aluminium 2.1, doors 1.1 & interior study \\
+101 & R2 & office fit-out, 21+ storeys; CF & 11.6 & aluminium extrusions 8.1, glazing 2.3 & interior storefronts \\
+85 & R2 & office fit-out, 430 m$^2$; CF & 12.9 & steel studs 4.3, storefront 2.6, windows 1.5 & small fit-out \\
+205 & R2 & hotel, minor renovation; SCF & 13.2 & XPS 6.6, air barrier 2.1, rebar 1.9 & rebar classed as enclosure \\
+10 & R2 & office, major renovation; CF & 14.0 & one row: mineral wool 14.0 & a single insulation entry \\
+228 & R2 & office fit-out, 11--15 storeys; CF & 26.1 & glazing 6.8, gypsum board 6.5, steel studs 5.6, paint 1.9 & interior partitions classed as enclosure \\
+\midrule
+108 & R3 & store, minor renovation; SEC & 0.5 & one row: fiberglass 0.5 & renovation barely touched the enclosure \\
+54 & R3 & apartments, major renovation + addition; BSE & 6.5 & glass 3.7, XPS 2.3, aluminium panel 0.4 & new windows over the whole floor area \\
+99 & R3 & store, minor renovation; SEC & 6.5 & fiberglass 4.2, concrete 0.6, polyiso 0.5 & partial insulation upgrade \\
+103 & R3 & laboratory, minor renovation, 24{,}750 m$^2$; SECF & 10.1 & glass 3.4, aluminium 3.0, polyiso 2.3, bitumen 0.9 & window and roof replacement \\
+56 & R3 & new office tower, 16--20 storeys; BSEC & 10.7 & aluminium extrusions 3.6, composite panel 2.1, insulation 1.4; glazing 1.0 & almost no glass: under-modelled \\
+146 & R3 & office fit-out, 1 storey; ECF & 11.3 & storefront 4.3, aluminium 3.6, glass 1.6 & storefront replacement only \\
+137 & R3 & office tower, minor renovation, 16--20 storeys; BSECF & 513.9 & curtain wall 302, glass 97, aluminium sheet 40, steel 32 & re-cladding of 7{,}660 m$^2$ of envelope per 3{,}350 m$^2$ of floor \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 \section{Reproduction}
 \begin{lstlisting}
