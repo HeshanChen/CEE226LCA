@@ -27,6 +27,7 @@ OUT = ROOT / "report" / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
 RUNS = {"v1": "20261104_baseline-innate", "v2": "20261104_prompt-v2", "v3": "20261104_prompt-v3"}
 V4_RUN = "20261116_prompt-v4"
+V5_RUN = "20261116_prompt-v5"
 COL = {"v1": "#2a78d6", "v2": "#eda100", "v3": "#B1040E"}
 INK, INK2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#ffffff"
 BINS = [(0, 25, "<25"), (25, 50, "25–50"), (50, 100, "50–100"), (100, 200, "100–200"), (200, 1e9, ">200")]
@@ -205,34 +206,43 @@ def fig_v4():
     f, _ = flags()
     clean = t.index[~f.outlier]
     est = {"v1": estimates(RUNS["v1"]), "v3": estimates(RUNS["v3"]), "v4": estimates(V4_RUN)}
+    keys = ["v1", "v3", "v4"]
+    if any((sr.RESULTS_ROOT / V5_RUN).glob("project-*_runs.csv")):
+        est["v5"] = estimates(V5_RUN)
+        keys.append("v5")
     V4C = "#175E54"
-    col = {"v1": COL["v1"], "v3": COL["v3"], "v4": V4C}
+    col = {"v1": COL["v1"], "v3": COL["v3"], "v4": V4C, "v5": "#8C1515"}
     fig, axes = plt.subplots(1, 2, figsize=(7.4, 3.0), gridspec_kw={"width_ratios": [1.25, 1]})
     ax = axes[0]
     style(ax)
     ax.grid(axis="y", visible=False)
     groups = [("All 292", t.index, 27.1, 28.4), ("Cleaned 262", clean, 30.2, 34.0)]
+    gap = len(keys) + 1.6
     for gi, (lab, idx, const, ml) in enumerate(groups):
-        y0 = gi * 4.6
+        y0 = gi * gap
         ax.hlines([y0 - 0.55, y0 + 2.55], 0, 0, color="none")
-        ax.axvspan(const, ml, ymin=1 - (y0 + 2.75 + 0.9) / 8.3, ymax=1 - (y0 - 0.55 + 0.9) / 8.3, color=GRID, zorder=0)
-        for ki, k in enumerate(["v1", "v3", "v4"]):
+        for ki, k in enumerate(keys):
             e = est[k].reindex(idx)
             kk, n = int(((t.loc[idx] >= 0.8 * e) & (t.loc[idx] <= 1.2 * e)).sum()), len(idx)
             ci = stats.binomtest(kk, n).proportion_ci(0.95, method="wilson")
             y = y0 + ki
             ax.hlines(y, 100 * ci.low, 100 * ci.high, color=col[k], linewidth=2, alpha=0.5, zorder=2)
-            ax.scatter(100 * kk / n, y, s=46, color=col[k], edgecolor=SURFACE, linewidth=1, zorder=3)
-            ax.annotate(f"{k}  {100 * kk / n:.1f}%", (max(100 * ci.high, ml), y), xytext=(6, 0), textcoords="offset points",
-                        va="center", fontsize=8, color=INK, fontweight="bold" if k == "v4" else "normal")
-        ax.text(const - 0.4, y0 + 2.62, "constant", ha="right", va="center", fontsize=6.5, color=INK2)
-        ax.text(ml + 0.4, y0 + 2.62, "ML ceiling (CV)", ha="left", va="center", fontsize=6.5, color=INK2)
-        ax.vlines([const, ml], y0 - 0.5, y0 + 2.75, color=INK2, linewidth=0.8, linestyles=["--", "-"], zorder=1)
-    ax.set_yticks([1, 5.6], [g[0] for g in groups])
-    ax.set_ylim(7.4, -0.9)
+            fitted = k == "v5"
+            ax.scatter(100 * kk / n, y, s=46, color=SURFACE if fitted else col[k], edgecolor=col[k],
+                       linewidth=1.8 if fitted else 1, zorder=3)
+            ax.annotate(f"{k}{' (fitted)' if fitted else ''}  {100 * kk / n:.1f}%", (max(100 * ci.high, ml), y),
+                        xytext=(6, 0), textcoords="offset points", va="center", fontsize=8, color=INK,
+                        fontweight="bold" if k in ("v4", "v5") else "normal")
+        top = y0 + len(keys) - 0.25
+        ax.fill_betweenx([y0 - 0.5, top], const, ml, color=GRID, zorder=0)
+        ax.text(const - 0.4, top - 0.12, "constant", ha="right", va="center", fontsize=6.5, color=INK2)
+        ax.text(ml + 0.4, top - 0.12, "ML ceiling (CV)", ha="left", va="center", fontsize=6.5, color=INK2)
+        ax.vlines([const, ml], y0 - 0.5, top, color=INK2, linewidth=0.8, linestyles=["--", "-"], zorder=1)
+    ax.set_yticks([(len(keys) - 1) / 2, gap + (len(keys) - 1) / 2], [g[0] for g in groups])
+    ax.set_ylim(gap + len(keys) + 0.2, -0.9)
     ax.set_xlim(12, 47)
     ax.set_xlabel("±20% coverage, % (bars: 95% CI)")
-    ax.set_title("v4 reaches what the features can support", loc="left", fontsize=9.5, color=INK)
+    ax.set_title("Coverage against the constant and the ML ceiling", loc="left", fontsize=9.5, color=INK)
     ax = axes[1]
     style(ax)
     P = parts(V4_RUN)
@@ -243,7 +253,7 @@ def fig_v4():
         ax.plot(ws, y, ls, color=V4C, linewidth=2, zorder=3, label=lab)
     ax.axvline(0.5, color=INK2, linewidth=0.8, linestyle=":")
     ax.set_ylim(18, 40)
-    ax.text(0.5, 18.5, " chosen", fontsize=7, color=INK2, va="bottom")
+    ax.text(0.5, 39.6, " chosen", fontsize=7, color=INK2, va="top")
     ax.legend(loc="lower left", frameon=False, fontsize=7.5, handlelength=2.6)
     ax.set_xlabel("Weight on the bottom-up take-off (rest: use benchmark)")
     ax.set_ylabel("Coverage, %")
