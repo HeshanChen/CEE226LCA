@@ -21,8 +21,12 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v3"         # "v1" baseline, "v2" after the baseline error analysis, "v3" after the v2 results
-CONDITION = "prompt-v3"       # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "v4"         # "v1" baseline, "v2" after the error analysis, "v3" sourced intensities, "v4" weighted evidence
+CONDITION = "prompt-v4"       # label written to the ontology_mode column of the runs CSVs
+
+# v4 only: write the task text once per task file (shared context) instead of repeating it under every
+# building. The text each building gets is the same; the task files shrink from about 130k to 20k tokens.
+TASK_TEXT_ONCE = PROMPT_VERSION == "v4"
 
 INCLUDE_PAPERS = False        # background papers (text extracted from the PDFs)
 PAPER_PATHS = [REF / f"{i}.pdf" for i in range(1, 5)]
@@ -189,28 +193,93 @@ End your answer with exactly one final line in this format and nothing after it:
 RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on that line)"""
 
+# v4: weighted evidence (report section "Prompt v4"). Two sources get equal weight: the v3 bottom-up
+# take-off and a benchmark by primary use fitted on the cleaned development set
+# (analysis/weight_search.py -> results/benchmarks_dev.json; the test buildings never enter it).
+# Also new: an attention order for the features, the out-of-scope rule (lca_phys_scope without E),
+# envelope-to-floor ratios by storeys for buildings without an envelope area (medians of the
+# features themselves), and feature-keyed literature facts (references/feature_keyed_facts.md).
+V4_BENCHMARKS = ("Education 91; Office 79; Residential: Multifamily 54; Public Assembly 94; Laboratory 95; "
+                 "Warehouse and Storage 62; Healthcare 79; Public Order and Safety 161; Transportation Hub 153; "
+                 "any other use 85")
+TASK_TEXT_V4 = """\
+Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
+- exterior walls as complete assemblies: cladding, backup framing or studs, sheathing, cavity and continuous insulation, air and vapor barriers, and the interior gypsum layer of exterior walls; structural exterior walls (concrete, CMU, tilt-up) when they form the wall;
+- fenestration: windows, curtain wall, storefront and skylights (frames and glass), and exterior doors;
+- the roof assembly above the structural deck: insulation, cover board, membrane or roofing;
+- insulation at slab edges, below grade and under slabs that belongs to the thermal envelope.
+It excludes foundations, the structural frame, floor and roof decks or slabs, interior partitions and interior finishes.
+
+How to weigh the evidence. No feature describes the wall, glazing or roof assembly, so an estimate built only from assumed assemblies is uncertain. Reference LCAs of buildings with the same use are an equally strong source. Build both estimates and give them equal weight:
+- Step A, bottom-up (weight 50%): this building's own areas, likely assemblies and component intensities.
+- Step B, benchmark (weight 50%): the median enclosure result of reference LCAs with the same primary use.
+Inside Step A, spend your attention in this order:
+1. Envelope quantity (about half): bldg_therm_env_area, or storeys, height and floor area when it is missing, and bldg_wwr.
+2. Assembly class (about a third): bldg_prim_use, bldg_ibc_type and the structural system indicate wood-frame, steel-stud, masonry, precast or curtain-wall construction.
+3. Insulation convention (the rest): climate zone, R-values, lca_software, lca_assessment_year and the state or province decide whether HFC-blown XPS is plausible.
+Leave out the seismic, wind, structural-grid, foundation, occupancy and code-year fields. In reference LCAs they do not move the enclosure value.
+
+Special case, check it first. lca_phys_scope lists the element groups the LCA modelled: B substructure, S superstructure, E enclosure, C interior construction, F finishes. If it does not contain E, the enclosure was not modelled and only incidental items are booked under it. In that case skip Steps A to C and report BOTTOM_UP 8, BENCHMARK 8 and the range 6 - 10.
+
+Step A. Bottom-up estimate. Work through these steps and show the key numbers:
+1. Areas. If bldg_therm_env_area is given, use it as the total envelope area; it covers the roof, the above-grade walls and the ground-floor slab. Otherwise estimate the roof area (footprint = floor area / stories above grade), the above-grade wall area (perimeter x height) and the glazed area (bldg_wwr x wall area), plus any insulated ground-floor or below-grade area. Buildings that report an envelope area have these typical envelope-to-floor ratios: 1 storey 2.1; 2-5 storeys 1.1; 6-10 storeys 0.7; 11-15 storeys 0.5; 16 or more 0.4. Roof and ground slab are each about floor area / storeys, and the rest is wall. Typical gross wall area per m2 of floor is 0.2 for one- and two-storey schools, 0.4-0.5 for 3-6 storey offices, hotels and apartments, about 0.3 for large offices and hospitals, and 0.4 for warehouses. When bldg_wwr is missing, typical values are 0.4-0.5 for large offices, 0.2-0.3 for small offices, 0.3-0.35 for education and laboratories, 0.3 for multifamily and healthcare, 0.15-0.2 for public assembly and public safety, and 0.05 for warehouses.
+2. Assemblies. From the climate zone, R-values, building use, structure, region and construction type, choose the most likely wall, glazing and roof assemblies, and name the insulation type and thickness. Facts about the North American stock:
+   - Schools, hospitals and hotels are mostly brick, stone or stucco veneer (55-64% of wall area). Large offices are mostly precast or curtain wall, and offices above about 10 storeys usually have unitized curtain wall. Warehouses are metal panel or tilt-up concrete. High-rise residential is mostly aluminum window wall.
+   - Roofs are low-slope membrane over rigid board insulation for offices, schools, hospitals and retail, and metal roofs for warehouses.
+   - Whole-building LCA models from this period (Tally, One Click LCA) often model roof and below-grade insulation as XPS made with HFC blowing agents. HFC-blown XPS was banned from January 2021 in Canada and in WA, CA, CO, NY and VT, and US-wide only from 2025, and tool datasets lag behind the market. When the insulation type is not known, include that case in your range, especially in colder climates where the insulation is thick.
+3. Intensities. Give each component an A1-A3 intensity in kgCO2e per m2 of that component. Use these reference values from EPDs and industry baselines (A1-A3, per m2 of component):
+{intensities}
+   - A facade of punched windows in panel or masonry cladding has roughly half the per-m2 intensity of an all-curtain-wall facade (74 against 138 in one same-tool comparison). At R-30, legacy HFC XPS is about 195 kgCO2e per m2 of roof against about 18 for low-GWP XPS.
+Complete assemblies include framing, attachments, sheathing, barriers, sealants, flashing and trim, which early-stage take-offs tend to leave out; do not go below the low end of these ranges unless the assembly is clearly minimal.
+4. Check. Convert your total to kgCO2e per m2 of envelope area and check that it is consistent with the reference values above. For new construction with conventional walls and 30-40% glazing, a blended value below about 50 kgCO2e per m2 of envelope usually means that a component, the aluminum and glazing content, or a high-carbon insulation option is missing; revisit those before you finalize.
+5. Bottom-up result. Divide the enclosure total by the floor area and give a bottom-up range that reflects your uncertainty about the assemblies, including the higher-carbon alternatives that are plausible for this building. A is the midpoint of that range.
+6. Renovations. For renovations and tenant improvements the LCA covers only the new work, but that work often includes substantial new envelope elements (re-cladding, new curtain wall or windows, re-roofing); a renovation that re-clads has about the enclosure of a new building. Do not assume the existing envelope is kept unless the data indicates it. Use bldg_proj_type, lca_phys_scope and mass_total per floor area as evidence of how much new material was installed.
+
+Step B. Benchmark. Median enclosure A1-A3 in reference LCAs of North American buildings with the same primary use, in kgCO2e per m2 of floor area (181 buildings assessed 2019-2024 with Tally or One Click LCA):
+{benchmarks}.
+Take B from bldg_prim_use alone and do not adjust it.
+
+Step C. Combine. FINAL = 0.5 x A + 0.5 x B. Report the range from 0.8 x FINAL to 1.2 x FINAL. The midpoint of your reported range is taken as your estimate, so keep it centred on FINAL.
+
+Floor area: use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa.
+
+End your answer with exactly three final lines in this format and nothing after them:
+BOTTOM_UP_kgCO2e_per_m2: <A>
+BENCHMARK_kgCO2e_per_m2: <B>
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on these lines)"""
+
 TASK_TEXTS = {"v1": TASK_TEXT_V1, "v2": TASK_TEXT_V2,
-              "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES)}
+              "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES),
+              "v4": TASK_TEXT_V4.format(intensities=V3_INTENSITIES, benchmarks=V4_BENCHMARKS)}
 TASK_TEXT = TASK_TEXTS[PROMPT_VERSION]
 
 # Instructions given to each Claude Code subagent (the "LLM under test"). {placeholders} are
 # filled by subagent_runs.py prepare. ANSWER_LENGTH and FINAL_LINES follow the prompt version.
 ANSWER_LENGTH = {"v1": "briefly state your method and key assumptions (roughly 60-150 words)",
                  "v2": "work through its method steps with the key numbers (roughly 120-250 words)",
-                 "v3": "work through its method steps with the key numbers (roughly 120-250 words)"}[PROMPT_VERSION]
+                 "v3": "work through its method steps with the key numbers (roughly 120-250 words)",
+                 "v4": "work through Steps A, B and C with the key numbers (roughly 120-250 words)"}[PROMPT_VERSION]
 FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v2": "the two final lines `BEST_kgCO2e_per_m2: <value>` and "
                      "`RANGE_kgCO2e_per_m2: <low> - <high>`",
-               "v3": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
+               "v3": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
+               "v4": "the three final lines `BOTTOM_UP_kgCO2e_per_m2: <A>`, `BENCHMARK_kgCO2e_per_m2: <B>` and "
+                     "`RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
 CONTEXT_DESC = ("a glossary of the feature names and four reference documents on enclosure embodied carbon"
-                if INCLUDE_ENVELOPE_DOCS else "a glossary of the feature names")
+                if INCLUDE_ENVELOPE_DOCS else
+                "a glossary of the feature names and the task, which is the question asked for every building"
+                if TASK_TEXT_ONCE else "a glossary of the feature names")
+BLOCK_DESC = "the building's features" if TASK_TEXT_ONCE else "the building's features and the question"
 KNOWLEDGE = ("your own knowledge and the reference documents included in the task file"
-             if INCLUDE_ENVELOPE_DOCS or INCLUDE_PAPERS else "your own knowledge")
+             if INCLUDE_ENVELOPE_DOCS or INCLUDE_PAPERS else
+             "your own knowledge and the reference values given in the task" if PROMPT_VERSION == "v4"
+             else "your own knowledge")
 SUBAGENT_INSTRUCTIONS = """\
 You are the language model being tested in a building life-cycle-assessment (LCA) experiment for a university course project. Your job is to answer a set of estimation prompts using only {knowledge}.
 
 Input file: {task_file}
-It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context ({context_desc}), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by the building's features and the question.
+It is about {n_lines:,} lines, so read all of it with the Read tool, using offset/limit to page past line 2,000. It contains a System line, a shared context ({context_desc}), and {n_buildings} building sections. Each section starts with a line like `===== KEY: {example_key} =====`, followed by {block_desc}.
 
 Rules. Breaking any of these invalidates the experiment:
 - Read only that one task file. Do not open, list or search any other file or folder (especially nothing under results/, GWP-calculation/ or references/). Do not use web search or web fetch, and do not run code or shell commands. The only tools you may use are Read (on the task file) and Write (for your answer files).
@@ -230,7 +299,8 @@ Answer all {n_buildings} buildings, in the order they appear in the task file, w
 When you are finished, reply with exactly one line: `done: <number of answers written> answers in <number of parts> parts`. Do not include the answers themselves in your reply."""
 EXAMPLE_FINAL = {"v1": "RANGE_kgCO2e_per_m2: 40 - 75",
                  "v2": "BEST_kgCO2e_per_m2: 55\nRANGE_kgCO2e_per_m2: 40 - 75",
-                 "v3": "RANGE_kgCO2e_per_m2: 40 - 75"}[PROMPT_VERSION]
+                 "v3": "RANGE_kgCO2e_per_m2: 40 - 75",
+                 "v4": "BOTTOM_UP_kgCO2e_per_m2: 60\nBENCHMARK_kgCO2e_per_m2: 79\nRANGE_kgCO2e_per_m2: 56 - 83"}[PROMPT_VERSION]
 
 
 # --------------------------------------------------------------------------------------
@@ -295,6 +365,8 @@ def build_prefix() -> list[str]:
         parts.append(f"Additional reference ({p.name}):\n\n{p.read_text(encoding='utf-8')}")
     parts.append("Reference the given feature information above. Estimate the embodied carbon of "
                  "the building enclosure of the building below:")
+    if TASK_TEXT_ONCE:
+        parts.append("## Task (the same question is asked for every building below)\n\n" + TASK_TEXT)
     return parts
 
 
@@ -311,6 +383,8 @@ def format_building(row: pd.Series) -> str:
 
 
 def build_building_prompt(building_text: str) -> str:
+    if TASK_TEXT_ONCE:
+        return building_text
     return f"{building_text}\n\n{TASK_TEXT}"
 
 
@@ -318,6 +392,7 @@ def settings() -> dict:
     return {
         "condition": CONDITION,
         "prompt_version": PROMPT_VERSION,
+        "task_text_once": TASK_TEXT_ONCE,
         "include_papers": INCLUDE_PAPERS,
         "papers": [p.name for p in PAPER_PATHS] if INCLUDE_PAPERS else [],
         "include_practice_guide": INCLUDE_PRACTICE_GUIDE,
