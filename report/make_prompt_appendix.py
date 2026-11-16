@@ -88,6 +88,14 @@ def main():
         "",
         fence(cfg.TASK_TEXTS["wb5"]),
         "",
+        "## H2. Task text wb6 (whole building, A-C, answer-fitted; final whole-building prompt)",
+        "",
+        "Built to keep the highest and lowest buildings on the curve: no use benchmark, a mass route calibrated by "
+        "structural system x use and by region, and the typical range for the building's mass intensity band. "
+        "In-sample by design (`analysis/fit_wb6_tables.py`, `results/wb6_tables.json`).",
+        "",
+        fence(cfg.TASK_TEXTS["wb6"]),
+        "",
         f"## I. Example building block, v3 (project-{EXAMPLE_PROJECT})",
         "",
         fence(b3),

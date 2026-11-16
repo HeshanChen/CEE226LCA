@@ -26,7 +26,7 @@ def main():
     files = {"system.txt": cfg.SYSTEM_PROMPT, "shared_context.txt": "\n\n".join(parts),
              "task_v1.txt": cfg.TASK_TEXT_V1, "task_v2.txt": cfg.TASK_TEXT_V2, "task_v3.txt": cfg.TASK_TEXTS["v3"],
              "task_v4.txt": cfg.TASK_TEXTS["v4"],
-             "task_v5.txt": cfg.TASK_TEXTS["v5"], "task_wb5.txt": cfg.TASK_TEXTS["wb5"],
+             "task_v5.txt": cfg.TASK_TEXTS["v5"], "task_wb5.txt": cfg.TASK_TEXTS["wb5"], "task_wb6.txt": cfg.TASK_TEXTS["wb6"],
              "subagent_instructions.txt": cfg.SUBAGENT_INSTRUCTIONS}
     meta = cfg.load_metadata().set_index("project_index")
     files["building_225.txt"] = cfg.format_building(meta.loc[225])
