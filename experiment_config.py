@@ -21,8 +21,8 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v4"         # "v1" baseline, "v2" after the error analysis, "v3" sourced intensities, "v4" weighted evidence
-CONDITION = "prompt-v4"       # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "v5"         # "v1" baseline, "v2" after the error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted
+CONDITION = "prompt-v5"       # label written to the ontology_mode column of the runs CSVs
 
 # v4 only: write the task text once per task file (shared context) instead of repeating it under every
 # building. The text each building gets is the same; the task files shrink from about 130k to 20k tokens.
@@ -278,8 +278,21 @@ V5_B_TABLE = """\
    - Public Order and Safety: 2 to 5 storeys 160; other storeys 132
    - Transportation Hub: 2 to 5 storeys 196; other storeys 157
    - any other use: 84"""
-V5_PASSAGES_K = ""   # filled from references/answer_guided_passages.md
-V5_PASSAGES_B = ""
+# Passages from references/answer_guided_passages.md (selected for agreement with the fitted values).
+V5_PASSAGES_K = """\
+   Supporting literature:
+   - "Using the early design tool (scenario ED1) gives a higher impact of 18-42% for the whole building compared to the detailed LCA approach. This is due to the additional building elements, the conservative materials estimation and the completeness of inventory" (Zimmermann et al. 2019, IOP Conf. Ser.: Earth Environ. Sci. 323, 012118).
+   - "Process LCAs thus tend to systematically underestimate the emissions ... the truncation error can be even as high as 50%" (Heinonen et al. 2016, Building and Environment 95).
+   - A thermally broken cladding attachment system is 24-30% of the A1-A3 GWP of a steel-stud wall with metal cladding (RDH Building Science 2025, Embodied Carbon Analysis: Spray Foam Assemblies).
+   - In the harmonized North American WBLCA data, assigning tool output that had no building element raised the average Shell - Enclosure GWP by 19% (Benke et al. 2025, Scientific Data).
+"""
+V5_PASSAGES_B = """\
+   Supporting literature:
+   - Average enclosure A1-A3 in North American whole-building LCAs is 108 kgCO2e/m2 for commercial buildings and 72 for multifamily residential (Carbon Leadership Forum, EC Policy Reduction Calculator documentation); these are means, so medians are lower.
+   - "The IQRs of each physical scope ... included ... Enclosure (~80-170 kgCO2e/m2)", life-cycle stages A-C (Benke et al. 2025, The Embodied Carbon Benchmark Report, Carbon Leadership Forum).
+   - Facades are 15% of an average 560 kgCO2e/m2 of upfront (A1-A5) carbon in office case studies, about 84 kgCO2e/m2 (WBCSD and Arup 2021, Net-zero buildings: Where do we stand?).
+   - "To meet the TGS target of 350kgCO2e/m2, the average envelope ECI should not exceed 80.5 kgCO2e/m2" for Toronto multi-unit residential buildings (BDP Quadrangle 2024).
+"""
 TASK_TEXT_V5 = """\
 Scope. Estimate the embodied carbon of the building enclosure as classified in this dataset (OmniClass "Shell - Enclosure"), life cycle stages A1-A3 only (raw material supply, transport to the factory, manufacturing). Exclude A4, A5, B, C and D. The enclosure includes:
 - exterior walls as complete assemblies: cladding, backup framing or studs, sheathing, cavity and continuous insulation, air and vapor barriers, and the interior gypsum layer of exterior walls; structural exterior walls (concrete, CMU, tilt-up) when they form the wall;
