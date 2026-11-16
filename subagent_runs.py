@@ -42,7 +42,7 @@ CSV_COLUMNS = [
     "project", "run_idx", "low", "high", "mid", "parse_ok", "failure_type",
     "ontology_mode", "geometry_mode", "finish_reason", "output_tokens", "thought_tokens",
     "cached_tokens", "prompt_tokens", "latency_s", "model", "temperature",
-    "thinking_setting", "timestamp", "best", "bottom_up", "benchmark", "calibrated",
+    "thinking_setting", "timestamp", "best", "bottom_up", "benchmark", "calibrated", "mass_route",
 ]
 KEY_LINE = re.compile(r"^=====\s*KEY:\s*(project-\d+__run\d+)\s*=====\s*$", re.MULTILINE)
 
@@ -256,6 +256,7 @@ def cmd_collect(args):
             "bottom_up": (lambda v: "" if v is None else v)(parse_line(text, "BOTTOM_UP")),
             "benchmark": (lambda v: "" if v is None else v)(parse_line(text, "BENCHMARK")),
             "calibrated": (lambda v: "" if v is None else v)(parse_line(text, "CALIBRATED")),
+            "mass_route": (lambda v: "" if v is None else v)(parse_line(text, "MASS_ROUTE")),
         })
     for name, rows in by_project.items():
         with open(out / f"{name}_runs.csv", "w", newline="", encoding="utf-8") as f:

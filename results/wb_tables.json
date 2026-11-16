@@ -1,0 +1,58 @@
+{
+  "fitted_on": "279 buildings (all except 13 extreme values): in-sample",
+  "weights": {
+    "own_estimate": 0.2,
+    "mass_route": 0.5,
+    "benchmark": 0.3
+  },
+  "F_structure": {
+    "Concrete": 0.37,
+    "Steel": 0.49,
+    "Wood": 0.47
+  },
+  "F_overall": 0.44,
+  "F_scope": {
+    "no structure": 1.49,
+    "structure without substructure": 0.68
+  },
+  "B_use_structure": {
+    "Education | Concrete": 583,
+    "Education | Steel": 506,
+    "Education | Wood": 426,
+    "Healthcare | Steel": 521,
+    "Laboratory | Concrete": 643,
+    "Laboratory | Steel": 482,
+    "Office | Concrete": 394,
+    "Office | Steel": 478,
+    "Office | Wood": 415,
+    "Public Assembly | Concrete": 342,
+    "Public Assembly | Steel": 529,
+    "Public Assembly | Wood": 560,
+    "Public Order and Safety | Steel": 813,
+    "Residential: Multifamily (5 or more units) | Concrete": 455,
+    "Residential: Multifamily (5 or more units) | Wood": 259,
+    "Transportation Hub | Steel": 452,
+    "Warehouse and Storage | Steel": 281
+  },
+  "B_use": {
+    "Education": 506,
+    "Healthcare": 514,
+    "Laboratory": 513,
+    "Office": 422,
+    "Public Assembly": 490,
+    "Public Order and Safety": 765,
+    "Residential: Multifamily (5 or more units)": 373,
+    "Transportation Hub": 452,
+    "Warehouse and Storage": 287
+  },
+  "B_overall": 450,
+  "B_scope": {
+    "no structure": 156,
+    "structure without substructure": 195
+  },
+  "n_scope": {
+    "substructure, structure and enclosure": 268,
+    "no structure": 6,
+    "structure without substructure": 5
+  }
+}

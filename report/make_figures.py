@@ -262,6 +262,61 @@ def fig_v4():
     save(fig, "fig_v4")
 
 
+def fig_bands(panels, truth, name, suptitle=None, unit="kgCO$_2$e/m$^2$ floor area"):
+    """Course-style band figure: one row per building, sorted by the reference value (low -> high).
+    Bar = estimate +/-20%, tick = estimate, dot = reference. Green = reference inside the band."""
+    INSIDE, OUTSIDE = "#175E54", "#B1040E"
+    fig, axes = plt.subplots(1, len(panels), figsize=(4.9 * len(panels), 8.6), sharey=True)
+    axes = np.atleast_1d(axes)
+    t = truth.dropna()
+    order = t.sort_values().index
+    for ax, (title, est) in zip(axes, panels):
+        e = est.reindex(order)
+        lo, hi = 0.8 * e, 1.2 * e
+        hit = (t.loc[order] >= lo) & (t.loc[order] <= hi)
+        rows = np.arange(len(order))
+        for inside, col in [(False, OUTSIDE), (True, INSIDE)]:
+            msk = (hit == inside).to_numpy()
+            ax.barh(rows[msk], (hi - lo).to_numpy()[msk], left=lo.to_numpy()[msk], height=0.85, color=col,
+                    alpha=0.22, linewidth=0, zorder=1)
+            ax.scatter(e.to_numpy()[msk], rows[msk], marker="|", s=10, color=col, linewidths=0.9, zorder=2)
+        ax.scatter(t.loc[order].to_numpy(), rows, s=3.2, color=INK, zorder=3, linewidths=0)
+        k, n = int(hit.sum()), len(order)
+        below, above = int((t.loc[order] < lo).sum()), int((t.loc[order] > hi).sum())
+        ax.set_xscale("log")
+        x0 = max(0.3, min(lo.min(), t.min()) * 0.8)
+        x1 = max(hi.max(), t.max()) * 1.15
+        ax.set_xlim(x0, x1)
+        ticks = [v for v in (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000) if x0 <= v <= x1]
+        ax.set_xticks(ticks, [f"{v:,}" for v in ticks])
+        ax.minorticks_off()
+        ax.set_ylim(-1, n)
+        ax.set_yticks([])
+        ax.spines[["top", "right", "left"]].set_visible(False)
+        ax.grid(axis="x", color=GRID, linewidth=0.6, zorder=0)
+        ax.set_title(f"{title}\n{k} of {n} inside ±20% ({100 * k / n:.1f}%)", loc="left", fontsize=10, color=INK)
+        ax.set_xlabel(f"{unit}, log scale")
+        ax.text(0.02, 0.98, f"reference above band: {above}\nreference below band: {below}", transform=ax.transAxes,
+                ha="left", va="top", fontsize=7.5, color=INK2)
+    axes[0].set_ylabel(f"{len(order)} buildings, sorted by reference value (low → high)")
+    if suptitle:
+        fig.suptitle(suptitle, x=0.01, ha="left", fontsize=10.5, color=INK)
+    fig.text(0.01, -0.01, "Bar = estimate ±20%; tick = estimate; dot = reference LCA. Green: the reference lies inside "
+             "the band; red: outside.", fontsize=8, color=INK2)
+    fig.tight_layout()
+    save(fig, name)
+
+
+def fig_bands_enclosure():
+    sys.path.insert(0, str(ROOT / "analysis"))
+    from feature_study import estimates
+    gt = pd.read_csv(ROOT / "results" / "ground_truth.csv")
+    t = pd.Series(gt["ECI_true_kgCO2e_m2"].values, index=gt["Project Name"].str.extract(r"(\d+)")[0].astype(int))
+    fig_bands([("Prompt v4 (benchmark from the development set)", estimates(V4_RUN)),
+               ("Prompt v5 (fitted to the reference data)", estimates(V5_RUN))], t, "fig_bands_enclosure",
+              unit="Enclosure A1–A3, kgCO$_2$e/m$^2$")
+
+
 def main():
     d, b, m, split = load()
     fig_bins(d)
@@ -270,6 +325,8 @@ def main():
     fig_diagnostics(d, b, m)
     fig_composition(b)
     fig_v4()
+    if any((ROOT / "results" / V5_RUN).glob("project-*_runs.csv")):
+        fig_bands_enclosure()
     for f in ["feature_study.png"]:
         src = ROOT / "analysis" / "figures" / f
         (OUT / f).write_bytes(src.read_bytes())
