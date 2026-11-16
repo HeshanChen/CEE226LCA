@@ -44,28 +44,28 @@ v4 coverage with Wilson 95% CI: all 32.2% (27.1-37.8); all, dev 30.9% (24.9-37.5
 
 | Set | Baseline | McNemar p (coverage) | Wilcoxon p (abs log) | v4 closer, % of buildings |
 |---|---|---|---|---|
-| all | v3 | 0.0354 | 6.11e-05 | 61.3 |
-| all | v1 | 0.000158 | 6.89e-07 | 62.7 |
-| all | constant | 0.025 | 5.72e-06 | 57.5 |
-| cleaned | v3 | 0.0295 | 1.29e-05 | 61.8 |
-| cleaned | v1 | 2.77e-05 | 1.9e-09 | 65.6 |
-| cleaned | constant | 0.0495 | 0.00706 | 54.2 |
-| all, test | v3 | 0.243 | 0.0594 | 59.1 |
-| all, test | v1 | 0.0351 | 0.0277 | 59.1 |
-| all, test | constant | 0.345 | 0.00498 | 61.4 |
+| all | v3 | 0.0354 | 5.26e-05 | 61.3 |
+| all | v1 | 0.000158 | 5.5e-07 | 62.7 |
+| all | constant | 0.025 | 5.12e-06 | 57.5 |
+| cleaned | v3 | 0.0295 | 1.09e-05 | 61.8 |
+| cleaned | v1 | 2.77e-05 | 1.39e-09 | 65.6 |
+| cleaned | constant | 0.0495 | 0.00645 | 54.2 |
+| all, test | v3 | 0.243 | 0.0589 | 59.1 |
+| all, test | v1 | 0.0351 | 0.0257 | 59.1 |
+| all, test | constant | 0.345 | 0.00466 | 61.4 |
 | cleaned, test | v3 | 0.229 | 0.096 | 58.0 |
-| cleaned, test | v1 | 0.0294 | 0.00786 | 61.7 |
-| cleaned, test | constant | 0.442 | 0.0343 | 59.3 |
+| cleaned, test | v1 | 0.0294 | 0.00713 | 61.7 |
+| cleaned, test | constant | 0.442 | 0.0324 | 59.3 |
 
 **Inside v4**
 
 - Evidence lines parsed in 100.0% of answers.
 - Reported range centred on 0.5 A + 0.5 B (within 3%) in 100.0% of those answers.
-- Out-of-scope rule applied in 40 answers; 38 of them are buildings whose `lca_phys_scope` has no E (38 such answers in total).
+- Out-of-scope rule applied in 41 answers; 39 of them are buildings whose `lca_phys_scope` has no E (39 such answers in total).
 
 | Source (mean of runs) | all | all, dev | all, test | cleaned | cleaned, dev | cleaned, test |
 |---|---|---|---|---|---|---|
-| A bottom-up only | 22.6 | 21.6 | 25.0 | 24.4 | 23.2 | 27.2 |
+| A bottom-up only | 22.3 | 21.1 | 25.0 | 24.0 | 22.7 | 27.2 |
 | B benchmark only | 30.1 | 32.4 | 25.0 | 32.8 | 35.4 | 27.2 |
 | 0.5 A + 0.5 B recomputed | 32.2 | 30.9 | 35.2 | 34.7 | 33.7 | 37.0 |
 | v4 as reported | 32.2 | 30.9 | 35.2 | 34.7 | 33.7 | 37.0 |
@@ -76,12 +76,12 @@ v4 coverage with Wilson 95% CI: all 32.2% (27.1-37.8); all, dev 30.9% (24.9-37.5
 |---|---|---|---|---|---|---|
 | 0.0 | 30.1 | 32.4 | 25.0 | 32.8 | 35.4 | 27.2 |
 | 0.2 | 31.5 | 32.4 | 29.5 | 34.4 | 35.4 | 32.1 |
-| 0.3 | 31.2 | 31.4 | 30.7 | 34.0 | 34.3 | 33.3 |
+| 0.3 | 30.8 | 30.9 | 30.7 | 33.6 | 33.7 | 33.3 |
 | 0.4 | 32.5 | 32.4 | 33.0 | 35.5 | 35.4 | 35.8 |
 | 0.5 | 32.2 | 30.9 | 35.2 | 34.7 | 33.7 | 37.0 |
-| 0.6 | 30.8 | 30.9 | 30.7 | 33.2 | 33.7 | 32.1 |
-| 0.7 | 29.1 | 30.4 | 26.1 | 31.3 | 32.6 | 28.4 |
-| 0.8 | 27.7 | 27.5 | 28.4 | 29.8 | 29.3 | 30.9 |
-| 1.0 | 22.6 | 21.6 | 25.0 | 24.4 | 23.2 | 27.2 |
+| 0.6 | 31.2 | 30.9 | 31.8 | 33.6 | 33.7 | 33.3 |
+| 0.7 | 28.8 | 29.4 | 27.3 | 30.9 | 31.5 | 29.6 |
+| 0.8 | 27.1 | 26.5 | 28.4 | 29.0 | 28.2 | 30.9 |
+| 1.0 | 22.3 | 21.1 | 25.0 | 24.0 | 22.7 | 27.2 |
 
 Run-to-run CV of v4: 5.3%. Coverage of single runs (all): 31.8%, 32.2%, 34.2%.

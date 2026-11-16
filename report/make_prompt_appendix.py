@@ -18,6 +18,7 @@ EXAMPLE_PROJECT = 225
 def full_prompt(version: str) -> tuple[str, str]:
     cfg.PROMPT_VERSION = version
     cfg.TASK_TEXT = cfg.TASK_TEXTS[version]
+    cfg.TASK_TEXT_ONCE = False      # show the v1-v3 layout: task text under every building
     meta = cfg.load_metadata().set_index("project_index")
     prefix = "\n\n".join(cfg.build_prefix())
     building = cfg.build_building_prompt(cfg.format_building(meta.loc[EXAMPLE_PROJECT]))
@@ -37,7 +38,8 @@ def main():
         "",
         "Each request is: system prompt, then the shared context (identical for every building), "
         "then the building block (its features, followed by the task text). In the subagent runs, "
-        "one task file holds the shared context once and 48–49 building blocks.",
+        "one task file holds the shared context once and 48–49 building blocks. For v4 the task text "
+        "is also written once per task file, after the glossary, and a building block holds only the features.",
         "",
         "## A. System prompt",
         "",
@@ -57,18 +59,26 @@ def main():
         "",
         fence(cfg.TASK_TEXT_V2),
         "",
-        "## E. Task text v3 (final prompt)",
+        "## E. Task text v3",
         "",
         "Reference values come from `references/envelope_intensities_sources.md` (sources and "
         "conversions listed there).",
         "",
         fence(cfg.TASK_TEXTS["v3"]),
         "",
-        f"## F. Example building block, v3 (project-{EXAMPLE_PROJECT})",
+        "## F. Task text v4 (final prompt)",
+        "",
+        "Weighted evidence: the v3 take-off (A) and a benchmark by primary use (B), combined with equal "
+        "weights. Benchmarks come from `results/benchmarks_dev.json` (cleaned development set); the "
+        "literature facts are documented in `references/feature_keyed_facts.md`.",
+        "",
+        fence(cfg.TASK_TEXTS["v4"]),
+        "",
+        f"## G. Example building block, v3 (project-{EXAMPLE_PROJECT})",
         "",
         fence(b3),
         "",
-        "## G. Subagent instructions (template)",
+        "## H. Subagent instructions (template)",
         "",
         "Rendered per task by `subagent_runs.py prepare` into "
         "`results/<run>/subagent/tasks/<task>.instructions.txt`.",

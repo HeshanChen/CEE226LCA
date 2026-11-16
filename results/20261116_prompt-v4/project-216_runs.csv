@@ -1,3 +1,4 @@
 project,run_idx,low,high,mid,parse_ok,failure_type,ontology_mode,geometry_mode,finish_reason,output_tokens,thought_tokens,cached_tokens,prompt_tokens,latency_s,model,temperature,thinking_setting,timestamp,best,bottom_up,benchmark
-project-216,0,103.2,154.8,129.0,True,,prompt-v4,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T10:58:54,,179.0,79.0
-project-216,2,85.8,128.7,107.25,True,,prompt-v4,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T10:58:54,,135.5,79.0
+project-216,0,103.2,154.8,129.0,True,,prompt-v4,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T11:00:34,,179.0,79.0
+project-216,1,92.4,138.6,115.5,True,,prompt-v4,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T11:00:34,,152.0,79.0
+project-216,2,85.8,128.7,107.25,True,,prompt-v4,none,,,,,,,claude-opus-5-5 (Claude Code subagent),,effort=medium,2026-11-16T11:00:34,,135.5,79.0

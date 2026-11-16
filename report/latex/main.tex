@@ -57,6 +57,8 @@ We test whether a large language model (Claude Opus~5.5, run as a Claude Code su
 With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the reference LCA. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. It also underestimates envelope area and misjudges renovations; its largest overestimates trace back to incomplete reference LCAs.
 
 Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Placing envelope-focused documents in context instead made the estimates worse (bias 0.61): the documents describe current low-carbon products rather than the data the reference LCAs used. Ten early-design inputs are as informative as all 48, and building use shapes enclosure carbon more than climate.
+
+The features themselves limit what any estimator can do. One constant for every building covers 27\%, and a machine-learning model trained on the dataset covers 26--34\% in cross-validation. The final prompt, v4, therefore gives equal weight to the model's own take-off and to a benchmark by building use fitted on a development set, and adds literature facts keyed to the features. It covers 32.2\% of all buildings, and 34.7\% after 30 rule-based outliers are removed, with no bias and a run-to-run variation of 5\%. On the 88 held-out buildings it covers 35.2\%. The price is more compression: v4 is better for typical buildings and worse for unusual ones.
 \end{quote}
 
 \section{Introduction}
@@ -74,7 +76,7 @@ We narrow that question to the enclosure and to the product stage (A1--A3), wher
 \begin{itemize}
 \item \emph{Ground truth.} Reported enclosure A1--A3 GWP of 292 real projects replaces modelled assemblies. Only GWP is evaluated, and the unit is per m$^2$ of floor area.
 \item \emph{Climate and use (proposal RQ1).} These are analysed from the data (Section~\ref{sec:data}), not from modelled assemblies.
-\item \emph{Knowledge conditions.} We test the innate baseline, a domain-knowledge condition with envelope-focused documents (Section~\ref{sec:domain}) and two prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the domain and feature conditions) instead of 10.
+\item \emph{Knowledge conditions.} We test the innate baseline, a domain-knowledge condition with envelope-focused documents (Section~\ref{sec:domain}) and three prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the domain and feature conditions) instead of 10.
 \item \emph{LEED.} The LEED~v5 credit-outcome evaluation was dropped. Hotspot agreement, the proposal's metric for it, is still reported (Section~\ref{sec:hotspot}). The cost, regulation and performance drivers are left out.
 \end{itemize}
 
@@ -102,7 +104,7 @@ We narrow that question to the enclosure and to the product stage (A1--A3), wher
 \section{Methods}
 \textbf{Model and isolation.} Each estimate comes from a Claude Code subagent (Claude Opus~5.5, medium effort). The subagent may read only its task file and write only its answers; it has no web access, no code execution and no access to the ground truth. A task file holds the system prompt, the feature glossary and 48--49 building blocks, each with the building's features and the task text (Appendix~\ref{app:prompts}). The model is told to treat every building independently.
 
-\textbf{Protocol.} Each prompt version is run 3 times on all 292 buildings (876 estimates). Buildings are shuffled with a fixed seed per run and split into six chunks. The chunks are identical across prompt versions, so results can be paired building by building. The estimate is the mean of the midpoints of the returned ranges. In one v3 run a container restart interrupted the subagents; the missing 162 buildings were answered by continuation tasks with the same prompt.
+\textbf{Protocol.} Each prompt version is run 3 times on all 292 buildings (876 estimates). Buildings are shuffled with a fixed seed per run and split into six chunks. The chunks are identical across prompt versions, so results can be paired building by building. The estimate is the mean of the midpoints of the returned ranges. In one v3 run a container restart interrupted the subagents; the missing 162 buildings were answered by continuation tasks with the same prompt. For v4 the task text is written once per task file instead of under every building, which cuts the file from about 130k to 20k tokens.
 
 \textbf{Parsing.} We use the course parser (the last line \texttt{RANGE\_kgCO2e\_per\_m2: low - high}) but accept a lower bound of 0. Renovations that leave the envelope untouched have reference values near zero, and the original parser would have discarded exactly those answers.
 
@@ -306,7 +308,7 @@ After v3 the coverage was still 25\%, well below the 34--46\% reported for the c
 \textbf{Outliers.} We flag reference values with three rules that use only the reference LCA and the features, never an LLM estimate (\path{analysis/outliers.py}):
 \begin{itemize}
 \item \emph{Incomplete} (10 buildings): new construction with no fenestration GWP.
-\item \emph{Out of scope} (13): the LCA's physical scope (\texttt{lca\_phys\_scope}) does not include the enclosure, so its enclosure total is incidental. All 13 are renovations or tenant improvements, with values of 3--26~\coe.
+\item \emph{Out of scope} (13): the physical scope of the LCA, given in the feature \texttt{lca\_phys\_scope}, does not include the enclosure, so its enclosure total is incidental. All 13 are renovations or tenant improvements, with values of 3--26~\coe.
 \item \emph{Extreme} (18): the log value lies outside Tukey's fences (below 11.6 or above 472~\coe).
 \end{itemize}
 The rules overlap; together they flag 30 buildings (10.3\%). The cleaned set has 262 buildings (181 dev, 81 test). We report every result on all 292 and on the cleaned set.
@@ -381,7 +383,7 @@ Laboratory & 17 & 95 & Other uses & 9 & 85 \\
 \item \emph{Insulation convention.} HFC-blown XPS was banned from 2021 in Canada and five US states and US-wide only from 2025; at R-30 legacy XPS is about 195 kgCO$_2$e per m$^2$ of roof against about 18 for low-GWP XPS~\cite{oneclickxps}.
 \item \emph{Facade type.} Punched windows in panel cladding have about half the intensity of an all-curtain-wall facade (74 vs.\ 138 per m$^2$ in one same-tool comparison~\cite{csa}).
 \end{itemize}
-One card was left out because it describes a real building that may be among the 292. Unlike the full documents of Section~\ref{sec:domain}, these facts did not pull the take-off down: v4's bottom-up value is statistically the same as v3's (Section~\ref{sec:v4results}).
+One card was left out because it describes a real building that may be among the 292.
 
 \subsection{Choosing the weights}
 We searched the weights offline, with v3's estimates standing in for the take-off (\path{analysis/weight_search.py}). Every weight was scored by repeated 5-fold cross-validation inside the cleaned development set.
@@ -392,11 +394,58 @@ We searched the weights offline, with v3's estimates standing in for the take-of
 \end{itemize}
 We chose equal weights and no extra scaling factor (35.4\% in development cross-validation). More elaborate fits did worse in the same cross-validation: a ridge benchmark on 11 feature groups reached 30.4\%, and per-feature correction factors on top of the take-off 26.5\%.
 
-%V4RESULTS
+\subsection{Results}
+\label{sec:v4results}
+v4 was run three times on all 292 buildings with the same chunks as v1--v3 (Table~\ref{tab:v4}, Fig.~\ref{fig:v4}; \path{analysis/v4_study.py}).
+
+\begin{table*}[t]
+\centering\small
+\caption{Prompt v4 against v1, v3 and one constant (85~\coe, the median of the cleaned development set). Coverage: reference within estimate $\pm$20\%. The last four columns are for all 292 buildings.}
+\label{tab:v4}
+\begin{tabular}{lcccc@{\hskip 14pt}cccc}
+\toprule
+ & \multicolumn{4}{c}{Coverage} & & & & \\
+\cmidrule(r){2-5}
+Estimator & All (292) & Test (88) & Cleaned (262) & Cleaned test (81) & Median $|\log|$ & Bias & RMSE & CV \\
+\midrule
+Constant & 24.3\% & 28.4\% & 27.1\% & 30.9\% & 0.436 & 1.26 & 78.6 & -- \\
+v1 & 19.5\% & 20.5\% & 19.8\% & 21.0\% & 0.456 & 0.75 & 79.7 & 19.0\% \\
+v3 & 25.0\% & 26.1\% & 26.7\% & 27.2\% & 0.426 & 0.86 & 76.0 & 12.5\% \\
+v4 & \textbf{32.2\%} & \textbf{35.2\%} & \textbf{34.7\%} & \textbf{37.0\%} & \textbf{0.370} & \textbf{0.98} & \textbf{73.0} & \textbf{5.3\%} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.86\textwidth]{\figdir/fig_v4.pdf}
+\caption{Left: coverage of v1, v3 and v4 (95\% CI) against the best constant and the cross-validated machine-learning ceiling. Right: coverage when v4's two sources are recombined with other weights.}
+\label{fig:v4}
+\end{figure*}
+
+\textbf{Accuracy.}
+\begin{itemize}
+\item v4 covers 32.2\% of all buildings (CI 27.1--37.8\%) and 34.7\% of the cleaned set. That is 7.2 points above v3, and the gain is significant (McNemar $p=0.035$; Wilcoxon on $|\log|$ error $p<0.001$). v4 is closer than v3 for 61\% of buildings.
+\item It is the first prompt above the constant (24.3\%; McNemar $p=0.025$), and it matches the machine-learning ceiling of Section~\ref{sec:ceiling} (26--28\% on all buildings, 34\% on the cleaned set).
+\item The bias is gone (0.98), and run-to-run variation fell from 12.5\% to 5.3\%.
+\end{itemize}
+
+\textbf{Held-out buildings.} The benchmark never saw the 88 test buildings. On them v4 covers 35.2\% against 26.1\% for v3 and 20.5\% for v1. With 88 buildings only the comparison with v1 is significant ($p=0.035$); against v3 the direction is the same but $p=0.24$ for coverage and $0.059$ for the $|\log|$ error.
+
+\textbf{The combination is what works.} On the test set the take-off alone covers 25.0\% and the benchmark alone 25.0\%, both below the constant (28.4\%). Their average covers 35.2\%. Recombining v4's own two values with other weights (Fig.~\ref{fig:v4}, right) puts the best take-off weight at 0.4--0.5, as the offline search had predicted.
+
+\textbf{The model followed the rule.} All 876 answers report a range centred on $0.5A+0.5B$. The out-of-scope rule was applied in 41 answers, 39 of them correctly (all 13 out-of-scope buildings in all three runs).
+
+\textbf{What it costs.} v4 gains by leaning on the reference class, so it is more compressed than v3: the log--log slope falls from 0.59 to 0.36. Buildings between 50 and 100~\coe{} are now unbiased (0.97), but buildings below 25 are overestimated 2.7$\times$ (v3: 1.5$\times$), and buildings above 200 are estimated at 0.32 (v3: 0.38). v4 is the better estimator for a typical building and the worse one for an unusual building.
+
+\textbf{What the literature facts did.} They did not change the take-off's error: v4's bottom-up value has the same median $|\log|$ error as v3 (0.424 vs.\ 0.426, $p=0.65$), and its values are about 11\% lower. The facts made the reasoning more specific (areas split into roof, slab and wall; cladding chosen by use) without making it more accurate. The accuracy gain comes from the benchmark.
+
 \section{Limitations}
 \begin{itemize}
 \item Answers in one task file share a context, so they are less independent than separate API calls.
-\item The held-out split was assigned after the runs.
+\item The held-out split was assigned after the v1--v3 runs. v4 was designed after it, on the development set only.
+\item Half of a v4 estimate is a group median from the same dataset. Its development-set numbers are partly in-sample, the test-set numbers are the fair ones, and on another building stock the benchmark table would have to be refitted.
+\item Coverage rewards estimates near the centre of the distribution: one constant already covers a quarter of the buildings, so coverage should be read against that constant.
 \item The v3--v1 gain is borderline with 3 runs.
 \item The document condition used one run and four documents truncated to 30k characters; other documents could behave differently.
 \item The feature study used one run per condition, and 7 of 9 planned ablations were stopped to limit cost.
@@ -408,6 +457,8 @@ We chose equal weights and no extra scaling factor (35.4\% in development cross-
 
 \section{Conclusion}
 A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%. Qualitative instructions (v2) and envelope documents in context both made the estimates worse.
+
+The features cap what any estimator can reach at roughly 30--35\% coverage. Prompt v4 reaches that cap by giving equal weight to the take-off and to a benchmark by building use: 32.2\% of all buildings, 34.7\% of the cleaned set and 35.2\% of held-out buildings, without bias and with a third of the earlier run-to-run variation. It does so by leaning on the reference class, so it is less able to recognise an unusual building.
 
 Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
@@ -445,10 +496,14 @@ Exported verbatim from \texttt{experiment\_config.py} by \path{report/latex/make
 \lstinputlisting{prompts/task_v1.txt}
 \subsection{Task text v2}
 \lstinputlisting{prompts/task_v2.txt}
-\subsection{Task text v3 (final prompt)}
+\subsection{Task text v3}
 \label{app:v3}
 Reference values are documented with sources, system boundaries and unit conversions in \path{references/envelope_intensities_sources.md}.
 \lstinputlisting{prompts/task_v3.txt}
+\subsection{Task text v4 (final prompt)}
+\label{app:v4}
+Benchmarks come from \path{results/benchmarks_dev.json}; the literature facts are documented in \path{references/feature_keyed_facts.md}. For v4 this text is written once per task file, after the glossary.
+\lstinputlisting{prompts/task_v4.txt}
 \subsection{Subagent instructions (template)}
 \lstinputlisting{prompts/subagent_instructions.txt}
 
@@ -464,6 +519,10 @@ python analysis/make_split.py
 python analysis/compare_runs.py 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
 python analysis/error_analysis.py --split dev 20261104_baseline-innate 20261104_prompt-v2 20261104_prompt-v3
 python analysis/feature_study.py
+python analysis/outliers.py; python analysis/ceiling.py
+python analysis/weight_search.py                 # benchmarks and evidence weights (dev set)
+#   set PROMPT_VERSION = "v4" in experiment_config.py, then prepare / run / collect as above
+python analysis/v4_study.py 20261116_prompt-v4
 python report/make_figures.py
 \end{lstlisting}
 \end{document}

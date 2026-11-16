@@ -1,11 +1,11 @@
 # Can an LLM Estimate the Embodied Carbon of a Building Enclosure? Error Analysis and Prompt Design
 
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
-Part of the project *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*.
+A CEE226 Group 8 course project. Its original title was *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*; the LEED part was dropped.
 
 > 中文版：[`report_zh.md`](report_zh.md). Both versions have the same content; the final prompt is the English text in Appendix A.
 >
-> Status: complete. Prompts v1–v3 were run 3 times on each of the 292 buildings, with an envelope-document domain condition (Section 8.2), a held-out evaluation on 88 test buildings (Section 9) and a feature study (Section 10). The final prompt is v3 (Appendix A, section E).
+> Status: complete. Prompts v1–v4 were run 3 times on each of the 292 buildings, with an envelope-document domain condition (Section 8.2), a held-out evaluation on 88 test buildings (Section 9), a feature study (Section 10) and an outlier and ceiling analysis (Section 12). The final prompt is v4 (Appendix A, section F).
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
@@ -33,7 +33,7 @@ Prompt v3 does exactly that (Section 8):
 - a per-envelope sanity check;
 - a renovation rule that no longer subtracts.
 
-**v3 is the final prompt.** On all 292 buildings, coverage is **25.0%** (v1 19.5%), RMSE 76.0, bias 0.86 and CV 12.5%. The improvement over v1 is consistent but borderline significant (McNemar p = 0.085, Wilcoxon p = 0.053); over v2 it is clearly significant (p = 0.002). The non-XPS part of the enclosure is now estimated without bias (0.99), and so are buildings whose envelope area is given (0.99). What remains is compression at the high end (buildings above 200 are at 0.38), more overestimation of light enclosures, and renovations.
+**v3 results.** On all 292 buildings, coverage is **25.0%** (v1 19.5%), RMSE 76.0, bias 0.86 and CV 12.5%. The improvement over v1 is consistent but borderline significant (McNemar p = 0.085, Wilcoxon p = 0.053); over v2 it is clearly significant (p = 0.002). The non-XPS part of the enclosure is now estimated without bias (0.99), and so are buildings whose envelope area is given (0.99). What remains is compression at the high end (buildings above 200 are at 0.38), more overestimation of light enclosures, and renovations.
 
 **Held-out test set** (88 buildings, stratified split; Section 9). v3 reaches 26.1% coverage against 20.5% for v1, with RMSE 69.2 against 74.1, bias 0.86 against 0.75 and CV 11.2% against 19.2%. Its median log error is the same as v1's, and the v1–v3 difference is not significant at this size (McNemar p = 0.41). Every finding that motivated v2 and v3 replicates on the 204 dev buildings alone.
 
@@ -46,10 +46,16 @@ Prompt v3 does exactly that (Section 8):
 
 **Hotspot agreement** (Section 11). v3 answers name the reference's top-1 hotspot in 94.6% of cases, against 60.5% when the same number of categories is named at random. They name 6.7 categories on average, though, not a ranked top 3.
 
+**The ceiling and prompt v4** (Sections 12 and 13). One constant for every building covers 27%, and a machine-learning model trained on the dataset covers 26–34% in cross-validation. The final prompt, v4, therefore gives 50% weight each to the model's own take-off and to a benchmark by use fitted on the development set, and adds literature facts keyed to the features.
+
+- It covers **32.2%** of all 292 buildings, **34.7%** after 30 rule-based outliers are removed, and **35.2%** of the 88 test buildings.
+- It has no bias (0.98) and a run-to-run variation of 5.3%.
+- The price is more compression: better for typical buildings, worse for unusual ones.
+
 **Scope relative to the proposal.** After the Nov 3 check-in we adopted the course's dataset-based design:
 - The ground truth is the reported enclosure A1–A3 GWP of 292 real projects, not three modelled wall assemblies. The unit is per m² of floor area, and only GWP is evaluated.
 - RQ1 (climate and use) is analysed from the data.
-- Knowledge conditions: the innate baseline, the envelope-document domain condition and two prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the document condition and the feature study) instead of 10.
+- Knowledge conditions: the innate baseline, the envelope-document domain condition and three prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the document condition and the feature study) instead of 10.
 - LEED: the LEED v5 credit-outcome evaluation was dropped. Hotspot agreement, the proposal's metric for it, is still reported (Section 11). The cost, regulation and performance drivers are left out.
 
 ## 2. Data and ground truth
@@ -342,7 +348,7 @@ During run 2 a container restart interrupted the six subagents after 130 of the 
 3. **When the envelope area is missing, buildings are still underestimated** (0.73).
 4. **Renovations still fall short of v1.** They recovered from v2 but not to v1's level, and tenant improvements are unchanged at 0.26.
 
-**Final prompt.** v3 is the best of the three prompts by coverage, RMSE, bias, log error and consistency, and is the final prompt of this study (Appendix A, section E).
+**Best of the first three.** v3 is the best of prompts v1–v3 by coverage, RMSE, bias, log error and consistency (Appendix A, section E). The final prompt is v4 (Section 13).
 
 ![Figure 8.1: Estimate vs reference for v1 and v3 (1:1 line, ±20% band)](figures/fig_scatter_v1_v3.png)
 
@@ -362,7 +368,7 @@ Each was truncated to 30k characters, as in the course pipeline. The task text i
 |---|---|---|---|---|
 | v1 (innate) | 17.8% | 0.519 | 0.72 | 81.2 |
 | v1 + documents | 15.8% | 0.609 | 0.61 | 85.3 |
-| v3 (final prompt) | 24.3% | 0.461 | 0.86 | 77.8 |
+| v3 | 24.3% | 0.461 | 0.86 | 77.8 |
 
 **Results: the documents made the estimates worse.**
 - The median log error rose by 0.090 (Wilcoxon p < 0.001), the bias moved from 0.72 to 0.61, and only 35% of buildings got closer. The drop in coverage (−2.1 points) is not significant (p = 0.48).
@@ -488,7 +494,136 @@ Excluding the 10 incomplete references:
 - The answers are **building-specific**: for the 80 buildings whose top-1 hotspot is not one of the three common categories, v3 names it in 82.1% of cases, where the typical-building guess scores 0%.
 - The answers are **not a ranked top 3**: they name 6.7 categories on average, and their precision (41%) is below that of the typical guess (60%). A prompt meant for hotspot screening should ask for a ranked top-3 explicitly.
 
-## 12. Limitations and next steps
+## 12. Outliers and what the features can support
+
+After v3 the coverage was still 25%, well below the 34–46% reported for the course's whole-building task. Before revising the prompt again we asked two questions of the data itself.
+
+### 12.1 Outliers
+
+We flag reference values with three rules. They use only the reference LCA and the features, never an LLM estimate, so the cleaned set does not depend on which buildings happen to be estimated well (`analysis/outliers.py`).
+
+| Rule | Definition | Buildings |
+|---|---|---|
+| Incomplete | new construction with no fenestration GWP | 10 |
+| Out of scope | the LCA's physical scope (`lca_phys_scope`) has no enclosure, so its enclosure total is incidental | 13 |
+| Extreme | log value outside Tukey's fences (below 11.6 or above 472 kgCO2e/m²) | 18 |
+| Any rule | | **30 (10.3%)** |
+
+- All 13 out-of-scope buildings are renovations or tenant improvements, with values of 3–26.
+- The cleaned set has 262 buildings (181 dev, 81 test).
+- Every later result is reported on all 292 and on the cleaned set.
+
+### 12.2 How much coverage can these features support?
+
+Three reference points (`analysis/ceiling.py`):
+
+| Estimator | All 292 | Cleaned 262 |
+|---|---|---|
+| Best constant, whole building A–C (course reference task) | 34.6% | – |
+| Best constant, enclosure A1–A3 | 27.1% | 30.2% |
+| Random forest, 48 features, cross-validated | 26.0% | 34.0% |
+| Gradient boosting, 48 features, cross-validated | 28.4% | 34.0% |
+| Random forest, scored on its training buildings | 55.8% | 60.7% |
+| Prompt v1 | 19.5% | 19.8% |
+| Prompt v3 | 25.0% | 26.7% |
+
+- **One constant for every building** already covers 27% of the enclosure values and 35% of the whole-building values. The whole-building target is easier because its values are less spread out (standard deviation of the log value 0.66, against 0.98 for the enclosure).
+- **A machine-learning model trained on this very dataset**, with all 48 features, reaches only 26–28% (all) and 34% (cleaned) in cross-validation, a few points above the constant.
+- The same model scored on its own training buildings reaches 56–61%. That is memorisation, not prediction.
+
+Two things follow:
+
+1. v3 (25.0%) and v1 (19.5%) were both **below** the constant. The bottom-up take-off adds building-specific information but also noise.
+2. The features support roughly 30–35% coverage on unseen buildings. A prompt that honestly reaches the low thirties is at the limit of the data; coverage far above that could only come from fitting the buildings that are scored.
+
+## 13. Prompt v4: weighted evidence
+
+v4 gives the model a second source of evidence and tells it how to weigh the two. It was designed on the cleaned development set only; the test buildings were not used.
+
+### 13.1 Design
+
+**Two sources, 50% each.**
+
+- **A, bottom-up (50%):** the v3 take-off, i.e. areas × likely assemblies × sourced component intensities.
+- **B, benchmark (50%):** the median enclosure value of reference LCAs with the same primary use, fitted on the 181 cleaned development buildings (`results/benchmarks_dev.json`).
+
+The model reports A and B, then a range centred on 0.5A + 0.5B.
+
+| Use | n | B | Use | n | B |
+|---|---|---|---|---|---|
+| Education | 38 | 91 | Warehouse | 15 | 62 |
+| Office | 32 | 79 | Healthcare | 9 | 79 |
+| Multifamily | 27 | 54 | Public safety | 8 | 161 |
+| Public assembly | 20 | 94 | Transport hub | 6 | 153 |
+| Laboratory | 17 | 95 | Other uses | 9 | 85 |
+
+**An attention order for the features.** Inside the take-off the prompt ranks the features:
+
+1. Envelope quantity (about half): envelope area, or storeys, height and floor area when it is missing; WWR.
+2. Assembly class (about a third): use, IBC type, structural system.
+3. Insulation convention (the rest): climate zone, R-values, LCA software, assessment year, state or province.
+
+It also tells the model to leave out the seismic, wind, grid, foundation, occupancy and code-year fields. In the random forest of Section 12.2, use and structure are the most informative groups, and no group changes the error by more than 0.02 when dropped.
+
+**Out-of-scope rule.** If `lca_phys_scope` has no enclosure (E), the model reports 8 kgCO2e/m² (the development median of such buildings is 7.6).
+
+**Feature-keyed literature facts.** A research subagent compiled 25 fact cards, each tied to a feature the model sees, from sources independent of the ground-truth dataset (`references/feature_keyed_facts.md`). The prompt uses the ones that give a number at a decision step:
+
+- **Geometry:** a reported thermal envelope area includes the ground slab. Typical envelope-to-floor ratios are 2.1 for one storey, 1.1 for 2–5, 0.7 for 6–10 and 0.4–0.5 above (medians of the features themselves); wall area per m² of floor is 0.2–0.5 by archetype (PNNL / DOE prototypes).
+- **Assembly priors by use:** schools, hospitals and hotels are mostly masonry veneer; large offices precast or curtain wall; warehouses metal panel or tilt-up; plus typical WWR by use.
+- **Insulation convention:** HFC-blown XPS was banned from 2021 in Canada and five US states, and US-wide only from 2025; at R-30 legacy XPS is about 195 kgCO2e/m² of roof against about 18 for low-GWP XPS.
+- **Facade type:** punched windows in panel cladding have about half the per-m² intensity of an all-curtain-wall facade (74 vs 138 in one same-tool comparison).
+
+One card was left out: it describes a real building that may be among the 292.
+
+### 13.2 Choosing the weights
+
+The weights were searched offline, with v3's estimates standing in for the take-off (`analysis/weight_search.py`). Every weight was scored by repeated 5-fold cross-validation inside the cleaned development set.
+
+| Round | What | Dev CV coverage |
+|---|---|---|
+| 1 | Take-off alone | 27.1% |
+| 1 | Use benchmark alone | 33.1% |
+| 1 | Geometry benchmark alone (one intensity per m² of envelope) | 25.4% |
+| 2 | Take-off + use benchmark, take-off weight 0.3–0.7 | 33–36% |
+| 3 | Adding the geometry benchmark | no gain |
+| 4 | Ridge benchmark on 11 feature groups | 30.4% |
+| 4 | Per-feature correction factors on the take-off | 26.5% |
+
+We chose equal weights and no extra factor (35.4% in development cross-validation). The surface is flat between 0.3 and 0.7, so the exact weight is not critical, and more elaborate fits did worse in cross-validation.
+
+### 13.3 Results
+
+v4 was run three times on all 292 buildings with the same chunks as v1–v3 (`analysis/v4_study.py`). Constant = 85 kgCO2e/m² (median of the cleaned development set).
+
+| Estimator | All 292 | Test 88 | Cleaned 262 | Cleaned test 81 | Median abs log | Bias | RMSE | CV |
+|---|---|---|---|---|---|---|---|---|
+| Constant | 24.3% | 28.4% | 27.1% | 30.9% | 0.436 | 1.26 | 78.6 | – |
+| v1 | 19.5% | 20.5% | 19.8% | 21.0% | 0.456 | 0.75 | 79.7 | 19.0% |
+| v3 | 25.0% | 26.1% | 26.7% | 27.2% | 0.426 | 0.86 | 76.0 | 12.5% |
+| **v4** | **32.2%** | **35.2%** | **34.7%** | **37.0%** | **0.370** | **0.98** | **73.0** | **5.3%** |
+
+The last four columns are for all 292 buildings.
+
+![Figure 13.1: Left: coverage of v1, v3 and v4 (95% CI) against the best constant and the cross-validated machine-learning ceiling. Right: coverage when v4's two sources are recombined with other weights.](figures/fig_v4.png)
+
+**Accuracy.**
+
+- v4 covers 32.2% of all buildings (CI 27.1–37.8%) and 34.7% of the cleaned set. That is 7.2 points above v3, and the gain is significant (McNemar p = 0.035; Wilcoxon on log error p < 0.001). v4 is closer than v3 for 61% of buildings.
+- It is the first prompt above the constant (24.3%; McNemar p = 0.025), and it matches the machine-learning ceiling of Section 12.2.
+- The bias is gone (0.98), and run-to-run variation fell from 12.5% to 5.3%.
+
+**Held-out buildings.** The benchmark never saw the 88 test buildings. On them v4 covers 35.2% against 26.1% for v3 and 20.5% for v1. With 88 buildings only the comparison with v1 is significant (p = 0.035); against v3 the direction is the same but p = 0.24 for coverage and 0.059 for the log error.
+
+**The combination is what works.** On the test set the take-off alone covers 25.0% and the benchmark alone 25.0%, both below the constant (28.4%); their average covers 35.2%. Recombining v4's own A and B with other weights puts the best take-off weight at 0.4–0.5, as the offline search predicted.
+
+**The model followed the rule.** All 876 answers report a range centred on 0.5A + 0.5B. The out-of-scope rule was applied in 41 answers, 39 of them correctly (all 13 out-of-scope buildings in all three runs).
+
+**What it costs.** v4 gains by leaning on the reference class, so it is more compressed than v3: the log–log slope falls from 0.59 to 0.36. Buildings between 50 and 100 are now unbiased (0.97), but buildings below 25 are overestimated 2.7× (v3: 1.5×), and buildings above 200 are estimated at 0.32 (v3: 0.38). v4 is the better estimator for a typical building and the worse one for an unusual building.
+
+**What the literature facts did.** They did not change the take-off's error: v4's bottom-up value has the same median log error as v3 (0.424 vs 0.426, p = 0.65), and its values are about 11% lower. The facts made the reasoning more specific (areas split into roof, slab and wall; cladding chosen by use) without making it more accurate. The accuracy gain comes from the benchmark.
+
+## 14. Limitations and next steps
 
 - **Missing assembly information.** No feature describes the wall assembly, so a ceiling on accuracy remains whatever the prompt says. Adding assembly type to the inputs, as the proposal intended (section 6.1), is the most promising change.
 - **Subagents vs. API calls.** Answers within one task file share a context, so they are not as independent as separate API calls. In v3 run 2, 162 buildings were answered in continuation tasks after a container restart (Section 8.1).
@@ -499,6 +634,8 @@ Excluding the 10 incomplete references:
 - **Ground-truth quality.** It is uneven: 10 projects are flagged, and tool data vintages differ (HFC XPS).
 - **Hotspot agreement is a proxy.** It is based on whether an answer mentions a material category, not on a ranked top 3.
 - **The document condition was run once,** with four documents truncated to 30k characters; other documents could behave differently.
+- **Half of v4 is a statistical benchmark.** Half of a v4 estimate is a group median from the same dataset. Its development-set numbers are partly in-sample, the test-set numbers are the fair ones, and on another building stock the benchmark table would have to be refitted.
+- **Coverage favours central values.** One constant already covers a quarter of the buildings, so coverage should be read against that constant.
 - **Model dependence.** Results depend on the model and its version (Claude Opus 5.5, effort medium).
 - **Next steps:**
   - evaluate the final prompt on an external dataset or a new project set (e.g. map the CarbEnMats/GBDB enclosure fields to this feature set);
@@ -509,7 +646,7 @@ Excluding the 10 incomplete references:
 
 ## Appendix A. Prompts
 
-See [`appendix_prompts.md`](appendix_prompts.md): system prompt, shared context, task texts v1 and v2, **task text v3 (final)**, an example building block, and the subagent instruction template.
+See [`appendix_prompts.md`](appendix_prompts.md): system prompt, shared context, task texts v1, v2 and v3, **task text v4 (final)**, an example building block, and the subagent instruction template.
 
 ## Appendix B. Reproduction
 
@@ -561,6 +698,10 @@ python analysis/error_analysis.py --split dev 20261104_baseline-innate 20261104_
 
 ```bash
 python analysis/feature_study.py
+python analysis/outliers.py; python analysis/ceiling.py
+python analysis/weight_search.py        # benchmarks and evidence weights, development set only
+# set PROMPT_VERSION = "v4" in experiment_config.py, then prepare / run / collect as above
+python analysis/v4_study.py 20261116_prompt-v4
 ```
 
 ```bash

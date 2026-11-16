@@ -1,6 +1,6 @@
 # Climate- and Use-Specific Embodied Impacts of Exterior Wall Design
 
-**A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits.** CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
+**LLM estimation of enclosure embodied carbon (A1–A3).** CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu. The project started as *A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*; the LEED part was dropped.
 
 This repo tests how well an LLM can estimate the **embodied carbon of the building enclosure** from early-stage building metadata. It compares the estimates against the reference LCA results of the 292 buildings in the CLF harmonized dataset (Benke et al., 2025, *Scientific Data*, [doi:10.1038/s41597-025-05216-0](https://doi.org/10.1038/s41597-025-05216-0); data on [figshare](https://figshare.com/articles/dataset/28462145), CC BY 4.0).
 
@@ -85,7 +85,7 @@ python summarize_run.py 20261104_baseline-innate
 
 ## Report
 
-**[`report/report.md`](report/report.md)** (English) / **[`report/report_zh.md`](report/report_zh.md)** (中文) covers the data, setup, baseline, error analysis (why the model under- and overestimates), prompts v2 and v3 (final) with their results, the held-out test-set evaluation, and the feature study. The final prompt is in [`report/appendix_prompts.md`](report/appendix_prompts.md), generated from `experiment_config.py`.
+**[`report/report.md`](report/report.md)** (English) / **[`report/report_zh.md`](report/report_zh.md)** (中文) covers the data, setup, baseline, error analysis (why the model under- and overestimates), prompts v2 and v3, the envelope-document condition, the held-out evaluation, the feature study, the outlier and ceiling analysis, and the final prompt v4 (weighted evidence). The paper is [`report/latex/main.pdf`](report/latex/main.pdf). The final prompt is in [`report/appendix_prompts.md`](report/appendix_prompts.md), generated from `experiment_config.py`.
 
 ## Experiment log
 
@@ -94,8 +94,16 @@ python summarize_run.py 20261104_baseline-innate
 | pilot | `20261104_pilot-sonnet_run0-chunk01` | Sonnet 5.5 subagent, 49 buildings, pipeline test only | 49 × 1 | 36.7% | 62.2 | 31% | n/a |
 | 0 | `20261104_baseline-innate` | **Baseline**: Opus 5.5 subagents (effort medium), innate knowledge, all 48 features, no papers, no ontology | 292 × 3 | **19.5%** (95% CI 15.4–24.5%) | **79.7** | **37.9%** | **19.0%** |
 | 1 | `20261104_prompt-v2` | Prompt v2 (scope matching the dataset, component take-off, named high-impact materials, no anchoring, renovation rule, BEST line), same model and features | 292 × 3 | 15.1% (11.4–19.6%) | 81.0 | 44.3% | **13.8%** |
-| 2 | `20261104_prompt-v3` | **Prompt v3 (final)**: v2 + external component-intensity table (`references/envelope_intensities_sources.md`), HFC-XPS modelling convention, per-envelope check, non-subtracting renovation rule, RANGE only | 292 × 3 | **25.0%** (20.4–30.3%) | **76.0** | 40.0% | **12.5%** |
+| 2 | `20261104_prompt-v3` | **Prompt v3**: v2 + external component-intensity table (`references/envelope_intensities_sources.md`), HFC-XPS modelling convention, per-envelope check, non-subtracting renovation rule, RANGE only | 292 × 3 | **25.0%** (20.4–30.3%) | **76.0** | 40.0% | **12.5%** |
 | 3 | `20261105_feat-*`, `20261105_ablate-no-*` | Feature study with prompt v3 (run 0 only): early (39), env (15), min (10), no-lca (40), no-mass (47) vs all 48 | 292 × 1 each | 19.9–25.3% (all: 24.3%) | 77.3–81.2 | – | – |
+| 4 | `20261105_domain-envelope` | Prompt v1 + four envelope-focused documents in context (30k characters each) | 292 × 1 | 15.8% | 85.3 | 51.1% | – |
+| 5 | `20261116_prompt-v4` | **Prompt v4 (final)**: equal weight on the v3 take-off and on a benchmark by primary use fitted on the cleaned development set; attention order for the features; out-of-scope rule; feature-keyed literature facts | 292 × 3 | **32.2%** (27.1–37.8%) | **73.0** | 33.9% | **5.3%** |
+
+### Outliers, the data ceiling and prompt v4
+
+- **Outliers** (`analysis/outliers.py`): 30 buildings (10.3%) are flagged by rules that use only the reference LCA and the features: incomplete reference (10), enclosure not in the LCA's physical scope (13), extreme value by Tukey's fences on the log scale (18). The cleaned set has 262 buildings.
+- **Ceiling** (`analysis/ceiling.py`): one constant for every building covers 27% (30% cleaned). A random forest or gradient boosting model trained on the dataset covers 26–28% (34% cleaned) in cross-validation. The whole-building A–C task of the course reference is easier: a constant covers 35% there.
+- **Prompt v4** (`analysis/weight_search.py`, `analysis/v4_study.py`): coverage 32.2% on all 292, 34.7% on the cleaned set, 35.2% on the 88 held-out buildings (37.0% cleaned test); bias 0.98; run-to-run CV 5.3%. It is more compressed than v3 (log–log slope 0.36 vs 0.59), so it is better for typical buildings and worse for unusual ones. See report Sections 12–13.
 
 ### Feature study
 

@@ -13,7 +13,7 @@ const THEME = { name: "Stanford Cardinal", headFontFace: "Cambria", bodyFontFace
             accent3: "2A78D6", accent4: "EDA100", accent5: "175E54", accent6: "820000", hlink: "8C1515", folHlink: "820000" } };
 const SIZES = { "feature_study.png": [1520, 770], "fig_bins.png": [1504, 1006], "fig_composition.png": [1602, 907],
   "fig_diagnostics.png": [1859, 1166], "fig_prompts.png": [2243, 789], "fig_scatter_v1_v3.png": [2138, 1028],
-  "stanford_white.png": [1521, 418], "cee_white.png": [1080, 438] };
+  "fig_v4.png": [2367, 878], "stanford_white.png": [1521, 418], "cee_white.png": [1080, 438] };
 
 const W = 48, H = 36, M = 0.9, GAP = 0.6, HEAD = 6.1, TOP = HEAD + 0.55;
 const COLW = (W - 2 * M - 3 * GAP) / 4;
@@ -96,17 +96,17 @@ function callout(c, t) {
   c.y += h + 0.3;
 }
 function table(c, rows) {
-  const v = { v1: "2A78D6", v2: "EDA100", v3: "B1040E" };
+  const v = { v1: "2A78D6", v2: "EDA100", v3: "B1040E", v4: "175E54" };
   const data = rows.map((r, i) => r.map((cell, j) => ({
     text: (j === 0 && i > 0 ? "● " : "") + cell,
-    options: { fontSize: i === 0 ? 24 : 28, bold: i === 0 || r[0].startsWith("v3"), align: j === 0 ? "left" : "right",
-      color: i === 0 ? C.text2 : (r[0].startsWith("v3") ? C.accent1 : C.text1),
+    options: { fontSize: i === 0 ? 24 : 28, bold: i === 0 || r[0].startsWith("v4"), align: j === 0 ? "left" : "right",
+      color: i === 0 ? C.text2 : (r[0].startsWith("v4") ? C.accent1 : C.text1),
       border: [{ type: "none" }, { type: "none" }, { pt: i === 0 ? 3 : 1.5, color: i === 0 ? "4D4F53" : "D9D6D0" }, { type: "none" }],
       margin: [6, 6, 6, 6] } })));
   // colour the dot only: separate run for the bullet dot
   data.slice(1).forEach((r, i) => {
     const key = rows[i + 1][0].slice(0, 2);
-    r[0].text = [{ text: "● ", options: { color: v[key], fontSize: 28 } }, { text: rows[i + 1][0], options: { fontSize: 28, bold: key === "v3", color: key === "v3" ? C.accent1 : C.text1 } }];
+    r[0].text = [{ text: "● ", options: { color: v[key], fontSize: 28 } }, { text: rows[i + 1][0], options: { fontSize: 28, bold: key === "v4", color: key === "v4" ? C.accent1 : C.text1 } }];
   });
   const cw = [2.9, 1.85, 1.45, 1.85, 1.35, 1.74];
   slide.addTable(data, { x: c.x, y: c.y, w: COLW, colW: cw, rowH: 0.62 });
@@ -143,7 +143,7 @@ bullets(c, ["292 US/Canadian projects, harmonized WBLCA dataset (Benke et al., S
 image(c, "fig_composition.png", "XPS insulation is 15.5% of all enclosure carbon (43.6 kgCO2e/kg: the HFC-blown product in Tally / One Click LCA of the period).", "Enclosure carbon by material group");
 h2(c, "Method");
 // flow boxes
-const steps = ["48 features + glossary", "Prompt v1 / v2 / v3", "Claude Opus 5.5 subagents", "RANGE low–high", "Compare with reference LCA"];
+const steps = ["48 features + glossary", "Prompts v1 to v4", "Claude Opus 5.5 subagents", "RANGE low–high", "Compare with reference LCA"];
 const bw = (COLW - 0.35 * 4) / 5;
 steps.forEach((s, i) => {
   const x = c.x + i * (bw + 0.35);
@@ -171,11 +171,12 @@ bullets(c, ["**HFC-blown XPS is never considered**: it is mentioned in 0.6% of a
 
 // ---- column 3 ------------------------------------------------------------------------
 c = cols[2];
-h2(c, "Three prompts");
+h2(c, "Four prompts");
 table(c, [["Prompt", "Coverage", "RMSE", "|log| med.", "Bias", "CV"],
   ["v1 plain", "19.5%", "79.7", "0.456", "0.75", "19.0%"],
   ["v2 method", "15.1%", "81.0", "0.563", "0.67", "13.8%"],
-  ["v3 anchors", "25.0%", "76.0", "0.426", "0.86", "12.5%"]]);
+  ["v3 anchors", "25.0%", "76.0", "0.426", "0.86", "12.5%"],
+  ["v4 weighted", "32.2%", "73.0", "0.370", "0.98", "5.3%"]]);
 h3(c, "v2: scope + step-by-step take-off + named materials");
 para(c, "More consistent, but **less accurate**: 89% of answers still assumed polyiso roofs (roof intensity stayed at 35), bottom-up intensities were low (67 vs. 87 per m² of envelope), and \"count only new materials\" pushed renovations down.");
 h3(c, "v3: quantitative anchors where numbers are chosen");
@@ -184,34 +185,35 @@ bullets(c, ["Component A1–A3 table from EPDs and CLF baselines (walls, glazing
   "Per-envelope sanity check, and a renovation rule that no longer subtracts."]);
 image(c, "fig_diagnostics.png", "v3 removes the bias for buildings without XPS (0.97), with a given envelope area (0.99) and in warm zones (0.98).", "Failure modes by prompt");
 callout(c, "**Lesson.** Qualitative knowledge in a prompt is repeated but not applied. Sourced numbers at the decision step move the estimate.");
+para(c, "**Feature study:** 10 early-design inputs are as good as all 48, and removing mass_total does not hurt.");
 
 // ---- column 4 ------------------------------------------------------------------------
 c = cols[3];
-h2(c, "Held-out test & features");
-image(c, "fig_prompts.png", null, "Coverage and log error by prompt");
-bullets(c, ["All 292: v3 vs. v1 McNemar p = 0.085, Wilcoxon p = 0.053; vs. v2 p = 0.002.",
-  "Test 88: v3 26.1% vs. 20.5% coverage, RMSE 69 vs. 74, not significant (p = 0.41). Every finding behind v2/v3 replicates on the 204 dev buildings.",
-  "**Feature study**: 10 early-design inputs are as good as all 48, and removing mass_total does not hurt. All differences are within run-to-run noise."]);
-image(c, "feature_study.png", null, "Feature study", 0.7);
+h2(c, "The data cap & prompt v4");
+bullets(c, ["**The cap.** One constant for every building covers 27%. A machine-learning model trained on this dataset covers 26–34% in cross-validation. v1 and v3 were below the constant.",
+  "**Prompt v4** gives equal weight to the bottom-up take-off and to a **benchmark by building use** fitted on 181 development buildings, and adds literature facts keyed to the features."]);
+image(c, "fig_v4.png", "v4 reaches the cap: 32.2% of all 292, 34.7% after 30 rule-based outliers are removed, 35.2% on 88 held-out buildings. Bias 0.98, run-to-run CV 5.3%.", "Coverage of v1, v3 and v4 against the constant and the ML ceiling; weight sensitivity", 0.88);
+bullets(c, ["v4 vs. v3 on all 292: McNemar p = 0.035, log error p < 0.001. On the held-out 88 the direction is the same; only the gain over v1 is significant (p = 0.035).",
+  "**Cost:** more compression (log–log slope 0.36 vs. 0.59). Better for typical buildings, worse for unusual ones."]);
 h2(c, "Takeaways");
-bullets(c, ["LLMs give usable early-stage enclosure estimates for hotspot screening (¼ within ±20%, bias −14%), but not reliable building-level credit predictions.",
-  "The error is structured (compression, material blind spots), so error analysis on the model's reasoning shows which prompt fix to make.",
-  "The ceiling is information, not prompting: adding **assembly type** to the inputs is the next step."], true);
-h2(c, "Final prompt (v3, excerpt)");
-code(c, ["1. Areas: bldg_therm_env_area, or take off roof,",
-  "   walls and glazing (bldg_wwr).",
-  "2. Assemblies: name insulation type and thickness;",
-  "   LCA models often use HFC-blown XPS on roofs.",
-  "3. A1-A3 per m2 of component, e.g. metal panel",
-  "   wall 70-110, unitized CW 150-210, roof+polyiso",
-  "   20-28, roof+HFC XPS 85-110 (up to 335-410).",
-  "4. Check: < ~50 per m2 envelope -> missing items.",
-  "5. Range incl. higher-carbon options; no anchoring.",
-  "6. Renovations: don't assume envelope is kept.",
-  "RANGE_kgCO2e_per_m2: <low> - <high>"].join("\n"));
+bullets(c, ["The error is structured (compression, material blind spots), so error analysis of the model's reasoning shows which prompt fix to make.",
+  "Sourced numbers at the decision step help. Qualitative instructions and whole documents in context made the estimates worse.",
+  "The features cap coverage near 30–35%. Weighing the take-off against a benchmark by use reaches that cap; going further needs **assembly type** as an input."], true);
+h2(c, "Final prompt (v4, excerpt)");
+code(c, ["Special case: lca_phys_scope without E -> 8.",
+  "A. Bottom-up (50%): areas (envelope/floor by",
+  "   storeys: 1 st 2.1, 2-5 st 1.1, 6-10 st 0.7),",
+  "   assemblies by use, A1-A3 per m2 of component",
+  "   (unitized CW 150-210, roof+polyiso 20-28,",
+  "   roof+HFC XPS 85-110).",
+  "B. Benchmark (50%): median by use, e.g. education",
+  "   91, office 79, multifamily 54, laboratory 95.",
+  "C. FINAL = 0.5 x A + 0.5 x B.",
+  "BOTTOM_UP: <A>   BENCHMARK: <B>",
+  "RANGE_kgCO2e_per_m2: <0.8 FINAL> - <1.2 FINAL>"].join("\n"));
 
 // ---- footer --------------------------------------------------------------------------
-slide.addText("Data: Benke et al. (2025) Sci. Data 12, doi:10.1038/s41597-025-05216-0 (CC BY 4.0). Intensities: CLF North American Material Baselines 2023/2025, PCI, Kawneer and RDH EPDs. Model: Claude Opus 5.5 (medium effort), Claude Code subagents. Full prompts, code and model answers: github.com/HeshanChen/CEE226LCA",
+slide.addText("Data: Benke et al. (2025) Sci. Data 12, doi:10.1038/s41597-025-05216-0 (CC BY 4.0). Intensities: CLF North American Material Baselines 2023/2025, PCI, Kawneer and RDH EPDs; stock facts: PNNL and DOE prototypes. Model: Claude Opus 5.5 (medium effort), Claude Code subagents. Full prompts, code and model answers: github.com/HeshanChen/CEE226LCA",
   { x: M, y: H - 0.75, w: W - 2 * M, h: 0.45, fontSize: 20, color: C.text2, margin: 0, isTextBox: true });
 
 const maxY = Math.max(...cols.map(k => k.y));
