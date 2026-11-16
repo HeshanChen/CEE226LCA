@@ -79,15 +79,15 @@ function image(c, file, cap, alt, scale = 1) {
   if (cap) para(c, cap, CAP, C.text2);
   else c.y += 0.15;
 }
-function stats(c, items) {
+function stats(c, items, cardH = 1.9) {
   const w = (COLW - 0.3 * (items.length - 1)) / items.length;
   items.forEach(([big, small], i) => {
     const x = c.x + i * (w + 0.3);
-    slide.addShape(pres.shapes.RECTANGLE, { x, y: c.y, w, h: 1.9, fill: { color: C.background2 }, line: { color: C.background2, width: 0 } });
+    slide.addShape(pres.shapes.RECTANGLE, { x, y: c.y, w, h: cardH, fill: { color: C.background2 }, line: { color: C.background2, width: 0 } });
     slide.addText(big, { x: x + 0.2, y: c.y + 0.12, w: w - 0.4, h: 1.05, fontFace: THEME.headFontFace, fontSize: 80, bold: true, color: C.accent1, margin: 0, isTextBox: true });
-    slide.addText(small, { x: x + 0.2, y: c.y + 1.18, w: w - 0.4, h: 0.6, fontSize: 22, color: C.text2, margin: 0, valign: "top", isTextBox: true });
+    slide.addText(small, { x: x + 0.2, y: c.y + 1.18, w: w - 0.4, h: cardH - 1.3, fontSize: 22, color: C.text2, margin: 0, valign: "top", isTextBox: true });
   });
-  c.y += 2.2;
+  c.y += cardH + 0.3;
 }
 function callout(c, t) {
   const h = lines(t, 34, COLW - 0.7) * 34 * 1.25 / 72 + 0.6;
@@ -191,12 +191,12 @@ para(c, "**Feature study:** 10 early-design inputs are as good as all 48, and re
 
 // ---- column 4 ------------------------------------------------------------------------
 c = cols[3];
-h2(c, "The data cap & prompt v4");
-bullets(c, ["**The cap.** One constant covers 27%; a model trained on this dataset covers 26–34% (cross-validated). v1 and v3 were below the constant.",
-  "**Prompt v4** weights the take-off 50/50 with a **benchmark by use** fitted on 181 development buildings."]);
-image(c, "fig_v4.png", "v4: 32.2% of all 292, 34.7% cleaned, 35.2% on 88 held-out buildings; v5 (fitted): 35.6% / 38.5%.", "Coverage of v1, v3, v4 and v5 against the constant and the ML ceiling; weight sensitivity", 0.86);
-bullets(c, ["v4 vs. v3: McNemar p = 0.035, log error p < 0.001.",
-  "**Fitted (course instruction, in-sample):** v5 calibrates the take-off and uses a finer benchmark. On the whole-building target the same method reaches **53.4%** (course reference 34–46%); there mass_total does most of the work."]);
+h2(c, "Final results");
+stats(c, [["35.6%", "enclosure, v5 (38.5% cleaned)"], ["53.4%", "whole building (course 34–46%)"], ["35.2%", "held-out 88 (v4)"]], 2.3);
+para(c, "v5 and the whole-building prompt are fitted to the reference data, as the course asked, so their numbers are in-sample. v4, with its benchmark fitted on a development set only, gives the held-out number.", 22, C.text2);
+bullets(c, ["**How:** the model's take-off × a calibration factor (by use, envelope area given), averaged with a **benchmark by use × storeys**. Whole building: own estimate 20% + **mass_total × carbon per kg** 50% + benchmark 30%.",
+  "**The cap:** one constant covers 27%; a model trained on this dataset 26–34% (cross-validated). v1 and v3 were below the constant."]);
+image(c, "fig_v4.png", null, "Coverage of v1, v3, v4 and v5 against the constant and the ML ceiling; weight sensitivity", 0.86);
 h2(c, "Takeaways");
 bullets(c, ["The error is structured (compression, material blind spots), so error analysis of the model's reasoning shows which prompt fix to make.",
   "Sourced numbers at the decision step help. Qualitative instructions and whole documents in context made the estimates worse.",

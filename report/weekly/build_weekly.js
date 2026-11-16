@@ -420,7 +420,7 @@ const WEEKS = [
       { type: "cards", title: "What it costs, deliverables and limitations", cols: 2, cardFs: 15,
         cards: [["What it costs", "v4 and v5 lean on the reference class, so they are **more compressed** than v3 (slope 0.36–0.39 vs 0.59). Buildings under 25 " + CO2 + " are overestimated about 3×. Better for typical buildings, worse for unusual ones."],
                 ["What the literature facts did", "They made the reasoning more specific but **not more accurate**: the take-off's error is the same as v3's (0.424 vs 0.426, p = 0.65). The gain comes from the benchmark."],
-                ["Deliverables", "**Prompts v4** (generalises: 35.2% on held-out buildings) and **v5** (fitted: 35.6%, in-sample), plus the whole-building prompt; paper, reports, poster, code and results in the GitHub repo."],
+                ["Deliverables", "**Final prompt v5**: 35.6% enclosure (38.5% cleaned), and the whole-building prompt: 53.4%; both fitted, in-sample (report/final_prompt.md). v4 gives the held-out result (35.2%). Paper, reports, poster and code in the repo."],
                 ["Limitations", "v5 and the whole-building prompt are **in-sample**; half of v4 is a group median from the same dataset (test numbers are the fair ones). Post-hoc split; one model; per m² floor area; uneven reference quality."]] },
     ],
     nextTitle: "Wrap-up", nextHead: "Take-aways",
@@ -428,8 +428,7 @@ const WEEKS = [
            "**Sourced numbers at the decision step** help; qualitative text and documents do not.",
            "Features cap coverage near **30–35%**; v4 reaches it with a **benchmark by use**.",
            "Fitted to the data: **35.6%** enclosure, **53.4%** whole building (in-sample)."],
-    asks: ["Feedback on the paper and poster before final submission.",
-           "Should the report lead with v4 (held-out) or v5 (fitted, in-sample)?"] },
+    asks: ["Feedback on the paper and poster before final submission."] },
 ];
 
 WEEKS.forEach(wk => { pres.addSection({ title: `Week ${wk.n}` }); cover(wk); wk.slides.forEach(sl => content(wk, sl)); next(wk); });

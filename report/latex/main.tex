@@ -40,7 +40,7 @@
 \vspace*{-0.15in}
 \rule{\textwidth}{3pt}\\[7pt]
 \mbox{\fontsize{15}{18}\selectfont\bfseries Can an LLM Estimate the Embodied Carbon of a Building Enclosure?}\\[4pt]
-\mbox{\fontsize{11}{13}\selectfont Error Analysis, Prompt Design, and Evidence Weights Calibrated on Reference Data}\\[6pt]
+\mbox{\fontsize{11}{13}\selectfont Error Analysis, Prompt Design, and Fitting to Reference Data}\\[6pt]
 \rule{\textwidth}{1pt}\\[10pt]
 \au{George Zheng}{jhzheng}\hspace{2.2em}\au{Zixuan Zhao}{zalex467}\hspace{2.2em}\au{Heshan Chen}{heshan}\\[6pt]
 \au{Fei Cheng}{feicheng}\hspace{2.2em}\au{Jamie Liu}{jamiexyl}\\[8pt]
@@ -54,13 +54,11 @@
 \begin{quote}\small
 We test whether a large language model (Claude Opus~5.5, run as a Claude Code subagent with medium reasoning effort) can estimate the cradle-to-gate (A1--A3) embodied carbon of the building enclosure from early-stage design features. Reference values come from the 292 buildings of the harmonized North American WBLCA dataset of Benke et al.~\cite{benke2025}.
 
-With a plain prompt, only 19.5\% of estimates fall within $\pm$20\% of the reference LCA. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. It also underestimates envelope area and misjudges renovations; its largest overestimates trace back to incomplete reference LCAs.
+Our final prompt (v5) has the model build a component take-off, calibrate it by building use, and average it with a benchmark by use and storey count. Following the course instruction, its tables are fitted to the reference data. It places 35.6\% of all buildings within $\pm$20\% of the reference LCA, and 38.5\% after 30 rule-based outliers are removed, without bias and with 5\% run-to-run variation. The same approach applied to the course's whole-building A--C target reaches 53.4\%, against 34--46\% in the course reference results. Both numbers are in-sample; with its benchmark fitted on a development set only (v4), the same structure covers 35.2\% of 88 held-out buildings.
 
-Adding qualitative knowledge and a step-by-step method made the model more consistent but less accurate. Placing externally sourced quantitative anchors at the step where each number is chosen raised coverage to 25.0\%, moved the bias (geometric mean of estimate/reference) from 0.75 to 0.86, and cut run-to-run variation by a third. On 88 held-out buildings the gains point the same way but are not significant. Placing envelope-focused documents in context instead made the estimates worse (bias 0.61): the documents describe current low-carbon products rather than the data the reference LCAs used. Ten early-design inputs are as informative as all 48, and building use shapes enclosure carbon more than climate.
+With a plain prompt only 19.5\% of estimates fall within $\pm$20\%. Error analysis shows that the model compresses all buildings toward a typical value and never considers HFC-blown XPS insulation, which is 15.5\% of enclosure carbon and about half of the systematic underestimate. Qualitative instructions and envelope-focused documents made the estimates worse; sourced numbers at the step where each number is chosen raised coverage to 25.0\%; weighing the take-off against a benchmark by building use raised it to 32.2\%.
 
-The features themselves limit what any estimator can do. One constant for every building covers 27\%, and a machine-learning model trained on the dataset covers 26--34\% in cross-validation. The final prompt, v4, therefore gives equal weight to the model's own take-off and to a benchmark by building use fitted on a development set, and adds literature facts keyed to the features. It covers 32.2\% of all buildings, and 34.7\% after 30 rule-based outliers are removed, with no bias and a run-to-run variation of 5\%. On the 88 held-out buildings it covers 35.2\%. The price is more compression: v4 is better for typical buildings and worse for unusual ones.
-
-Following the course instruction to fit the reference data, a final prompt fitted to the reference values (in-sample) reaches 35.6\% (38.5\% after outlier removal). The same approach applied to the course's whole-building target reaches 53.4\%, against 34--46\% in the course reference results; there the inventory mass, a feature taken from the reference LCA itself, does most of the work.
+The features limit what any estimator can do: one constant covers 27\% of the enclosure values, and a machine-learning model trained on the dataset covers 26--34\% in cross-validation. The whole building is easier because the inventory mass, a feature taken from the reference LCA itself, nearly fixes its result. Ten early-design inputs are as informative as all 48, and building use shapes enclosure carbon more than climate.
 \end{quote}
 
 \section{Introduction}
@@ -78,7 +76,7 @@ We narrow that question to the enclosure and to the product stage (A1--A3), wher
 \begin{itemize}
 \item \emph{Ground truth.} Reported enclosure A1--A3 GWP of 292 real projects replaces modelled assemblies. Only GWP is evaluated, and the unit is per m$^2$ of floor area.
 \item \emph{Climate and use (proposal RQ1).} These are analysed from the data (Section~\ref{sec:data}), not from modelled assemblies.
-\item \emph{Knowledge conditions.} We test the innate baseline, a domain-knowledge condition with envelope-focused documents (Section~\ref{sec:domain}) and three prompt revisions. The ontology condition was not run. To limit cost we used 3 runs (1 for the domain and feature conditions) instead of 10.
+\item \emph{Knowledge conditions.} We test the innate baseline, a domain-knowledge condition with envelope-focused documents (Section~\ref{sec:domain}) and four prompt revisions, the last two using reference data (Sections~\ref{sec:v4} and~\ref{sec:fit}). The ontology condition was not run. To limit cost we used 3 runs (1 for the domain and feature conditions) instead of 10.
 \item \emph{LEED.} The LEED~v5 credit-outcome evaluation was dropped. Hotspot agreement, the proposal's metric for it, is still reported (Section~\ref{sec:hotspot}). The cost, regulation and performance drivers are left out.
 \end{itemize}
 
@@ -402,7 +400,7 @@ v4 was run three times on all 292 buildings with the same chunks as v1--v3 (Tabl
 
 \begin{table*}[t]
 \centering\small
-\caption{Prompt v4 against v1, v3 and one constant (85~\coe, the median of the cleaned development set). Coverage: reference within estimate $\pm$20\%. The last four columns are for all 292 buildings.}
+\caption{Main results: prompts v1, v3, v4 and the final prompt v5 against one constant (85~\coe, the median of the cleaned development set). Coverage: reference within estimate $\pm$20\%. The last four columns are for all 292 buildings. $^\dagger$v5's tables are fitted to the reference values of all cleaned buildings, so all its columns, including the test columns, are in-sample.}
 \label{tab:v4}
 \begin{tabular}{lcccc@{\hskip 14pt}cccc}
 \toprule
@@ -413,7 +411,8 @@ Estimator & All (292) & Test (88) & Cleaned (262) & Cleaned test (81) & Median $
 Constant & 24.3\% & 28.4\% & 27.1\% & 30.9\% & 0.436 & 1.26 & 78.6 & -- \\
 v1 & 19.5\% & 20.5\% & 19.8\% & 21.0\% & 0.456 & 0.75 & 79.7 & 19.0\% \\
 v3 & 25.0\% & 26.1\% & 26.7\% & 27.2\% & 0.426 & 0.86 & 76.0 & 12.5\% \\
-v4 & \textbf{32.2\%} & \textbf{35.2\%} & \textbf{34.7\%} & \textbf{37.0\%} & \textbf{0.370} & \textbf{0.98} & \textbf{73.0} & \textbf{5.3\%} \\
+v4 & 32.2\% & 35.2\% & 34.7\% & 37.0\% & 0.370 & 0.98 & 73.0 & 5.3\% \\
+v5, final (fitted)$^\dagger$ & \textbf{35.6\%} & \textbf{38.6\%} & \textbf{38.5\%} & \textbf{40.7\%} & \textbf{0.320} & 1.07 & \textbf{71.3} & \textbf{5.0\%} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -545,11 +544,15 @@ Random forest, 48 features, CV & 57.2\% \\
 \end{itemize}
 
 \section{Conclusion}
-A frontier LLM can produce enclosure A1--A3 estimates from early-stage features. Its error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning located those blind spots. Sourced quantitative anchors placed at the decision step moved the bias from 0.75 to 0.86, cut variation by a third, and raised coverage to 25\%. Qualitative instructions (v2) and envelope documents in context both made the estimates worse.
+Our final prompt, fitted to the reference data as the course asked, places 35.6\% of the enclosure estimates (38.5\% of the cleaned set) and 53.4\% of the whole-building estimates within $\pm$20\% of the reference LCA. A plain prompt reaches 19.5\% on the enclosure, and the course reference results on the whole building are 34--46\%. These numbers are in-sample. Fitted on a development set only, the same structure (v4) covers 35.2\% of held-out buildings, so most of the gain carries over to unseen buildings.
 
-The features cap what any estimator can reach at roughly 30--35\% coverage. Prompt v4 reaches that cap by giving equal weight to the take-off and to a benchmark by building use: 32.2\% of all buildings, 34.7\% of the cleaned set and 35.2\% of held-out buildings, without bias and with a third of the earlier run-to-run variation. It does so by leaning on the reference class, so it is less able to recognise an unusual building. Fitted to the reference data, as the course asked, the enclosure prompt reaches 35.6\% and the whole-building prompt 53.4\%; these numbers are in-sample and should not be read as generalisation.
-
-Further progress depends on giving the model the assembly information that early-stage feature sets lack.
+Three lessons led there:
+\begin{itemize}
+\item The model's error is structured: compression toward a typical value, and blind spots for specific high-carbon materials. Error analysis of its reasoning locates them.
+\item Sourced numbers at the decision step help. Qualitative instructions and whole documents in context made the estimates worse.
+\item The features cap what any estimator can reach at roughly 30--35\% coverage for the enclosure. Weighing the model's take-off against a benchmark by building use is what reaches that cap; fitting the tables to the data adds a few points more.
+\end{itemize}
+The price is compression: the final prompts are better for typical buildings and worse for unusual ones. Further progress depends on giving the model the assembly information that early-stage feature sets lack.
 
 \begin{thebibliography}{99}\small\sloppy
 \bibitem{benke2025} B.~Benke, M.~Chafart, Y.~Shen, M.~Ashtiani, S.~Carlisle, K.~Simonen. A harmonized dataset of high-resolution embodied life cycle assessment results for buildings in North America. \emph{Scientific Data} 12, 2025. \url{https://doi.org/10.1038/s41597-025-05216-0}
@@ -599,11 +602,11 @@ Reference values are documented with sources, system boundaries and unit convers
 \label{app:v4}
 Benchmarks come from \path{results/benchmarks_dev.json}; the literature facts are documented in \path{references/feature_keyed_facts.md}. For v4 this text is written once per task file, after the glossary.
 \lstinputlisting{prompts/task_v4.txt}
-\subsection{Task text v5 (answer-fitted, in-sample)}
+\subsection{Task text v5 (final prompt; fitted, in-sample)}
 \label{app:v5}
 Tables from \path{results/v5_tables.json}; passages documented in \path{references/answer_guided_passages.md}.
 \lstinputlisting{prompts/task_v5.txt}
-\subsection{Task text wb5 (whole building, answer-fitted, in-sample)}
+\subsection{Task text wb5 (final whole-building prompt; fitted, in-sample)}
 \lstinputlisting{prompts/task_wb5.txt}
 \subsection{Subagent instructions (template)}
 \lstinputlisting{prompts/subagent_instructions.txt}

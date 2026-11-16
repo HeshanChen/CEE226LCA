@@ -1,4 +1,4 @@
-# LLM 能估算建筑外围护结构的隐含碳吗？误差分析、Prompt 设计与证据权重
+# LLM 能估算建筑外围护结构的隐含碳吗？误差分析、Prompt 设计与数据拟合
 
 CEE226 第 8 组：George Zheng（jhzheng@stanford.edu）、Zixuan Zhao（zalex467@stanford.edu）、Heshan Chen（heshan@stanford.edu）、Fei Cheng（feicheng@stanford.edu）、Jamie Liu（jamiexyl@stanford.edu）。
 本文是 CEE226 第 8 组的课程项目。原题为 *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*，其中 LEED 部分已取消。
@@ -9,6 +9,13 @@ CEE226 第 8 组：George Zheng（jhzheng@stanford.edu）、Zixuan Zhao（zalex4
 > 报告中的所有数字都可以用附录 B 的命令重新生成。
 
 ## 1. 摘要
+
+**最终结果（交付物）。** 最终 prompt v5 让模型先做构件清单估算，按建筑用途校准，再与按"用途 × 层数"的基准值取平均。按课程要求，这些表格用参考数据拟合。
+
+- **围护结构 A1–A3：** 全部 292 栋中 **35.6%** 落在参考 LCA 的 ±20% 以内；按规则剔除 30 栋 outlier 后为 **38.5%**；没有偏差，轮次间波动 5%。
+- **整楼 A–C**（课程原题）：同样方法命中 **53.4%**，课程参考结果为 34–46%。
+- 两者都是**样本内**结果。只用 dev 集拟合基准的同一结构（v4）在 88 栋测试集上命中 35.2%。
+- 最终 prompt 全文：[`final_prompt.md`](final_prompt.md)（附录 A 也有）。
 
 本研究使用的 LLM 是 Claude Opus 5.5，以 Claude Code subagent 的方式运行，reasoning effort 设为 medium。研究对象是 CLF 统一化 WBLCA 数据集中的 292 栋建筑，模型拿到每栋楼的 48 个早期设计 feature，估算**建筑外围护结构（enclosure）在摇篮到大门阶段（A1–A3）的隐含碳**，单位为每 m² 楼面面积的 kgCO2e。
 

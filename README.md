@@ -6,6 +6,25 @@ This repo tests how well an LLM can estimate the **embodied carbon of the buildi
 
 It started from the course reference code, [eunicehjung/CEE226-BuildingLCA-LLM](https://github.com/eunicehjung/CEE226-BuildingLCA-LLM). That code covers the whole building over stages A–C. This repo narrows the scope as described below.
 
+## Final deliverables
+
+| Deliverable | File |
+|---|---|
+| **Final prompt** (v5, enclosure A1–A3; plus wb5, whole building A–C) | [`report/final_prompt.md`](report/final_prompt.md) |
+| Paper (ICML-style, all prompts in the appendix) | [`report/latex/main.pdf`](report/latex/main.pdf) |
+| Reports | [`report/report.md`](report/report.md) (English), [`report/report_zh.md`](report/report_zh.md) / [`report/report_zh.pdf`](report/report_zh.pdf) (中文) |
+| Poster | [`report/poster/poster.pptx`](report/poster/poster.pptx) / [`poster.pdf`](report/poster/poster.pdf) |
+| Weekly updates | [`report/weekly/`](report/weekly/) |
+
+**Final result.** Share of the 292 buildings whose reference LCA lies within ±20% of the estimate (Claude Opus 5.5, medium effort, mean of 3 runs):
+
+| Target | Final prompt | Coverage |
+|---|---|---|
+| Enclosure A1–A3 | v5 | **35.6%** (38.5% after removing 30 rule-based outliers) |
+| Whole building A–C (course target) | wb5 (1 run) | **53.4%** (course reference results: 34–46%) |
+
+Following the course instruction, both final prompts are fitted to the reference data, so these numbers are in-sample. With its benchmark fitted on a development set only, the same structure (v4) covers 35.2% of 88 held-out buildings.
+
 ## Scope
 
 | | Course reference | This project |

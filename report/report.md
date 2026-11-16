@@ -1,4 +1,4 @@
-# Can an LLM Estimate the Embodied Carbon of a Building Enclosure? Error Analysis and Prompt Design
+# Can an LLM Estimate the Embodied Carbon of a Building Enclosure? Error Analysis, Prompt Design and Fitting to Reference Data
 
 CEE226 Group 8: George Zheng, Zixuan Zhao, Heshan Chen, Fei Cheng, Jamie Liu.
 A CEE226 Group 8 course project. Its original title was *Climate- and Use-Specific Embodied Impacts of Exterior Wall Design: A Comparative LCA and Implications for LEED v5 Embodied Carbon Credits*; the LEED part was dropped.
@@ -9,6 +9,13 @@ A CEE226 Group 8 course project. Its original title was *Climate- and Use-Specif
 > Every number in this report can be regenerated with the commands in Appendix B.
 
 ## 1. Summary
+
+**Final result (the deliverable).** The final prompt, v5, has the model build a component take-off, calibrate it by building use, and average it with a benchmark by use and storey count. Following the course instruction, its tables are fitted to the reference data.
+
+- **Enclosure A1–A3:** **35.6%** of all 292 buildings fall within ±20% of the reference LCA, and **38.5%** after 30 rule-based outliers are removed; no bias, run-to-run variation 5%.
+- **Whole building A–C** (the course's original target): the same approach reaches **53.4%**, against 34–46% in the course reference results.
+- Both numbers are **in-sample**. With its benchmark fitted on a development set only, the same structure (v4) covers 35.2% of 88 held-out buildings.
+- Full text of the final prompt: [`final_prompt.md`](final_prompt.md) (also Appendix A).
 
 The LLM in this study is Claude Opus 5.5, run as a Claude Code subagent with medium reasoning effort. Given the 48 early-stage features of each of the 292 buildings in the CLF harmonized WBLCA dataset, it estimated the **cradle-to-gate (A1–A3) embodied carbon of the building enclosure**, in kgCO2e per m² of floor area.
 
