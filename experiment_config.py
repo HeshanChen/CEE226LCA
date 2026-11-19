@@ -21,12 +21,12 @@ GLOSSARY_PATH = REF / "data_glossary_LLM.xlsx"
 # --------------------------------------------------------------------------------------
 # Condition - edit here
 # --------------------------------------------------------------------------------------
-PROMPT_VERSION = "v5"         # "v1" baseline, "v2" error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted enclosure, "wb5"/"wb6" answer-fitted whole building (A-C)
-CONDITION = "prompt-v5"       # label written to the ontology_mode column of the runs CSVs
+PROMPT_VERSION = "wb1"        # "v1" baseline, "v2" error analysis, "v3" sourced intensities, "v4" weighted evidence, "v5" answer-fitted enclosure, "wb5"/"wb6" answer-fitted whole building (A-C), "wb1" whole building, model alone
+CONDITION = "wholebuilding-wb1"   # label written to the ontology_mode column of the runs CSVs
 
 # v4 only: write the task text once per task file (shared context) instead of repeating it under every
 # building. The text each building gets is the same; the task files shrink from about 130k to 20k tokens.
-TASK_TEXT_ONCE = PROMPT_VERSION in ("v4", "v5", "wb5", "wb6")
+TASK_TEXT_ONCE = PROMPT_VERSION in ("v4", "v5", "wb5", "wb6", "wb1")
 
 INCLUDE_PAPERS = False        # background papers (text extracted from the PDFs)
 PAPER_PATHS = [REF / f"{i}.pdf" for i in range(1, 5)]
@@ -450,13 +450,27 @@ MASS_ROUTE_kgCO2e_per_m2: <M>
 RANGE_kgCO2e_per_m2: <low> - <high>
 (plain numbers only, no units or other text on these lines)"""
 
+
+# wb1: whole building A-C, the model alone ("innate"): the same target and scope sentence as wb5/wb6, but no
+# mass route, no benchmark and no typical range. Same idea as the course's innate prompt; numeric examples are
+# left out of the instructions so that nothing anchors the estimate.
+TASK_TEXT_WB1 = """\
+Scope. Estimate the whole-building embodied carbon of the building below as its reference whole-building LCA reports it: life cycle stages A to C, for the element groups listed in lca_phys_scope (B substructure, S superstructure, E enclosure, C interior construction, F finishes), in kgCO2e per m2 of floor area.
+
+Provide a plausible range (a range, not a single value), using your own knowledge. For floor area, use bldg_cfa. If bldg_cfa is not provided, use bldg_renovated_gfa + bldg_added_gfa. Briefly state your method and key assumptions.
+
+End your answer with exactly one final line in this format and nothing after it:
+RANGE_kgCO2e_per_m2: <low> - <high>
+(plain numbers only, no units or other text on that line)"""
+
 TASK_TEXTS = {"v1": TASK_TEXT_V1, "v2": TASK_TEXT_V2,
               "v3": TASK_TEXT_V3.format(intensities=V3_INTENSITIES),
               "v4": TASK_TEXT_V4.format(intensities=V3_INTENSITIES, benchmarks=V4_BENCHMARKS),
               "v5": TASK_TEXT_V5.format(intensities=V3_INTENSITIES, k_table=V5_K_TABLE, b_table=V5_B_TABLE,
                                         k_passages=V5_PASSAGES_K, b_passages=V5_PASSAGES_B),
               "wb5": TASK_TEXT_WB5.format(wb_b_table=WB5_B_TABLE),
-              "wb6": TASK_TEXT_WB6.format(ranges=WB6_RANGES, f_table=WB6_F_TABLE, k_table=WB6_K_TABLE)}
+              "wb6": TASK_TEXT_WB6.format(ranges=WB6_RANGES, f_table=WB6_F_TABLE, k_table=WB6_K_TABLE),
+              "wb1": TASK_TEXT_WB1}
 TASK_TEXT = TASK_TEXTS[PROMPT_VERSION]
 
 # Instructions given to each Claude Code subagent (the "LLM under test"). {placeholders} are
@@ -467,7 +481,8 @@ ANSWER_LENGTH = {"v1": "briefly state your method and key assumptions (roughly 6
                  "v4": "work through Steps A, B and C with the key numbers (roughly 120-250 words)",
                  "v5": "work through Steps A, B and C with the key numbers (roughly 120-250 words)",
                  "wb5": "work through Steps A, M, B and C with the key numbers (roughly 100-200 words)",
-                 "wb6": "work through Steps R, A, M and C with the key numbers (roughly 100-200 words)"}[PROMPT_VERSION]
+                 "wb6": "work through Steps R, A, M and C with the key numbers (roughly 100-200 words)",
+                 "wb1": "briefly state your method and key assumptions (roughly 60-150 words)"}[PROMPT_VERSION]
 FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "v2": "the two final lines `BEST_kgCO2e_per_m2: <value>` and "
                      "`RANGE_kgCO2e_per_m2: <low> - <high>`",
@@ -479,7 +494,8 @@ FINAL_LINES = {"v1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "wb5": "the four final lines `BOTTOM_UP_kgCO2e_per_m2: <A>`, `MASS_ROUTE_kgCO2e_per_m2: <M>`, "
                       "`BENCHMARK_kgCO2e_per_m2: <B>` and `RANGE_kgCO2e_per_m2: <low> - <high>`",
                "wb6": "the three final lines `BOTTOM_UP_kgCO2e_per_m2: <A>`, `MASS_ROUTE_kgCO2e_per_m2: <M>` and "
-                      "`RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
+                      "`RANGE_kgCO2e_per_m2: <low> - <high>`",
+               "wb1": "the final line `RANGE_kgCO2e_per_m2: <low> - <high>`"}[PROMPT_VERSION]
 CONTEXT_DESC = ("a glossary of the feature names and four reference documents on enclosure embodied carbon"
                 if INCLUDE_ENVELOPE_DOCS else
                 "a glossary of the feature names and the task, which is the question asked for every building"
@@ -519,7 +535,8 @@ EXAMPLE_FINAL = {"v1": "RANGE_kgCO2e_per_m2: 40 - 75",
                        "RANGE_kgCO2e_per_m2: 66 - 100",
                  "wb5": "BOTTOM_UP_kgCO2e_per_m2: 420\nMASS_ROUTE_kgCO2e_per_m2: 470\nBENCHMARK_kgCO2e_per_m2: 456\n"
                         "RANGE_kgCO2e_per_m2: 362 - 543",
-                 "wb6": "BOTTOM_UP_kgCO2e_per_m2: 430\nMASS_ROUTE_kgCO2e_per_m2: 512\nRANGE_kgCO2e_per_m2: 403 - 605"}[PROMPT_VERSION]
+                 "wb6": "BOTTOM_UP_kgCO2e_per_m2: 430\nMASS_ROUTE_kgCO2e_per_m2: 512\nRANGE_kgCO2e_per_m2: 403 - 605",
+                 "wb1": "RANGE_kgCO2e_per_m2: <low> - <high>"}[PROMPT_VERSION]
 
 
 # --------------------------------------------------------------------------------------
