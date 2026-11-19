@@ -15,6 +15,7 @@ It started from the course reference code, [eunicehjung/CEE226-BuildingLCA-LLM](
 | Reports | [`report/report.md`](report/report.md) / [`report/report.pdf`](report/report.pdf) (English), [`report/report_zh.md`](report/report_zh.md) / [`report/report_zh.pdf`](report/report_zh.pdf) (中文) |
 | Poster | [`report/poster/poster.pptx`](report/poster/poster.pptx) / [`poster.pdf`](report/poster/poster.pdf) |
 | Weekly updates | [`report/weekly/`](report/weekly/) |
+| Talk (3 slides, 4–5 min; English and Chinese script in the speaker notes) | [`report/talk/talk.pptx`](report/talk/talk.pptx) / [`talk.pdf`](report/talk/talk.pdf) / [`script.md`](report/talk/script.md) |
 
 **Final result.** Share of the 292 buildings whose reference LCA lies within ±20% of the estimate (Claude Opus 5.5, medium effort, mean of 3 runs):
 
