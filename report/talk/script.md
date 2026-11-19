@@ -24,23 +24,23 @@ So we changed the prompt step by step. More qualitative instructions made it wor
 
 所以我们一步步改 prompt。加更多定性的指导反而更差；在模型选数字的那一步直接给出有出处的构件数值，提高到 25%；把模型自己的估算和同用途建筑的中位数，也就是 benchmark，各占一半，提高到 32%；最后按课程要求，用参考数据拟合表格，到 35.6%。
 
-## Slide 2 (about 1:20)
+## Slide 2 (about 1:30)
 
 ### English
 
-The course reference results are for the whole building, stages A to C, so we applied the same idea to that target. The prompt builds three estimates. First, the model's own estimate, element by element: 20 percent of the weight. Second, a mass route: the total material mass per square metre of floor times a carbon factor per kilogram, about 0.37 for concrete structures and 0.49 for steel: 50 percent. Third, a benchmark by use and structural material: 30 percent.
+The course reference results are for the whole building, stages A to C, so we ran two versions on that target. In the first, the model does everything itself: it estimates each element group from the 48 features with its own knowledge. That alone puts 44.5 percent of buildings within plus or minus 20 percent, already at the level of the course's best result.
 
-The whole building is easier than the envelope. Its values are less spread out, and the material mass nearly fixes the result. One caveat: that mass comes from the reference LCA itself, so it would not be known at early design, and the tables were fitted to the data.
+In the second, the model's estimate is combined with two more lines: a mass route, the total material mass per square metre of floor times a carbon factor per kilogram, about 0.37 for concrete and 0.49 for steel structures, weighted 50 percent; and a benchmark by use and structural material, 30 percent. The model's own estimate keeps 20 percent. That reaches 53.4 percent.
 
-In the figure, each row is a building, sorted by its reference value; green means a hit. The model's own estimate alone gets 44.5 percent. The three combined get 53.4.
+The whole building is easier than the envelope: its values are less spread out, and the material mass nearly fixes the result. One caveat: that mass comes from the reference LCA itself, so it would not be known at early design, and the tables were fitted to the data. In the figure, each row is a building sorted by its reference value; green is a hit.
 
-### 中文（约 1 分 20 秒）
+### 中文（约 1 分 30 秒）
 
-课程的参考结果针对的是整楼 A 到 C 阶段，所以我们把同样的思路用到这个目标上。Prompt 让模型做三个估算：第一，模型自己按构件逐项估，占 20%；第二，质量估算：每平米楼面的材料总质量，乘以每公斤的碳排系数，混凝土结构大约 0.37，钢结构 0.49，占 50%；第三，按用途和结构材料的 benchmark，占 30%。
+课程的参考结果针对的是整楼 A 到 C 阶段，所以我们在这个目标上做了两个版本。第一个版本完全由模型自己来：它根据 48 个特征，凭自己的知识逐个构件组估算。光这样就有 44.5% 的楼落在正负 20% 以内，已经达到课程最好结果的水平。
 
-整楼比围护容易：数值没那么分散，而且材料质量基本决定了结果。需要说明的是，这个质量来自参考 LCA 本身，早期设计时其实拿不到，而且表格是用数据拟合的。
+第二个版本在模型估算之外再加两条线：一是质量估算，每平米楼面的材料总质量乘以每公斤的碳排系数，混凝土结构大约 0.37，钢结构 0.49，占 50%；二是按用途和结构材料的 benchmark，占 30%；模型自己的估算保留 20%。这样达到 53.4%。
 
-图里每一行是一栋楼，按参考值从低到高排，绿色表示命中。只用模型自己的估算是 44.5%，三个合起来是 53.4%。
+整楼比围护容易：数值没那么分散，而且材料质量基本决定了结果。需要说明的是，这个质量来自参考 LCA 本身，早期设计时其实拿不到，而且表格是用数据拟合的。图里每一行是一栋楼，按参考值从低到高排，绿色表示命中。
 
 ## Slide 3 (about 1:30)
 
@@ -48,7 +48,7 @@ In the figure, each row is a building, sorted by its reference value; green mean
 
 To sum up. On the envelope, coverage rose from 19.5 percent with the plain prompt to 32.2 with weighted evidence and 35.6 with the fitted prompt, 38.5 without the 30 outliers. For scale: one constant for every building covers 27 percent, and a machine-learning model trained on this dataset reaches only 26 to 34 percent on unseen buildings. So the features cap the envelope at about a third, and our prompt reaches that cap. On 88 held-out buildings, the version whose benchmark never saw them covers 35.2 percent, so the gain carries over.
 
-On the whole building, we reach 53.4 percent, against 34 to 46 percent in the course reference results.
+On the whole building, the model alone reaches 44.5 percent and the combined prompt 53.4, against 34 to 46 percent in the course reference results.
 
 Three lessons. One: the model's errors are structured, so reading its reasoning tells you which fix to make. Two: give numbers at the step where the model chooses them; general advice and long documents did not help. Three: to go further on the envelope, the model needs what the features lack, the wall and insulation assembly. Thank you.
 
@@ -56,6 +56,6 @@ Three lessons. One: the model's errors are structured, so reading its reasoning 
 
 总结一下。围护结构上，命中率从最简单 prompt 的 19.5%，到加权证据的 32.2%，再到拟合后的 35.6%；去掉 30 个 outlier 是 38.5%。做个参照：所有楼都猜同一个数能命中 27%；用这个数据集训练的机器学习模型，在没见过的楼上也只有 26% 到 34%。所以这些特征本身就把围护的上限卡在三分之一左右，我们的 prompt 达到了这个上限。在 88 栋留出的测试楼上，benchmark 从没见过这些楼的版本命中 35.2%，说明提升能迁移到新楼上。
 
-整楼上我们达到 53.4%，课程参考结果是 34% 到 46%。
+整楼上，模型单独做是 44.5%，组合后是 53.4%，课程参考结果是 34% 到 46%。
 
 三点体会：第一，模型的错误是有规律的，读它的推理过程就知道该改哪里；第二，在模型选数字的那一步直接给数字，泛泛的指导和长篇文献没有用；第三，围护要再往上走，模型需要特征里没有的信息，也就是墙体和保温的构造。谢谢大家。

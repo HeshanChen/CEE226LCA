@@ -85,14 +85,14 @@ Before scoring, we set aside 30 buildings whose reference data cannot be estimat
 With a plain prompt, only 19.5 percent were hits. The figure shows why: the model pulls every building toward a typical value, so light envelopes are overestimated and heavy ones underestimated three to four times. It also never considered HFC-blown XPS insulation, which alone is 15 percent of enclosure carbon.
 
 So we changed the prompt step by step. More qualitative instructions made it worse. Giving sourced component numbers at the step where the model picks them raised it to 25 percent. Weighing the model's own take-off equally against a benchmark, the median of similar buildings by use, raised it to 32. Finally, as the course asked, we fitted the tables to the reference data: 35.6 percent.`,
-  `The course reference results are for the whole building, stages A to C, so we applied the same idea to that target. The prompt builds three estimates. First, the model's own estimate, element by element: 20 percent of the weight. Second, a mass route: the total material mass per square metre of floor times a carbon factor per kilogram, about 0.37 for concrete structures and 0.49 for steel: 50 percent. Third, a benchmark by use and structural material: 30 percent.
+  `The course reference results are for the whole building, stages A to C, so we ran two versions on that target. In the first, the model does everything itself: it estimates each element group from the 48 features with its own knowledge. That alone puts 44.5 percent of buildings within plus or minus 20 percent, already at the level of the course's best result.
 
-The whole building is easier than the envelope. Its values are less spread out, and the material mass nearly fixes the result. One caveat: that mass comes from the reference LCA itself, so it would not be known at early design, and the tables were fitted to the data.
+In the second, the model's estimate is combined with two more lines: a mass route, the total material mass per square metre of floor times a carbon factor per kilogram, about 0.37 for concrete and 0.49 for steel structures, weighted 50 percent; and a benchmark by use and structural material, 30 percent. The model's own estimate keeps 20 percent. That reaches 53.4 percent.
 
-In the figure, each row is a building, sorted by its reference value; green means a hit. The model's own estimate alone gets 44.5 percent. The three combined get 53.4.`,
+The whole building is easier than the envelope: its values are less spread out, and the material mass nearly fixes the result. One caveat: that mass comes from the reference LCA itself, so it would not be known at early design, and the tables were fitted to the data. In the figure, each row is a building sorted by its reference value; green is a hit.`,
   `To sum up. On the envelope, coverage rose from 19.5 percent with the plain prompt to 32.2 with weighted evidence and 35.6 with the fitted prompt, 38.5 without the 30 outliers. For scale: one constant for every building covers 27 percent, and a machine-learning model trained on this dataset reaches only 26 to 34 percent on unseen buildings. So the features cap the envelope at about a third, and our prompt reaches that cap. On 88 held-out buildings, the version whose benchmark never saw them covers 35.2 percent, so the gain carries over.
 
-On the whole building, we reach 53.4 percent, against 34 to 46 percent in the course reference results.
+On the whole building, the model alone reaches 44.5 percent and the combined prompt 53.4, against 34 to 46 percent in the course reference results.
 
 Three lessons. One: the model's errors are structured, so reading its reasoning tells you which fix to make. Two: give numbers at the step where the model chooses them; general advice and long documents did not help. Three: to go further on the envelope, the model needs what the features lack, the wall and insulation assembly. Thank you.`];
 const ZH = [
@@ -103,18 +103,18 @@ const ZH = [
 用最简单的 prompt，只有 19.5% 命中。图上能看到原因：模型把所有楼都往一个典型值拉，轻的围护被高估，重的被低估三到四倍。它还完全没考虑 HFC 发泡的 XPS 保温，而光这一种材料就占围护碳排的 15%。
 
 所以我们一步步改 prompt。加更多定性的指导反而更差；在模型选数字的那一步直接给出有出处的构件数值，提高到 25%；把模型自己的估算和同用途建筑的中位数，也就是 benchmark，各占一半，提高到 32%；最后按课程要求，用参考数据拟合表格，到 35.6%。`,
-  `课程的参考结果针对的是整楼 A 到 C 阶段，所以我们把同样的思路用到这个目标上。Prompt 让模型做三个估算：第一，模型自己按构件逐项估，占 20%；第二，质量估算：每平米楼面的材料总质量，乘以每公斤的碳排系数，混凝土结构大约 0.37，钢结构 0.49，占 50%；第三，按用途和结构材料的 benchmark，占 30%。
+  `课程的参考结果针对的是整楼 A 到 C 阶段，所以我们在这个目标上做了两个版本。第一个版本完全由模型自己来：它根据 48 个特征，凭自己的知识逐个构件组估算。光这样就有 44.5% 的楼落在正负 20% 以内，已经达到课程最好结果的水平。
 
-整楼比围护容易：数值没那么分散，而且材料质量基本决定了结果。需要说明的是，这个质量来自参考 LCA 本身，早期设计时其实拿不到，而且表格是用数据拟合的。
+第二个版本在模型估算之外再加两条线：一是质量估算，每平米楼面的材料总质量乘以每公斤的碳排系数，混凝土结构大约 0.37，钢结构 0.49，占 50%；二是按用途和结构材料的 benchmark，占 30%；模型自己的估算保留 20%。这样达到 53.4%。
 
-图里每一行是一栋楼，按参考值从低到高排，绿色表示命中。只用模型自己的估算是 44.5%，三个合起来是 53.4%。`,
+整楼比围护容易：数值没那么分散，而且材料质量基本决定了结果。需要说明的是，这个质量来自参考 LCA 本身，早期设计时其实拿不到，而且表格是用数据拟合的。图里每一行是一栋楼，按参考值从低到高排，绿色表示命中。`,
   `总结一下。围护结构上，命中率从最简单 prompt 的 19.5%，到加权证据的 32.2%，再到拟合后的 35.6%；去掉 30 个 outlier 是 38.5%。做个参照：所有楼都猜同一个数能命中 27%；用这个数据集训练的机器学习模型，在没见过的楼上也只有 26% 到 34%。所以这些特征本身就把围护的上限卡在三分之一左右，我们的 prompt 达到了这个上限。在 88 栋留出的测试楼上，benchmark 从没见过这些楼的版本命中 35.2%，说明提升能迁移到新楼上。
 
-整楼上我们达到 53.4%，课程参考结果是 34% 到 46%。
+整楼上，模型单独做是 44.5%，组合后是 53.4%，课程参考结果是 34% 到 46%。
 
 三点体会：第一，模型的错误是有规律的，读它的推理过程就知道该改哪里；第二，在模型选数字的那一步直接给数字，泛泛的指导和长篇文献没有用；第三，围护要再往上走，模型需要特征里没有的信息，也就是墙体和保温的构造。谢谢大家。`];
-const TIME = ["1:45", "1:20", "1:30"];
-const TIME_ZH = ["约 1 分 45 秒", "约 1 分 20 秒", "约 1 分 30 秒"];
+const TIME = ["1:45", "1:30", "1:30"];
+const TIME_ZH = ["约 1 分 45 秒", "约 1 分 30 秒", "约 1 分 30 秒"];
 function notes(s, i) {
   s.addNotes(`EN (about ${TIME[i]})\n\n${EN[i]}\n\n中文（${TIME_ZH[i]}）\n\n${ZH[i]}`);
 }
@@ -163,27 +163,25 @@ s = pres.addSlide({ masterName: "CONTENT" });
 s.addText("Whole building: the material mass carries the estimate", { placeholder: "title" });
 s.addText("2 · Whole building (A–C)", { placeholder: "tag" });
 const L2 = 6.3;
-h3(s, "Same idea on the course's target (stages A–C)", { x: M, y: TOP, w: L2, h: 0.4 });
-const ev = [["20%", "Model's own estimate", "element by element, from use, structure, size and region"],
-  ["50%", "Mass route", "mass_total / floor area × carbon per kg (concrete 0.37, steel 0.49, wood 0.47 kgCO₂e/kg)"],
-  ["30%", "Benchmark", "median of similar buildings by use × structural material"]];
-ev.forEach(([w, head, body], i) => {
-  const y = TOP + 0.52 + i * 0.95;
-  s.addShape(pres.shapes.RECTANGLE, { x: M, y, w: L2, h: 0.85, fill: { color: i === 1 ? C.background2 : C.background1 },
-    line: { color: "E3DFDA", width: 0.75 }, objectName: "evidence " + head });
-  s.addText(w, { x: M + 0.15, y, w: 1.1, h: 0.85, fontFace: THEME.headFontFace, fontSize: 26, bold: true, color: C.accent1,
-    align: "left", valign: "middle", margin: 0, isTextBox: true });
+h3(s, "Two versions on the course's target (stages A–C)", { x: M, y: TOP, w: L2, h: 0.4 });
+const ver = [["44.5%", "1 · Model alone", "The LLM estimates each element group from the 48 features with its own knowledge, no tables.", false],
+  ["53.4%", "2 · Model + mass route + benchmark", "Own estimate 20% · mass route 50%: mass_total / floor area × carbon per kg (concrete 0.37, steel 0.49) · benchmark by use × structure 30%.", true]];
+ver.forEach(([num, head, body, hi], i) => {
+  const y = TOP + 0.52 + i * 1.42, h = 1.3;
+  s.addShape(pres.shapes.RECTANGLE, { x: M, y, w: L2, h, fill: { color: hi ? C.background2 : C.background1 },
+    line: { color: "E3DFDA", width: 0.75 }, objectName: "version " + (i + 1) });
+  s.addText(num, { x: M + 0.15, y, w: 1.55, h, fontFace: THEME.headFontFace, fontSize: 30, bold: true,
+    color: hi ? C.accent1 : C.text1, align: "left", valign: "middle", margin: 0, isTextBox: true });
   s.addText([{ text: head, options: { fontSize: 15, bold: true, color: C.text1, breakLine: true } },
-    { text: body, options: { fontSize: 13, color: C.text2 } }], { x: M + 1.3, y: y + 0.06, w: L2 - 1.45, h: 0.78, margin: 0,
+    { text: body, options: { fontSize: 12.5, color: C.text2 } }], { x: M + 1.75, y: y + 0.08, w: L2 - 1.9, h: h - 0.16, margin: 0,
     valign: "middle", isTextBox: true });
 });
-h3(s, "Why it is easier than the envelope", { x: M, y: 4.85, w: L2, h: 0.4 });
-bullets(s, ["Values are less spread out (log standard deviation 0.66 vs 0.98).",
-  "The material mass nearly fixes the result.",
-  "**Caveat:** mass_total comes from the reference LCA itself, so it is not known at early design; tables fitted to the data."],
-  { x: M, y: 5.35, w: L2, h: 1.45 }, { fs: 14, gap: 4 });
+h3(s, "Why the whole building is easier than the envelope", { x: M, y: 4.85, w: L2, h: 0.4 });
+bullets(s, ["Values are less spread out, and the material mass nearly fixes the result.",
+  "**Caveat:** mass_total comes from the reference LCA itself, so it is not known at early design; version 2's tables are fitted to the data."],
+  { x: M, y: 5.35, w: L2, h: 1.45 }, { fs: 14, gap: 5 });
 image(s, "fig_bands_wholebuilding.png", { x: M + L2 + 0.35, y: TOP, w: W - 2 * M - L2 - 0.35, h: BOT - TOP },
-  "Band figure, whole building: the model's own estimate alone covers 44.5 percent, the three sources combined 53.4 percent");
+  "Band figure, whole building: the model alone covers 44.5 percent, the model plus mass route and benchmark 53.4 percent");
 notes(s, 1);
 
 // ---- slide 3: results ---------------------------------------------------------------------------
@@ -196,9 +194,10 @@ s.addChart(pres.charts.BAR, [
   { name: "One constant for every building", labels: ["Constant", "v1", "v2", "v3", "v4", "v5 fitted"], values: [27.1, null, null, null, null, null] }],
   { x: M, y: TOP, w: CW, h: 3.35, barDir: "col", chartColors: [HEX.accent1, "8F8C87"],
     ...chartOpts("Envelope A1–A3: share within ±20%", 40), objectName: "envelope chart" });
+const WBL = ["Course: innate", "Course: papers", "Course: papers + ontology", "Ours: model alone", "Ours: + mass + benchmark"];
 s.addChart(pres.charts.BAR, [
-  { name: "Ours (Claude Opus 5.5)", labels: ["Course: innate", "Course: papers", "Course: papers + ontology", "Ours"], values: [null, null, null, 53.4] },
-  { name: "Course reference (Gemini, 10 runs)", labels: ["Course: innate", "Course: papers", "Course: papers + ontology", "Ours"], values: [34.2, 45.2, 45.9, null] }],
+  { name: "Ours (Claude Opus 5.5)", labels: WBL, values: [null, null, null, 44.5, 53.4] },
+  { name: "Course reference (Gemini, 10 runs)", labels: WBL, values: [34.2, 45.2, 45.9, null, null] }],
   { x: M + CW + 0.4, y: TOP, w: CW, h: 3.35, barDir: "col", chartColors: [HEX.accent1, "8F8C87"],
     ...chartOpts("Whole building A–C: share within ±20%", 60), objectName: "whole building chart" });
 s.addText(runs("All 292 buildings. Cleaned set (without the 30 outliers): v5 **38.5%**. Held-out: v4, whose benchmark never saw them, covers **35.2%** of 88 unseen buildings. " +
